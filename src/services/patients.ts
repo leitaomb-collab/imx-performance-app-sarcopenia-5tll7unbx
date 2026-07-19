@@ -37,3 +37,7 @@ export const updatePatient = async (id: string, data: Partial<Patient>): Promise
 export const deletePatient = async (id: string): Promise<boolean> => {
   return pb.collection('patients').delete(id)
 }
+
+export const getAllPatients = async (): Promise<Patient[]> => {
+  return pb.collection('patients').getFullList({ sort: '-created' }) as Promise<Patient[]>
+}
