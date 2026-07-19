@@ -1,144 +1,152 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getAvaliacao } from '@/services/avaliacoes'
-import { askAnalyst } from '@/services/ai'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
-import { Printer, Brain, ArrowLeft } from 'lucide-react'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  ArrowLeft,
+  Printer,
+  FileDown,
+  Pencil,
+  AlertCircle,
+  FileX,
+  AlertTriangle,
+} from 'lucide-react'
+import { ReportHeader } from '@/components/report/ReportHeader'
+import { ReportSectionsA } from '@/components/report/ReportSectionsA'
+import { ReportSectionsB } from '@/components/report/ReportSectionsB'
+import { ReportSkeleton } from '@/components/report/ReportSkeleton'
+import { formatDateExtendedBR } from '@/lib/report-utils'
+import type { Patient, User } from '@/types'
 
 export default function Report() {
   const { id } = useParams()
-  const [avaliacao, setAvaliacao] = useState<any>(null)
-  const [insight, setInsight] = useState('')
-  const [loadingAi, setLoadingAi] = useState(false)
+  const [data, setData] = useState<Record<string, any> | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [notFound, setNotFound] = useState(false)
 
-  useEffect(() => {
-    if (id) {
-      getAvaliacao(id).then(setAvaliacao)
+  const loadData = useCallback(async () => {
+    if (!id) return
+    setLoading(true)
+    setError(false)
+    setNotFound(false)
+    try {
+      const record = await pb
+        .collection('assessments')
+        .getOne(id, { expand: 'patientId,evaluatorId' })
+      setData(record as Record<string, any>)
+    } catch (err: any) {
+      if (err?.status === 404) setNotFound(true)
+      else setError(true)
+    } finally {
+      setLoading(false)
     }
   }, [id])
 
-  const generateInsight = async () => {
-    setLoadingAi(true)
-    try {
-      const msg = `Analise detalhadamente a avaliação do tipo "${avaliacao.tipo}" do paciente ${avaliacao.expand?.paciente?.name}. As métricas foram: Força=${avaliacao.metrics?.force || 0}, Altura=${avaliacao.metrics?.height || 0}. Observações: ${avaliacao.observacoes}. Gere insights e sugestões de treinamento.`
-      const res = await askAnalyst(msg)
-      setInsight(res.content)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoadingAi(false)
-    }
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="h-12 mb-4" />
+        <ReportSkeleton />
+      </div>
+    )
   }
 
-  if (!avaliacao) return null
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6 print:m-0 print:space-y-4 print:max-w-full">
-      <div className="flex justify-between items-center print:hidden">
-        <Button variant="ghost" asChild>
-          <Link to={`/avaliacao/${id}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-          </Link>
-        </Button>
-        <Button onClick={() => window.print()}>
-          <Printer className="mr-2 h-4 w-4" /> Imprimir Relatório
+  if (notFound) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <FileX className="h-12 w-12 text-muted-foreground" />
+        <p className="text-lg font-semibold">Avaliação não encontrada</p>
+        <Button asChild>
+          <Link to="/dashboard">Voltar ao Dashboard</Link>
         </Button>
       </div>
+    )
+  }
 
-      <div className="bg-card border rounded-lg overflow-hidden shadow-sm">
-        {/* Report Header */}
-        <div className="bg-primary text-primary-foreground p-8 flex justify-between items-center">
+  if (error || !data) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Erro</AlertTitle>
+          <AlertDescription>Não foi possível carregar o relatório.</AlertDescription>
+        </Alert>
+        <Button onClick={loadData}>Tentar novamente</Button>
+      </div>
+    )
+  }
+
+  const patient = data.expand?.patientId as Patient | null
+  const evaluator = data.expand?.evaluatorId as User | null
+  const isDraft = data.status === 'rascunho'
+
+  if (!patient) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <AlertCircle className="h-12 w-12 text-muted-foreground" />
+        <p className="text-lg font-semibold">Dados do paciente não encontrados</p>
+        <Button asChild>
+          <Link to="/dashboard">Voltar ao Dashboard</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="report-action-bar sticky top-0 z-30 bg-background/95 backdrop-blur border-b -mx-4 px-4 py-3 md:-mx-6 md:px-6 mb-6 flex flex-wrap items-center justify-between gap-3">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to={`/avaliacao/${id}`}>
+            <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
+          </Link>
+        </Button>
+        <div className="flex items-center gap-2">
+          {isDraft && (
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/avaliacao/${id}`}>
+                <Pencil className="h-4 w-4 mr-1" /> Editar
+              </Link>
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => window.print()} disabled={isDraft}>
+            <FileDown className="h-4 w-4 mr-1" /> Baixar PDF
+          </Button>
+          <Button size="sm" onClick={() => window.print()} disabled={isDraft}>
+            <Printer className="h-4 w-4 mr-1" /> Imprimir
+          </Button>
+        </div>
+      </div>
+
+      {isDraft && (
+        <div className="mb-4 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
           <div>
-            <h1 className="text-2xl font-bold">Relatório de Performance</h1>
-            <p className="opacity-90 mt-1">IMX Performance</p>
-          </div>
-          <div className="text-right">
-            <p className="font-semibold">
-              {format(new Date(), "dd 'de' MMMM, yyyy", { locale: ptBR })}
+            <p className="font-semibold text-sm">Avaliação em rascunho</p>
+            <p className="text-sm text-muted-foreground">
+              Esta avaliação ainda não foi finalizada. Finalize-a para gerar um relatório completo.
             </p>
-            <p className="text-sm opacity-90">ID: #{avaliacao.id.slice(0, 8).toUpperCase()}</p>
           </div>
         </div>
+      )}
 
-        <div className="p-8 space-y-8">
-          {/* Patient Info */}
-          <div className="grid grid-cols-2 gap-8 border-b pb-8">
-            <div>
-              <h3 className="text-sm text-muted-foreground uppercase font-bold tracking-wider mb-2">
-                Dados do Paciente
-              </h3>
-              <p className="text-lg font-semibold">{avaliacao.expand?.paciente?.name}</p>
-              <p>{avaliacao.expand?.paciente?.gender}</p>
-              <p>{avaliacao.expand?.paciente?.email}</p>
-            </div>
-            <div>
-              <h3 className="text-sm text-muted-foreground uppercase font-bold tracking-wider mb-2">
-                Detalhes do Teste
-              </h3>
-              <p className="text-lg font-semibold">{avaliacao.tipo}</p>
-              <p>Realizado em: {format(new Date(avaliacao.data), "dd/MM/yyyy 'às' HH:mm")}</p>
-            </div>
-          </div>
-
-          {/* Metrics */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Resultados das Métricas</h3>
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="py-2 font-medium">Métrica</th>
-                  <th className="py-2 font-medium">Valor Registrado</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(avaliacao.metrics || {}).map(([key, value]) => (
-                  <tr key={key} className="border-b last:border-0">
-                    <td className="py-3 capitalize">{key}</td>
-                    <td className="py-3 font-semibold">{String(value)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Observations */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Observações Clínicas</h3>
-            <p className="whitespace-pre-wrap">{avaliacao.observacoes || 'Nenhuma.'}</p>
-          </div>
-
-          {/* AI Insight Section */}
-          <div className="mt-8 pt-8 border-t">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold flex items-center gap-2 text-primary">
-                <Brain className="h-5 w-5" />
-                Interpretação da Inteligência Artificial
-              </h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={generateInsight}
-                disabled={loadingAi}
-                className="print:hidden"
-              >
-                {loadingAi ? 'Analisando...' : insight ? 'Regerar' : 'Gerar Interpretação'}
-              </Button>
-            </div>
-
-            {insight ? (
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: insight.replace(/\n/g, '<br/>') }} />
-              </div>
-            ) : (
-              <p className="text-muted-foreground italic text-sm">
-                Interpretação não gerada. Clique no botão acima para gerar insights usando a IA da
-                IMX.
-              </p>
-            )}
-          </div>
+      <div className="report-document bg-card border rounded-lg shadow-sm overflow-hidden">
+        <div className="p-6 md:p-10">
+          <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
+          <ReportSectionsA assessment={data} patient={patient} />
+          <ReportSectionsB assessment={data} patient={patient} />
+          <footer className="mt-8 pt-6 border-t border-border/60 text-center text-xs text-muted-foreground break-inside-avoid">
+            <p>Relatório gerado em {formatDateExtendedBR(new Date().toISOString())}</p>
+            <p className="mt-1">
+              IMX Performance — Protocolo de Monitoramento de Sarcopenia e Risco de Quedas
+            </p>
+            {evaluator && <p className="mt-1">Avaliador: {evaluator.name}</p>}
+          </footer>
         </div>
       </div>
     </div>

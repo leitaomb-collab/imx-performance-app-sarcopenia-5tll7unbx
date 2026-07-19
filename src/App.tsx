@@ -15,6 +15,7 @@ const Patients = lazy(() => import('@/pages/Patients'))
 const PatientProfile = lazy(() => import('@/pages/PatientProfile'))
 const NewAssessment = lazy(() => import('@/pages/NewAssessment'))
 const AssessmentDetail = lazy(() => import('@/pages/AssessmentDetail'))
+const Report = lazy(() => import('@/pages/Report'))
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth()
@@ -62,7 +63,7 @@ export default function App() {
                   <Route path="/paciente/:id" element={<PatientProfile />} />
                   <Route path="/avaliacao/nova" element={<NewAssessment />} />
                   <Route path="/avaliacao/:id" element={<AssessmentDetail />} />
-                  <Route path="/relatorio/:id" element={<AssessmentDetail />} />
+                  <Route path="/relatorio/:id" element={<Report />} />
                 </Route>
               </Routes>
             </Suspense>

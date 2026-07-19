@@ -215,3 +215,33 @@
     color: hsl(199 89% 70%);
   }
 }
+
+@media print {
+  .report-action-bar {
+    display: none !important;
+  }
+  .report-document {
+    max-width: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  .report-document > div {
+    padding: 0 !important;
+  }
+  .report-section {
+    break-inside: avoid;
+  }
+  .report-header {
+    break-inside: avoid;
+  }
+  body {
+    background: white !important;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 1.5cm;
+}
