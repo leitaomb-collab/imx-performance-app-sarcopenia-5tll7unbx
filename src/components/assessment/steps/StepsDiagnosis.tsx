@@ -1,8 +1,7 @@
-import { StepField, NumberInput, ClinicalBadge } from '@/components/assessment/shared'
+import { StepField, NumberInput, ClinicalBadge, SectionTitle } from '@/components/assessment/shared'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
 import {
   Select,
   SelectContent,
@@ -20,12 +19,7 @@ import {
   suggestEWGSOP2Diagnosis,
 } from '@/lib/clinical-utils'
 import { cn } from '@/lib/utils'
-import type {
-  StepProps,
-  SarcopeniaScreeningData,
-  EWGSOP2AnalysisData,
-  DIAGNOSIS_OPTIONS,
-} from '@/types/assessment'
+import type { StepProps, SarcopeniaScreeningData, EWGSOP2AnalysisData } from '@/types/assessment'
 import { DIAGNOSIS_OPTIONS as DIAG_OPTS } from '@/types/assessment'
 
 const SARCF_QUESTIONS = [
@@ -72,7 +66,7 @@ export function Step10Screening({ form, patient, updateField }: StepProps) {
   }
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Triagem de Sarcopenia</h3>
+      <SectionTitle title="Triagem de Sarcopenia" />
       <div className="space-y-3">
         {SARCF_QUESTIONS.map((q) => (
           <div key={q.key} className="flex items-center justify-between gap-4">
@@ -83,7 +77,7 @@ export function Step10Screening({ form, patient, updateField }: StepProps) {
                 set({ [q.key]: parseInt(v) } as Partial<SarcopeniaScreeningData>)
               }
             >
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-32 h-11 rounded-lg">
                 <SelectValue placeholder="0" />
               </SelectTrigger>
               <SelectContent>
@@ -108,11 +102,10 @@ export function Step10Screening({ form, patient, updateField }: StepProps) {
         {risk && (
           <Badge
             className={cn(
-              risk === 'baixo'
-                ? 'bg-green-500 hover:bg-green-600'
-                : risk === 'moderado'
-                  ? 'bg-yellow-500 hover:bg-yellow-600'
-                  : 'bg-red-500 hover:bg-red-600',
+              'text-xs font-semibold uppercase border-0 px-2 py-0.5',
+              risk === 'baixo' && 'clinical-badge-normal',
+              risk === 'moderado' && 'clinical-badge-moderate',
+              risk === 'alto' && 'clinical-badge-reduced',
             )}
           >
             Risco: {risk}
@@ -169,33 +162,31 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Análise EWGSOP2</h3>
-      <Card className="bg-secondary/50">
-        <CardContent className="p-4">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2">Parâmetro</th>
-                <th className="text-center">Valor</th>
-                <th className="text-center">Cut-off</th>
-                <th className="text-center">Status</th>
+      <SectionTitle title="Análise EWGSOP2" />
+      <div className="rounded-lg overflow-hidden border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-secondary">
+              <th className="text-left py-2.5 px-3 text-xs font-semibold uppercase">Parâmetro</th>
+              <th className="text-center text-xs font-semibold uppercase">Valor</th>
+              <th className="text-center text-xs font-semibold uppercase">Cut-off</th>
+              <th className="text-center text-xs font-semibold uppercase">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.label} className="border-t">
+                <td className="py-2.5 px-3">{r.label}</td>
+                <td className="text-center py-2.5 px-3">{r.value ?? '-'}</td>
+                <td className="text-center py-2.5 px-3 text-muted-foreground">{r.cutoff}</td>
+                <td className="text-center py-2.5 px-3">
+                  {r.value != null && <ClinicalBadge status={r.low ? 'reduced' : 'normal'} />}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.label} className="border-b last:border-0">
-                  <td className="py-2">{r.label}</td>
-                  <td className="text-center">{r.value ?? '-'}</td>
-                  <td className="text-center text-muted-foreground">{r.cutoff}</td>
-                  <td className="text-center">
-                    {r.value != null && <ClinicalBadge status={r.low ? 'reduced' : 'normal'} />}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </CardContent>
-      </Card>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {suggested !== 'sem_sarcopenia' && (
         <p className="text-sm text-muted-foreground">
           Diagnóstico sugerido:{' '}
@@ -206,19 +197,34 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
       )}
       <RadioGroup value={ea.diagnosis ?? form.finalDiagnosis} onValueChange={setDiagnosis}>
         <div className="grid md:grid-cols-2 gap-3">
-          {DIAG_OPTS.map((opt) => (
-            <label
-              key={opt.value}
-              className={cn(
-                'flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted',
-                (ea.diagnosis ?? form.finalDiagnosis) === opt.value &&
-                  'border-primary bg-primary/5',
-              )}
-            >
-              <RadioGroupItem value={opt.value} />
-              <span className="text-sm font-medium">{opt.label}</span>
-            </label>
-          ))}
+          {DIAG_OPTS.map((opt) => {
+            const isSelected = (ea.diagnosis ?? form.finalDiagnosis) === opt.value
+            const isGrave = opt.value === 'sarcopenia_grave'
+            return (
+              <label
+                key={opt.value}
+                className={cn(
+                  'flex items-center gap-3 p-3 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:bg-muted',
+                  isSelected && !isGrave && 'border-primary bg-primary/5',
+                  isSelected && isGrave && 'border-destructive bg-destructive/5',
+                  !isSelected && 'border-border',
+                )}
+              >
+                <span
+                  className={cn(
+                    'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors',
+                    isSelected && !isGrave && 'border-primary bg-primary',
+                    isSelected && isGrave && 'border-destructive bg-destructive',
+                    !isSelected && 'border-input',
+                  )}
+                >
+                  {isSelected && <span className="h-2 w-2 rounded-full bg-white" />}
+                </span>
+                <RadioGroupItem value={opt.value} className="sr-only" />
+                <span className="text-sm font-medium">{opt.label}</span>
+              </label>
+            )
+          })}
         </div>
       </RadioGroup>
     </div>

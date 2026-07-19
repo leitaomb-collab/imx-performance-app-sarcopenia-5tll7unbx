@@ -36,10 +36,11 @@ export function Step1Identification({
             max={today}
             value={form.assessmentDate}
             onChange={(e) => updateField('assessmentDate', e.target.value)}
+            className="h-11 rounded-lg text-sm"
           />
         </StepField>
         <div className="space-y-2 md:col-span-2">
-          <Label>Paciente</Label>
+          <Label className="text-sm font-medium">Paciente</Label>
           {patient ? (
             <Card className="bg-secondary/50">
               <CardContent className="flex flex-wrap items-center gap-3 py-3">
@@ -58,7 +59,7 @@ export function Step1Identification({
             </Card>
           ) : patients && patients.length > 0 ? (
             <Select value={form.patientId} onValueChange={(v) => selectPatient?.(v)}>
-              <SelectTrigger>
+              <SelectTrigger className="h-11 rounded-lg">
                 <SelectValue placeholder="Selecione um paciente..." />
               </SelectTrigger>
               <SelectContent>
@@ -73,9 +74,9 @@ export function Step1Identification({
             <div className="flex flex-col items-center gap-2 py-8 text-center border rounded-lg border-dashed">
               <Users className="h-8 w-8 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">Nenhum paciente cadastrado.</p>
-              <a href="/pacientes" className="text-sm text-primary underline">
+              <Link to="/pacientes" className="text-sm text-primary underline">
                 Ir para cadastro de pacientes
-              </a>
+              </Link>
             </div>
           )}
         </div>
@@ -113,7 +114,7 @@ export function Step2Vitals({ form, updateField }: StepProps) {
           onChange={(val) => set({ oxygenSaturation: val })}
         />
       </StepField>
-      <StepField label="Temp. (°C)" step="0.1">
+      <StepField label="Temp. (°C)">
         <NumberInput
           value={v.temperature}
           onChange={(val) => set({ temperature: val })}
@@ -130,25 +131,52 @@ export function Step5Postural({ form, updateField }: StepProps) {
     updateField('posturalAssessment', { ...pa, ...patch })
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Avaliação Postural</h3>
+      <div className="flex items-center gap-2.5 border-b pb-3">
+        <span className="h-3 w-3 bg-primary rounded-sm shrink-0" />
+        <h3 className="text-lg font-semibold">Avaliação Postural</h3>
+      </div>
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="Cabeça">
-          <Input value={pa.head ?? ''} onChange={(e) => set({ head: e.target.value })} />
+          <Input
+            value={pa.head ?? ''}
+            onChange={(e) => set({ head: e.target.value })}
+            className="h-11 rounded-lg text-sm"
+          />
         </StepField>
         <StepField label="Ombros">
-          <Input value={pa.shoulders ?? ''} onChange={(e) => set({ shoulders: e.target.value })} />
+          <Input
+            value={pa.shoulders ?? ''}
+            onChange={(e) => set({ shoulders: e.target.value })}
+            className="h-11 rounded-lg text-sm"
+          />
         </StepField>
         <StepField label="Coluna">
-          <Input value={pa.spine ?? ''} onChange={(e) => set({ spine: e.target.value })} />
+          <Input
+            value={pa.spine ?? ''}
+            onChange={(e) => set({ spine: e.target.value })}
+            className="h-11 rounded-lg text-sm"
+          />
         </StepField>
         <StepField label="Pelve">
-          <Input value={pa.pelvis ?? ''} onChange={(e) => set({ pelvis: e.target.value })} />
+          <Input
+            value={pa.pelvis ?? ''}
+            onChange={(e) => set({ pelvis: e.target.value })}
+            className="h-11 rounded-lg text-sm"
+          />
         </StepField>
         <StepField label="Joelhos">
-          <Input value={pa.knees ?? ''} onChange={(e) => set({ knees: e.target.value })} />
+          <Input
+            value={pa.knees ?? ''}
+            onChange={(e) => set({ knees: e.target.value })}
+            className="h-11 rounded-lg text-sm"
+          />
         </StepField>
         <StepField label="Pés">
-          <Input value={pa.feet ?? ''} onChange={(e) => set({ feet: e.target.value })} />
+          <Input
+            value={pa.feet ?? ''}
+            onChange={(e) => set({ feet: e.target.value })}
+            className="h-11 rounded-lg text-sm"
+          />
         </StepField>
       </div>
       <div className="flex items-center gap-3 pt-2">
@@ -163,6 +191,7 @@ export function Step5Postural({ form, updateField }: StepProps) {
           rows={3}
           value={pa.observations ?? ''}
           onChange={(e) => set({ observations: e.target.value })}
+          className="rounded-lg text-sm"
         />
       </StepField>
     </div>
@@ -174,9 +203,10 @@ export function Step12Conclusion({ form, updateField }: StepProps) {
     <div className="space-y-6">
       <StepSection title="Conclusão">
         <div className="space-y-2 md:col-span-2">
-          <Label>Resumo Clínico</Label>
+          <Label className="text-sm font-medium">Resumo Clínico</Label>
           <Textarea
             rows={6}
+            className="min-h-[12rem] rounded-lg text-sm"
             value={form.clinicalSummary}
             onChange={(e) => updateField('clinicalSummary', e.target.value)}
             placeholder="Síntese dos achados, interpretação clínica e recomendações..."

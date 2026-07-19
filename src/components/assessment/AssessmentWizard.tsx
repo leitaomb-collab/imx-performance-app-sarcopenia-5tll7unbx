@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Card, CardContent } from '@/components/ui/card'
@@ -44,56 +44,97 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
   }
   const StepComponent = STEP_COMPONENTS[step]
   const canProceed = step !== 0 || (!!formHook.form.patientId && !!formHook.form.assessmentDate)
+  const progress = ((step + 1) / 12) * 100
+
+  const goToStep = (newStep: number) => {
+    setStep(newStep)
+  }
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [step])
 
   return (
     <div className="space-y-4">
+      <div className="md:hidden sticky top-0 z-30 bg-card border-b">
+        <div className="flex items-center justify-between px-4 h-12">
+          <span className="text-sm font-medium">Etapa {step + 1} de 12</span>
+          <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+        </div>
+        <div className="h-1 bg-secondary">
+          <div
+            className="h-full bg-primary transition-all duration-500 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
       <PatientSummaryBar patient={formHook.patient} />
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Nova Avaliação</h1>
-        {formHook.lastSaved && !formHook.dirty && (
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <CloudUpload className="h-3.5 w-3.5" /> Salvo automaticamente
-          </span>
-        )}
-        {formHook.saving && (
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="animate-spin h-3 w-3 border-2 border-primary border-t-transparent rounded-full" />{' '}
-            Salvando...
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {formHook.saving && (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-primary animate-auto-save-pulse" />
+              Salvando...
+            </span>
+          )}
+          {formHook.lastSaved && !formHook.dirty && !formHook.saving && (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <CloudUpload className="h-3.5 w-3.5" /> Salvo automaticamente
+            </span>
+          )}
+        </div>
       </div>
 
-      <div className="md:hidden">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium">Etapa {step + 1} de 12</span>
-        </div>
-        <Progress value={((step + 1) / 12) * 100} />
+      <div className="hidden md:block">
+        <Progress value={progress} className="h-1" />
       </div>
 
       <div className="flex gap-6">
-        <WizardSidebar currentStep={step} onStepClick={setStep} />
+        <WizardSidebar currentStep={step} onStepClick={goToStep} />
         <div className="flex-1 min-w-0">
           <Card className="border-0 shadow-subtle">
             <CardContent className="pt-6">
-              <StepComponent {...stepProps} />
+              <div key={step} className="animate-step-in">
+                <StepComponent {...stepProps} />
+              </div>
             </CardContent>
           </Card>
 
           <div className="flex items-center justify-between mt-4">
-            <Button variant="outline" disabled={step === 0} onClick={() => setStep(step - 1)}>
+            <Button
+              variant="outline"
+              disabled={step === 0}
+              onClick={() => goToStep(step - 1)}
+              className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+            >
               <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
             </Button>
             {step < 11 ? (
-              <Button disabled={!canProceed} onClick={() => setStep(step + 1)}>
+              <Button
+                disabled={!canProceed}
+                onClick={() => goToStep(step + 1)}
+                className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+              >
                 Próximo <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             ) : (
               <div className="flex gap-2">
-                <Button variant="outline" disabled={formHook.saving} onClick={formHook.saveDraft}>
+                <Button
+                  variant="outline"
+                  disabled={formHook.saving}
+                  onClick={formHook.saveDraft}
+                  className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+                >
                   <Save className="mr-1 h-4 w-4" /> Salvar Rascunho
                 </Button>
-                <Button disabled={formHook.saving} onClick={formHook.finalize}>
+                <Button
+                  disabled={formHook.saving}
+                  onClick={formHook.finalize}
+                  className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+                >
                   <CheckCircle2 className="mr-1 h-4 w-4" /> Finalizar Avaliação
                 </Button>
               </div>

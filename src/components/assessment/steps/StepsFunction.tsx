@@ -1,4 +1,4 @@
-import { StepField, NumberInput, ClinicalBadge } from '@/components/assessment/shared'
+import { StepField, NumberInput, ClinicalBadge, SectionTitle } from '@/components/assessment/shared'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -22,7 +22,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
     updateField('muscleStrength', { ...ms, ...patch })
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Força Muscular</h3>
+      <SectionTitle title="Força Muscular" />
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="Handgrip Esquerdo (kg)">
           <NumberInput
@@ -79,12 +79,12 @@ export function Step7Balance({ form, updateField }: StepProps) {
   }
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Equilíbrio & Mobilidade</h3>
+      <SectionTitle title="Equilíbrio & Mobilidade" />
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="TUG Simples (s)">
           <div className="flex items-center gap-2">
             <NumberInput value={ba.tugSimple} onChange={(v) => set({ tugSimple: v })} step="0.1" />
-            <ClinicalBadge status={getTUGStatus(ba.tugSimple)} />
+            <ClinicalBadge status={getTUGStatus(ba.tugSimple)} variant="tug" />
           </div>
         </StepField>
         <StepField label="TUG Dupla Tarefa (s)">
@@ -135,12 +135,14 @@ export function Step7Balance({ form, updateField }: StepProps) {
             <Input
               value={ba.stabilometryEyesOpen ?? ''}
               onChange={(e) => set({ stabilometryEyesOpen: e.target.value })}
+              className="h-11 rounded-lg text-sm"
             />
           </StepField>
           <StepField label="Olhos Fechados">
             <Input
               value={ba.stabilometryEyesClosed ?? ''}
               onChange={(e) => set({ stabilometryEyesClosed: e.target.value })}
+              className="h-11 rounded-lg text-sm"
             />
           </StepField>
         </div>

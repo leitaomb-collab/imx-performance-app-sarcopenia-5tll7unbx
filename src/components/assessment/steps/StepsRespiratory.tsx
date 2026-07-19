@@ -1,4 +1,4 @@
-import { StepField, NumberInput } from '@/components/assessment/shared'
+import { StepField, NumberInput, ReadOnlyField, SectionTitle } from '@/components/assessment/shared'
 import {
   Select,
   SelectContent,
@@ -20,8 +20,10 @@ export function Step8Respiratory({ form, updateField }: StepProps) {
   }
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Força Respiratória</h3>
-      <p className="text-xs text-muted-foreground">Valores previstos baseados em Neder et al.</p>
+      <SectionTitle title="Força Respiratória" />
+      <p className="text-xs italic text-muted-foreground">
+        Valores previstos baseados em Neder et al.
+      </p>
       <div className="grid md:grid-cols-3 gap-4">
         <StepField label="Pimax Real (cmH₂O)">
           <NumberInput value={rs.pimaxActual} onChange={(v) => set({ pimaxActual: v })} />
@@ -29,26 +31,14 @@ export function Step8Respiratory({ form, updateField }: StepProps) {
         <StepField label="Pimax Previsto (cmH₂O)">
           <NumberInput value={rs.pimaxPredicted} onChange={(v) => set({ pimaxPredicted: v })} />
         </StepField>
-        <StepField label="Pimax %">
-          <NumberInput
-            value={rs.pimaxPercent}
-            onChange={(v) => set({ pimaxPercent: v })}
-            disabled
-          />
-        </StepField>
+        <ReadOnlyField label="Pimax %" value={rs.pimaxPercent} />
         <StepField label="Pemax Real (cmH₂O)">
           <NumberInput value={rs.pemaxActual} onChange={(v) => set({ pemaxActual: v })} />
         </StepField>
         <StepField label="Pemax Previsto (cmH₂O)">
           <NumberInput value={rs.pemaxPredicted} onChange={(v) => set({ pemaxPredicted: v })} />
         </StepField>
-        <StepField label="Pemax %">
-          <NumberInput
-            value={rs.pemaxPercent}
-            onChange={(v) => set({ pemaxPercent: v })}
-            disabled
-          />
-        </StepField>
+        <ReadOnlyField label="Pemax %" value={rs.pemaxPercent} />
       </div>
     </div>
   )
@@ -69,7 +59,7 @@ export function Step9Spirometry({ form, updateField }: StepProps) {
   }
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Espirometria</h3>
+      <SectionTitle title="Espirometria" />
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="CVF (L)">
           <NumberInput value={sp.fvc} onChange={(v) => set({ fvc: v })} step="0.01" />
@@ -81,9 +71,7 @@ export function Step9Spirometry({ form, updateField }: StepProps) {
             step="0.01"
           />
         </StepField>
-        <StepField label="CVF %">
-          <NumberInput value={sp.fvcPercent} disabled />
-        </StepField>
+        <ReadOnlyField label="CVF %" value={sp.fvcPercent} />
         <StepField label="VEF1 (L)">
           <NumberInput value={sp.fev1} onChange={(v) => set({ fev1: v })} step="0.01" />
         </StepField>
@@ -94,9 +82,7 @@ export function Step9Spirometry({ form, updateField }: StepProps) {
             step="0.01"
           />
         </StepField>
-        <StepField label="VEF1 %">
-          <NumberInput value={sp.fev1Percent} disabled />
-        </StepField>
+        <ReadOnlyField label="VEF1 %" value={sp.fev1Percent} />
         <StepField label="VEF1/CVF (%)">
           <NumberInput
             value={sp.fev1FvcRatio}
@@ -114,13 +100,13 @@ export function Step9Spirometry({ form, updateField }: StepProps) {
             step="0.01"
           />
         </StepField>
-        <div className="space-y-2">
-          <Label>Padrão</Label>
+        <div className="space-y-1.5 mb-5">
+          <Label className="text-sm font-medium">Padrão</Label>
           <Select
             value={sp.pattern ?? ''}
             onValueChange={(v) => set({ pattern: v as SpirometryData['pattern'] })}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-lg">
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>

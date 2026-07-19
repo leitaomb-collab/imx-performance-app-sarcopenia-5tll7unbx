@@ -4,8 +4,8 @@ import {
   StepSection,
   ClinicalBadge,
   InfoBox,
+  SectionTitle,
 } from '@/components/assessment/shared'
-import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -27,7 +27,7 @@ export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
     updateField('bodyComposition', { ...bc, ...patch })
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Bioimpedância</h3>
+      <SectionTitle title="Bioimpedância" />
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="Massa Magra (kg)">
           <NumberInput value={bc.leanMass} onChange={(v) => set({ leanMass: v })} step="0.1" />
@@ -97,7 +97,7 @@ export function Step4Anthropometry({ form, patient, updateField }: StepProps) {
     updateField('anthropometry', { ...an, ...patch })
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold border-b pb-2">Antropometria</h3>
+      <SectionTitle title="Antropometria" />
       <div className="grid md:grid-cols-2 gap-4">
         <StepField
           label="Circunferência da Panturrilha (cm)"
@@ -121,7 +121,7 @@ export function Step4Anthropometry({ form, patient, updateField }: StepProps) {
         </StepField>
         <StepField label="Somatotipo">
           <Select value={an.somatotype ?? ''} onValueChange={(v) => set({ somatotype: v })}>
-            <SelectTrigger>
+            <SelectTrigger className="h-11 rounded-lg">
               <SelectValue placeholder="Selecione..." />
             </SelectTrigger>
             <SelectContent>
