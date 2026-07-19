@@ -1,158 +1,152 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getPaciente, getAvaliacoes, askAgent } from '@/services/api'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { getPatient } from '@/services/patients'
+import { getAssessments } from '@/services/assessments'
+import { useRealtime } from '@/hooks/use-realtime'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Sparkles, Activity, FileText } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
-import { format } from 'date-fns'
+import { ArrowLeft, Pencil, Plus, ClipboardList, AlertCircle } from 'lucide-react'
+import { calculateAge, calculateIMC, formatGender, getIMCColorClass } from '@/lib/patient-utils'
+import { cn } from '@/lib/utils'
+import type { Patient, Assessment } from '@/types'
+import { EditPatientDialog } from '@/components/patients/EditPatientDialog'
+import { DeleteAssessmentDialog } from '@/components/patients/DeleteAssessmentDialog'
+import { AssessmentCard } from '@/components/patients/AssessmentCard'
+import { PatientProfileSkeleton } from '@/components/patients/PatientProfileSkeleton'
+import { PatientInfoCards } from '@/components/patients/PatientInfoCards'
 
 export default function PatientProfile() {
   const { id } = useParams()
-  const [paciente, setPaciente] = useState<any>(null)
-  const [avaliacoes, setAvaliacoes] = useState<any[]>([])
-  const [insight, setInsight] = useState('')
-  const [loadingAi, setLoadingAi] = useState(false)
-  const { toast } = useToast()
+  const [patient, setPatient] = useState<Patient | null>(null)
+  const [assessments, setAssessments] = useState<Assessment[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Assessment | null>(null)
 
-  useEffect(() => {
-    if (id) {
-      getPaciente(id)
-        .then(setPaciente)
-        .catch(() => {})
-      getAvaliacoes(id).then(setAvaliacoes)
-    }
-  }, [id])
-
-  const handleInsight = async () => {
-    if (!paciente) return
-    setLoadingAi(true)
+  const loadData = async () => {
+    if (!id) return
     try {
-      const res = await askAgent(
-        `Gere um insight de performance clínico e focado em resultados para o paciente ${paciente.name}, utilizando os dados das avaliações dele.`,
-      )
-      setInsight(res.content)
+      const [p, a] = await Promise.all([getPatient(id), getAssessments(id)])
+      setPatient(p)
+      setAssessments(a)
+      setError(false)
     } catch {
-      toast({
-        title: 'Erro',
-        description: 'Falha ao conectar com o Analista AI.',
-        variant: 'destructive',
-      })
+      setError(true)
+    } finally {
+      setLoading(false)
     }
-    setLoadingAi(false)
   }
 
-  if (!paciente) return <div className="p-8 text-center">Carregando perfil...</div>
+  useEffect(() => {
+    loadData()
+  }, [id])
+
+  useRealtime('assessments', (e) => {
+    if (e.record['patientId'] === id) loadData()
+  })
+  useRealtime('patients', (e) => {
+    if (e.record.id === id) loadData()
+  })
+
+  if (loading) return <PatientProfileSkeleton />
+
+  if (error || !patient) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <AlertCircle className="h-10 w-10 text-destructive" />
+        <p className="text-lg font-medium">Erro ao carregar perfil</p>
+        <Button
+          onClick={() => {
+            setLoading(true)
+            loadData()
+          }}
+        >
+          Tentar novamente
+        </Button>
+      </div>
+    )
+  }
+
+  const age = patient.birthDate ? calculateAge(patient.birthDate) : null
+  const hasIMC =
+    patient.weight != null && patient.height != null && patient.weight > 0 && patient.height > 0
+  const imc = hasIMC ? calculateIMC(patient.weight!, patient.height!) : null
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{paciente.name}</h1>
-          <p className="text-muted-foreground">
-            {paciente.email} • {paciente.phone || 'Sem telefone'}
-          </p>
-        </div>
-        <Link to={`/avaliacao/nova?paciente=${paciente.id}`}>
-          <Button>
-            <Activity className="mr-2 h-4 w-4" /> Nova Avaliação
-          </Button>
+      <Button variant="ghost" size="sm" className="h-11 w-fit" asChild>
+        <Link to="/pacientes">
+          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
         </Link>
+      </Button>
+
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">{patient.name}</h1>
+          <div className="flex flex-wrap gap-2">
+            {age !== null && <Badge variant="secondary">{age} anos</Badge>}
+            <Badge
+              className={cn(
+                patient.gender === 'M'
+                  ? 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-pink-500 hover:bg-pink-600',
+              )}
+            >
+              {formatGender(patient.gender)}
+            </Badge>
+            {imc !== null && (
+              <Badge variant="secondary" className="gap-1.5">
+                <span className={cn('h-2.5 w-2.5 rounded-full', getIMCColorClass(imc))} />
+                IMC: {imc.toFixed(1)}
+              </Badge>
+            )}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="h-11" onClick={() => setEditOpen(true)}>
+            <Pencil className="mr-2 h-4 w-4" /> Editar
+          </Button>
+          <Button className="h-11" asChild>
+            <Link to={`/avaliacao/nova?patientId=${patient.id}`}>
+              <Plus className="mr-2 h-4 w-4" /> Nova Avaliação
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      <Tabs defaultValue="historico" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="historico">Histórico</TabsTrigger>
-          <TabsTrigger value="ai">Analista AI</TabsTrigger>
-          <TabsTrigger value="notas">Notas</TabsTrigger>
-        </TabsList>
+      <PatientInfoCards patient={patient} />
 
-        <TabsContent value="historico" className="space-y-4">
-          {avaliacoes.length === 0 ? (
-            <Card>
-              <CardContent className="py-8 text-center text-muted-foreground">
-                Nenhuma avaliação encontrada.
-              </CardContent>
-            </Card>
-          ) : (
-            avaliacoes.map((av) => (
-              <Card key={av.id} className="shadow-subtle border-0">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">{av.tipo}</CardTitle>
-                      <CardDescription>{format(new Date(av.data), 'dd/MM/yyyy')}</CardDescription>
-                    </div>
-                    <Link to={`/relatorio/${av.id}`}>
-                      <Button variant="outline" size="sm">
-                        <FileText className="mr-2 h-4 w-4" /> Relatório
-                      </Button>
-                    </Link>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-4 flex-wrap">
-                    {Object.entries(av.metrics || {}).map(([k, v]) => (
-                      <div key={k} className="bg-secondary px-3 py-2 rounded-md">
-                        <span className="text-xs text-muted-foreground uppercase block">
-                          {k.replace('_', ' ')}
-                        </span>
-                        <span className="font-semibold">{String(v)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </TabsContent>
+      <div className="space-y-3">
+        <h2 className="text-xl font-semibold">Histórico de Avaliações</h2>
+        {assessments.length === 0 ? (
+          <div className="flex flex-col items-center py-12 gap-4">
+            <ClipboardList className="h-10 w-10 text-muted-foreground" />
+            <p className="text-lg font-medium">Nenhuma avaliação registrada</p>
+            <Button className="h-11" asChild>
+              <Link to={`/avaliacao/nova?patientId=${patient.id}`}>
+                <Plus className="mr-2 h-4 w-4" /> Nova Avaliação
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          assessments.map((av) => (
+            <AssessmentCard key={av.id} assessment={av} onDelete={setDeleteTarget} />
+          ))
+        )}
+      </div>
 
-        <TabsContent value="ai">
-          <Card className="shadow-subtle border-0 bg-gradient-to-br from-card to-primary/5">
-            <CardHeader>
-              <CardTitle className="flex items-center text-primary">
-                <Sparkles className="mr-2 h-5 w-5" /> Insight de Performance
-              </CardTitle>
-              <CardDescription>
-                O Analista AI da IMX cruza o histórico do paciente para sugerir direções.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!insight ? (
-                <Button onClick={handleInsight} disabled={loadingAi} className="w-full sm:w-auto">
-                  {loadingAi ? 'Analisando...' : 'Gerar Insight Agora'}
-                </Button>
-              ) : (
-                <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none bg-card p-6 rounded-lg border">
-                  {insight.split('\n').map((line, i) => (
-                    <p key={i}>{line}</p>
-                  ))}
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={handleInsight}
-                    disabled={loadingAi}
-                  >
-                    Regerar
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="notas">
-          <Card className="shadow-subtle border-0">
-            <CardHeader>
-              <CardTitle>Notas Clínicas</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="whitespace-pre-wrap">{paciente.notes || 'Nenhuma nota registrada.'}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <EditPatientDialog
+        patient={patient}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSuccess={setPatient}
+      />
+      <DeleteAssessmentDialog
+        assessment={deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        onSuccess={(aid) => setAssessments((prev) => prev.filter((a) => a.id !== aid))}
+      />
     </div>
   )
 }

@@ -31,3 +31,25 @@ export function formatGender(gender: string): string {
   if (gender === 'F') return 'Feminino'
   return gender
 }
+
+export function formatDateBR(isoDate: string): string {
+  const date = new Date(isoDate)
+  if (isNaN(date.getTime())) return isoDate
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+export function getDiagnosisInfo(diagnosis: string): { label: string; className: string } | null {
+  switch (diagnosis) {
+    case 'sem_sarcopenia':
+      return { label: 'Sem sarcopenia', className: 'bg-gray-500 hover:bg-gray-600' }
+    case 'sarcopenia':
+      return { label: 'Sarcopenia provável', className: 'bg-blue-500 hover:bg-blue-600' }
+    case 'sarcopenia_grave':
+      return { label: 'Sarcopenia grave', className: 'bg-red-500 hover:bg-red-600' }
+    default:
+      return null
+  }
+}
