@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import pb from '@/lib/pocketbase/client'
+import type { User } from '@/types'
 
 interface AuthContextType {
-  user: any
+  user: User | null
   isAuthenticated: boolean
-  signUp: (name: string, email: string, password: string) => Promise<{ error: any }>
-  signIn: (email: string, password: string) => Promise<{ error: any }>
+  signUp: (name: string, email: string, password: string) => Promise<{ error: unknown }>
+  signIn: (email: string, password: string) => Promise<{ error: unknown }>
   signOut: () => void
   loading: boolean
 }
@@ -19,13 +20,15 @@ export const useAuth = () => {
 }
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any>(pb.authStore.isValid ? pb.authStore.record : null)
+  const [user, setUser] = useState<User | null>(
+    pb.authStore.isValid ? (pb.authStore.record as User) : null,
+  )
   const [isAuthenticated, setIsAuthenticated] = useState(pb.authStore.isValid)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const unsubscribe = pb.authStore.onChange((_token, record) => {
-      setUser(pb.authStore.isValid ? record : null)
+      setUser(pb.authStore.isValid ? (record as User) : null)
       setIsAuthenticated(pb.authStore.isValid)
     })
     if (pb.authStore.isValid) {
@@ -44,8 +47,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signUp = async (name: string, email: string, password: string) => {
     try {
-      await pb.collection('users').create({ email, password, passwordConfirm: password, name })
-      await pb.collection('users').authWithPassword(email, password)
+      await pb.collection('users').create({
+        email,
+        password,
+        passwordConfirm: password,
+        name,
+        role: 'avaliador',
+      })
       return { error: null }
     } catch (error) {
       return { error }

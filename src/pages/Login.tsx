@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { toast } from 'sonner'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,7 +13,7 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card'
-import { useToast } from '@/hooks/use-toast'
+import { Loader2 } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -20,20 +21,25 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const { signIn } = useAuth()
   const navigate = useNavigate()
-  const { toast } = useToast()
+  const location = useLocation()
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard'
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+      toast.error('E-mail inválido.')
+      return
+    }
+    if (password.length < 8) {
+      toast.error('A senha deve ter no mínimo 8 caracteres.')
+      return
+    }
     setLoading(true)
     const { error } = await signIn(email, password)
     if (error) {
-      toast({
-        title: 'Erro de Autenticação',
-        description: 'Credenciais inválidas.',
-        variant: 'destructive',
-      })
+      toast.error('E-mail ou senha incorretos.')
     } else {
-      navigate('/dashboard')
+      navigate(from, { replace: true })
     }
     setLoading(false)
   }
@@ -49,11 +55,12 @@ export default function Login() {
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 type="email"
                 required
+                disabled={loading}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="voce@exemplo.com"
@@ -65,14 +72,22 @@ export default function Login() {
                 id="password"
                 type="password"
                 required
+                disabled={loading}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 8 caracteres"
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full h-11" disabled={loading}>
-              {loading ? 'Entrando...' : 'Entrar'}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Entrando...
+                </>
+              ) : (
+                'Entrar'
+              )}
             </Button>
             <div className="text-center text-sm text-muted-foreground">
               Não tem uma conta?{' '}

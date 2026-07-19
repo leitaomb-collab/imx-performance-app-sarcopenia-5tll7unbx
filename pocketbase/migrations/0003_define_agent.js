@@ -4,13 +4,13 @@ migrate(
     $ai.agents.define(app, {
       slug: 'imx-analyst',
       name: 'Analista de Performance IMX',
-      description: 'Analisa dados de performance de pacientes.',
+      description: 'Analisa dados de performance e sarcopenia de pacientes.',
       systemPrompt:
-        'Você é um cientista do esporte e fisioterapeuta experiente. Analise os dados dos pacientes e de suas avaliações para fornecer insights concisos e focados no treinamento ou recuperação. Responda sempre em Português do Brasil.',
+        'Você é um cientista do esporte e fisioterapeuta experiente especializado em sarcopenia. Analise os dados dos pacientes e de suas avaliações para fornecer insights concisos e focados no treinamento ou recuperação. Considere os critérios EWGSOP2 para sarcopenia. Responda sempre em Português do Brasil.',
       tier: 'fast',
       tools: [
-        { collection: 'pacientes', perms: { read: true, list: true } },
-        { collection: 'avaliacoes', perms: { read: true, list: true } },
+        { collection: 'patients', perms: { read: true, list: true } },
+        { collection: 'assessments', perms: { read: true, list: true } },
       ],
     })
   },
