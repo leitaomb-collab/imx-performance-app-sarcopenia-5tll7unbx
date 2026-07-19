@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
+import { Toaster as SonnerToaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider, useAuth } from '@/hooks/use-auth'
@@ -33,6 +34,7 @@ export default function App() {
         <BrowserRouter>
           <TooltipProvider>
             <Toaster />
+            <SonnerToaster richColors position="top-right" />
             <Suspense
               fallback={
                 <div className="flex h-screen items-center justify-center">

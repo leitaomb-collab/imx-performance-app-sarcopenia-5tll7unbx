@@ -1,152 +1,190 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
-import { Plus, Search, ChevronRight } from 'lucide-react'
-import { getPacientes, createPaciente } from '@/services/api'
+import { Search, Plus, Loader2, Users, UserX, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
+import { getPatients } from '@/services/patients'
 import { useRealtime } from '@/hooks/use-realtime'
-import { useToast } from '@/hooks/use-toast'
-import { format } from 'date-fns'
+import type { Patient } from '@/types'
+import { PatientCard } from '@/components/patients/PatientCard'
+import { PatientSkeleton } from '@/components/patients/PatientSkeleton'
+import { CreatePatientDialog } from '@/components/patients/CreatePatientDialog'
+import { DeletePatientDialog } from '@/components/patients/DeletePatientDialog'
+
+const PER_PAGE = 20
 
 export default function Patients() {
-  const [pacientes, setPacientes] = useState<any[]>([])
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState(false)
   const [search, setSearch] = useState('')
-  const [open, setOpen] = useState(false)
-  const { toast } = useToast()
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const [genderFilter, setGenderFilter] = useState('all')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null)
+  const [fadingOutId, setFadingOutId] = useState<string | null>(null)
+  const skipRealtimeRef = useRef(false)
 
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', gender: 'Outro' })
-
-  const loadData = async () => getPacientes().then(setPacientes)
-  useEffect(() => {
-    loadData()
-  }, [])
-  useRealtime('pacientes', loadData)
-
-  const filtered = pacientes.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    try {
-      await createPaciente(formData)
-      toast({ title: 'Sucesso', description: 'Paciente criado com sucesso.' })
-      setOpen(false)
-      setFormData({ name: '', email: '', phone: '', gender: 'Outro' })
-    } catch {
-      toast({ title: 'Erro', description: 'Falha ao criar paciente.', variant: 'destructive' })
-    }
+  const buildFilter = (s: string, g: string): string | undefined => {
+    const conditions: string[] = []
+    if (s) conditions.push(`name ~ "${s}"`)
+    if (g !== 'all') conditions.push(`gender = "${g}"`)
+    return conditions.length ? conditions.join(' && ') : undefined
   }
+
+  const loadData = useCallback(
+    async (pageNum: number, append: boolean) => {
+      if (!append) setLoading(true)
+      else setLoadingMore(true)
+      setError(false)
+      try {
+        const filter = buildFilter(debouncedSearch, genderFilter)
+        const result = await getPatients(pageNum, PER_PAGE, filter)
+        setPatients((prev) => (append ? [...prev, ...result.items] : result.items))
+        setTotalPages(result.totalPages)
+        setPage(pageNum)
+      } catch {
+        setError(true)
+        if (!append) toast.error('Não foi possível carregar a lista de pacientes')
+      } finally {
+        setLoading(false)
+        setLoadingMore(false)
+      }
+    },
+    [debouncedSearch, genderFilter],
+  )
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  }, [search])
+
+  useEffect(() => {
+    loadData(1, false)
+  }, [loadData])
+
+  useRealtime('patients', () => {
+    if (skipRealtimeRef.current) return
+    loadData(1, false)
+  })
+
+  const handleLoadMore = () => loadData(page + 1, true)
+
+  const handleDeleteSuccess = (id: string) => {
+    setFadingOutId(id)
+    skipRealtimeRef.current = true
+    setTimeout(() => {
+      skipRealtimeRef.current = false
+      setPatients((prev) => prev.filter((p) => p.id !== id))
+      setFadingOutId(null)
+    }, 500)
+  }
+
+  const hasFilters = debouncedSearch || genderFilter !== 'all'
+  const showEmpty = !loading && !error && patients.length === 0
+  const showLoadMore = page < totalPages && !loading && !error
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="relative w-full sm:w-72">
+        <h1 className="text-3xl font-bold tracking-tight">Pacientes</h1>
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Novo Paciente
+        </Button>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            type="search"
-            placeholder="Buscar paciente..."
+            placeholder="Buscar pacientes..."
             className="pl-8"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Novo Paciente
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Cadastrar Novo Paciente</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={onSubmit} className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <Label>Nome Completo</Label>
-                <Input
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Telefone</Label>
-                <Input
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <Button type="submit" className="w-full mt-4">
-                Salvar Paciente
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Select value={genderFilter} onValueChange={setGenderFilter}>
+          <SelectTrigger className="w-full sm:w-40">
+            <SelectValue placeholder="Gênero" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos</SelectItem>
+            <SelectItem value="M">Masculino</SelectItem>
+            <SelectItem value="F">Feminino</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <Card className="shadow-subtle border-0">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Data de Cadastro</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((p) => (
-                <TableRow key={p.id} className="hover:bg-muted/50 transition-colors">
-                  <TableCell className="font-medium">{p.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{p.email || '-'}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {format(new Date(p.created), 'dd/MM/yyyy')}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Link to={`/paciente/${p.id}`}>
-                      <Button variant="ghost" size="sm">
-                        Acessar <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    Nenhum paciente encontrado.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <PatientSkeleton key={i} />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center py-12 gap-4">
+          <AlertCircle className="h-10 w-10 text-destructive" />
+          <Button onClick={() => loadData(1, false)}>Tentar novamente</Button>
+        </div>
+      ) : showEmpty ? (
+        <div className="flex flex-col items-center py-12 gap-4">
+          {hasFilters ? (
+            <>
+              <UserX className="h-10 w-10 text-muted-foreground" />
+              <p className="text-lg font-medium">Nenhum resultado encontrado</p>
+              <p className="text-sm text-muted-foreground">
+                Tente buscar com outro nome ou ajuste os filtros.
+              </p>
+            </>
+          ) : (
+            <>
+              <Users className="h-10 w-10 text-muted-foreground" />
+              <p className="text-lg font-medium">Nenhum paciente cadastrado</p>
+              <Button onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" /> Novo Paciente
+              </Button>
+            </>
+          )}
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {patients.map((p) => (
+              <PatientCard
+                key={p.id}
+                patient={p}
+                onDelete={setDeleteTarget}
+                isFadingOut={fadingOutId === p.id}
+              />
+            ))}
+          </div>
+          {showLoadMore && (
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" onClick={handleLoadMore} disabled={loadingMore}>
+                {loadingMore && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Carregar mais
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+
+      <CreatePatientDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <DeletePatientDialog
+        patient={deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        onSuccess={handleDeleteSuccess}
+      />
     </div>
   )
 }

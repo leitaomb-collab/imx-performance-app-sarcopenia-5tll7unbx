@@ -1,8 +1,24 @@
 import pb from '@/lib/pocketbase/client'
 import type { Patient } from '@/types'
 
-export const getPatients = async (): Promise<Patient[]> => {
-  return pb.collection('patients').getFullList({ sort: '-created' }) as Promise<Patient[]>
+export interface PatientListResult {
+  items: Patient[]
+  page: number
+  perPage: number
+  totalItems: number
+  totalPages: number
+}
+
+export const getPatients = async (
+  page: number = 1,
+  perPage: number = 20,
+  filter?: string,
+): Promise<PatientListResult> => {
+  const result = await pb.collection('patients').getList(page, perPage, {
+    sort: '-created',
+    ...(filter ? { filter } : {}),
+  })
+  return result as unknown as PatientListResult
 }
 
 export const getPatient = async (id: string): Promise<Patient> => {
