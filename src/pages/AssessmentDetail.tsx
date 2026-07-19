@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { getAvaliacao } from '@/services/api'
+import { BackButton } from '@/components/BackButton'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Printer, ArrowLeft, Activity } from 'lucide-react'
+import { Printer, Activity } from 'lucide-react'
 import { format } from 'date-fns'
 
 export default function AssessmentDetail() {
@@ -24,11 +25,7 @@ export default function AssessmentDetail() {
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in print:p-0 print:m-0">
       <div className="flex justify-between items-center print:hidden">
-        <Button variant="ghost" asChild>
-          <Link to={`/paciente/${aval.paciente}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao Perfil
-          </Link>
-        </Button>
+        <BackButton fallback="/pacientes" label="Voltar ao Perfil" />
         <Button onClick={handlePrint} variant="outline">
           <Printer className="mr-2 h-4 w-4" /> Imprimir Relatório
         </Button>
@@ -60,7 +57,12 @@ export default function AssessmentDetail() {
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
                 Data
               </p>
-              <p className="text-lg font-bold mt-1">{format(new Date(aval.data), 'dd/MM/yyyy')}</p>
+              <p
+                className="text-lg font-bold mt-1"
+                style={{ viewTransitionName: id ? `assessment-date-${id}` : undefined }}
+              >
+                {format(new Date(aval.data), 'dd/MM/yyyy')}
+              </p>
             </div>
             <div className="p-4 bg-secondary/50 rounded-lg">
               <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">

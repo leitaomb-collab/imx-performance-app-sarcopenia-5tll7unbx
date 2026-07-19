@@ -20,7 +20,10 @@ export function AssessmentCard({ assessment, onDelete }: AssessmentCardProps) {
     <Card>
       <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1.5">
-          <p className="font-semibold text-sm sm:text-base">
+          <p
+            className="font-semibold text-sm sm:text-base"
+            style={{ viewTransitionName: `assessment-date-${assessment.id}` }}
+          >
             {formatDateBR(assessment.assessmentDate)}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -39,14 +42,14 @@ export function AssessmentCard({ assessment, onDelete }: AssessmentCardProps) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-11" asChild>
-            <Link to={`/avaliacao/${assessment.id}`}>
+          <Button variant="outline" size="sm" className="h-11 tactile" asChild>
+            <Link to={`/avaliacao/${assessment.id}`} viewTransition>
               <ClipboardList className="mr-1 h-4 w-4" /> Ver Avaliação
             </Link>
           </Button>
           {isCompleted && (
-            <Button variant="outline" size="sm" className="h-11" asChild>
-              <Link to={`/relatorio/${assessment.id}`}>
+            <Button variant="outline" size="sm" className="h-11 tactile" asChild>
+              <Link to={`/relatorio/${assessment.id}`} viewTransition>
                 <FileText className="mr-1 h-4 w-4" /> Ver Relatório
               </Link>
             </Button>
@@ -54,7 +57,7 @@ export function AssessmentCard({ assessment, onDelete }: AssessmentCardProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 shrink-0"
+            className="h-11 w-11 shrink-0 tactile"
             aria-label="Excluir avaliação"
             onClick={() => onDelete(assessment)}
           >

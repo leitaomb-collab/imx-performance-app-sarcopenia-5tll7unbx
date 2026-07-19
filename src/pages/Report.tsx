@@ -3,15 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import {
-  ArrowLeft,
-  Printer,
-  FileDown,
-  Pencil,
-  AlertCircle,
-  FileX,
-  AlertTriangle,
-} from 'lucide-react'
+import { Printer, FileDown, Pencil, AlertCircle, FileX, AlertTriangle } from 'lucide-react'
+import { BackButton } from '@/components/BackButton'
 import { ReportHeader } from '@/components/report/ReportHeader'
 import { ReportSectionsA } from '@/components/report/ReportSectionsA'
 import { ReportSectionsB } from '@/components/report/ReportSectionsB'
@@ -101,11 +94,11 @@ export default function Report() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="report-action-bar sticky top-0 z-30 h-14 bg-card border-b border-border flex items-center justify-between -mx-4 px-4 md:-mx-6 md:px-6 mb-8">
-        <Button variant="secondary" className="h-10 rounded-lg duration-200" asChild>
-          <Link to={`/avaliacao/${id}`}>
-            <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
-          </Link>
-        </Button>
+        <BackButton
+          fallback="/dashboard"
+          variant="secondary"
+          className="h-10 rounded-lg duration-200"
+        />
         <div className="flex items-center gap-2">
           <Button
             className="h-10 rounded-lg duration-200"

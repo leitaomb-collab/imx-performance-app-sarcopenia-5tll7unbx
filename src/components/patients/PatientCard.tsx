@@ -31,7 +31,9 @@ export function PatientCard({ patient, onDelete, isFadingOut }: PatientCardProps
         <div className="flex items-start justify-between gap-2">
           <Link
             to={`/paciente/${patient.id}`}
-            className="text-lg font-semibold hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
+            viewTransition
+            style={{ viewTransitionName: `patient-name-${patient.id}` }}
+            className="text-lg font-semibold hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded tactile"
           >
             {patient.name}
           </Link>
@@ -64,13 +66,15 @@ export function PatientCard({ patient, onDelete, isFadingOut }: PatientCardProps
         )}
 
         <div className="flex items-center justify-between mt-auto pt-2">
-          <Button variant="outline" className="h-11" asChild>
-            <Link to={`/paciente/${patient.id}`}>Ver perfil</Link>
+          <Button variant="outline" className="h-11 tactile" asChild>
+            <Link to={`/paciente/${patient.id}`} viewTransition>
+              Ver perfil
+            </Link>
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 shrink-0"
+            className="h-11 w-11 shrink-0 tactile"
             aria-label="Excluir paciente"
             onClick={() => onDelete(patient)}
           >

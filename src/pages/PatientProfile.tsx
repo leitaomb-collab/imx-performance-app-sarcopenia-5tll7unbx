@@ -5,7 +5,7 @@ import { getAssessments } from '@/services/assessments'
 import { useRealtime } from '@/hooks/use-realtime'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Pencil, Plus, ClipboardList, AlertCircle } from 'lucide-react'
+import { Pencil, Plus, ClipboardList, AlertCircle } from 'lucide-react'
 import { calculateAge, calculateIMC, formatGender, getIMCColorClass } from '@/lib/patient-utils'
 import { cn } from '@/lib/utils'
 import type { Patient, Assessment } from '@/types'
@@ -14,6 +14,7 @@ import { DeleteAssessmentDialog } from '@/components/patients/DeleteAssessmentDi
 import { AssessmentCard } from '@/components/patients/AssessmentCard'
 import { PatientProfileSkeleton } from '@/components/patients/PatientProfileSkeleton'
 import { PatientInfoCards } from '@/components/patients/PatientInfoCards'
+import { BackButton } from '@/components/BackButton'
 
 export default function PatientProfile() {
   const { id } = useParams()
@@ -75,15 +76,16 @@ export default function PatientProfile() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <Button variant="ghost" size="sm" className="h-11 w-fit" asChild>
-        <Link to="/pacientes">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
-        </Link>
-      </Button>
+      <BackButton fallback="/pacientes" className="h-11" />
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">{patient.name}</h1>
+          <h1
+            className="text-3xl font-bold tracking-tight"
+            style={{ viewTransitionName: `patient-name-${patient.id}` }}
+          >
+            {patient.name}
+          </h1>
           <div className="flex flex-wrap gap-2">
             {age !== null && <Badge variant="secondary">{age} anos</Badge>}
             <Badge
@@ -104,14 +106,14 @@ export default function PatientProfile() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="h-11" onClick={() => setEditOpen(true)}>
+          <Button variant="outline" className="h-11 tactile" onClick={() => setEditOpen(true)}>
             <Pencil className="mr-2 h-4 w-4" /> Editar
           </Button>
-          <Button className="h-11" asChild>
-            <Link to={`/avaliacao/nova?patientId=${patient.id}`}>
+          <Button className="h-11 tactile" asChild>
+            <Link to={`/avaliacao/nova?patientId=${patient.id}`} viewTransition>
               <Plus className="mr-2 h-4 w-4" /> Nova Avaliação
             </Link>
-          </Button>
+          </Button>{' '}
         </div>
       </div>
 
@@ -123,8 +125,8 @@ export default function PatientProfile() {
           <div className="flex flex-col items-center py-12 gap-4">
             <ClipboardList className="h-10 w-10 text-muted-foreground" />
             <p className="text-lg font-medium">Nenhuma avaliação registrada</p>
-            <Button className="h-11" asChild>
-              <Link to={`/avaliacao/nova?patientId=${patient.id}`}>
+            <Button className="h-11 tactile" asChild>
+              <Link to={`/avaliacao/nova?patientId=${patient.id}`} viewTransition>
                 <Plus className="mr-2 h-4 w-4" /> Nova Avaliação
               </Link>
             </Button>

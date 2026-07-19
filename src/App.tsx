@@ -5,6 +5,7 @@ import { Toaster as SonnerToaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { ThemeProvider } from '@/components/theme-provider'
 import { AuthProvider, useAuth } from '@/hooks/use-auth'
+import { NavigationProgress } from '@/components/NavigationProgress'
 import Layout from '@/components/Layout'
 
 const Index = lazy(() => import('@/pages/Index'))
@@ -33,6 +34,7 @@ export default function App() {
     <ThemeProvider defaultTheme="light" storageKey="theme">
       <AuthProvider>
         <BrowserRouter>
+          <NavigationProgress />
           <TooltipProvider>
             <Toaster />
             <SonnerToaster richColors position="top-right" />

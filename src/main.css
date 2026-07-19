@@ -419,6 +419,180 @@
   }
 }
 
+/* ===== View Transitions API — Desktop Route Transitions ===== */
+::view-transition-old(root) {
+  animation: route-exit-desktop 150ms ease-in forwards;
+}
+::view-transition-new(root) {
+  animation: route-enter-desktop 200ms ease-out 150ms forwards;
+}
+@keyframes route-exit-desktop {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes route-enter-desktop {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Keep sidebar and header static during transitions */
+::view-transition-old(layout-sidebar),
+::view-transition-new(layout-sidebar),
+::view-transition-old(layout-header),
+::view-transition-new(layout-header) {
+  animation: none;
+}
+
+/* ===== Mobile View Transitions ===== */
+@media (max-width: 767px) {
+  ::view-transition-old(root) {
+    animation: route-exit-mobile 200ms ease-in forwards;
+  }
+  ::view-transition-new(root) {
+    animation: route-enter-mobile 250ms ease-out forwards;
+  }
+}
+@keyframes route-exit-mobile {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+}
+@keyframes route-enter-mobile {
+  from {
+    transform: translateX(100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ===== Reduced Motion — View Transitions ===== */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: reduced-route-fade 100ms ease;
+  }
+  ::view-transition-old(layout-sidebar),
+  ::view-transition-new(layout-sidebar),
+  ::view-transition-old(layout-header),
+  ::view-transition-new(layout-header) {
+    animation: none;
+  }
+  * {
+    view-transition-name: none !important;
+  }
+}
+@keyframes reduced-route-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== Navigation Progress Bar ===== */
+@keyframes nav-progress-load {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 80%;
+  }
+}
+@keyframes nav-progress-complete {
+  from {
+    width: 80%;
+  }
+  to {
+    width: 100%;
+  }
+}
+@keyframes nav-progress-fade {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.nav-progress-loading {
+  animation: nav-progress-load 400ms ease-out forwards;
+}
+.nav-progress-completing {
+  animation:
+    nav-progress-complete 200ms ease-in forwards,
+    nav-progress-fade 150ms ease-out 200ms forwards;
+}
+
+/* ===== Tactile Feedback ===== */
+.tactile {
+  transition: transform 100ms ease-out;
+}
+.tactile:active {
+  transform: scale(0.97);
+}
+button.tactile:active {
+  filter: brightness(0.95);
+}
+
+/* ===== Route Transition Fallback (no View Transitions API) ===== */
+.route-transition-fallback {
+  animation: route-enter-desktop 200ms ease-out;
+}
+.route-transition-reduced {
+  animation: reduced-route-fade 100ms ease;
+}
+
+/* ===== Sidebar Active State ===== */
+.nav-link {
+  position: relative;
+}
+.nav-link-active {
+  background-color: hsl(var(--accent) / 0.5);
+}
+.nav-link-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: hsl(var(--primary));
+  transform-origin: top;
+  animation: nav-border-grow 200ms ease-out;
+}
+.nav-link:not(.nav-link-active):hover {
+  background-color: hsl(var(--accent) / 0.2);
+}
+@keyframes nav-border-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
 *:focus-visible {
   outline: 2px solid hsl(var(--primary));
   outline-offset: 2px;
