@@ -22,9 +22,10 @@ function ci(
   s: ClinicalStatus,
   normal = 'Normal',
   reduced = 'Reduzida',
-): { text: string; cls: 'normal' | 'reduced' } | null {
+  normalCls: 'normal' | 'blue' = 'normal',
+): { text: string; cls: 'normal' | 'reduced' | 'blue' } | null {
   if (!s) return null
-  return { text: s === 'normal' ? normal : reduced, cls: s === 'normal' ? 'normal' : 'reduced' }
+  return { text: s === 'normal' ? normal : reduced, cls: s === 'normal' ? normalCls : 'reduced' }
 }
 
 export function ReportSectionsA({ assessment, patient }: Props) {
@@ -46,7 +47,7 @@ export function ReportSectionsA({ assessment, patient }: Props) {
   const ccI = ci(getCalfCircumferenceStatus(an.calfCircumference, gender))
   const hgI = ci(getHandgripStatus(ms.handgripMax, gender))
   const csI = ci(getChairStandStatus(ms.chairStandTime))
-  const tugI = ci(getTUGStatus(ba.tugSimple), 'Normal', 'Alterada')
+  const tugI = ci(getTUGStatus(ba.tugSimple), 'Normal', 'Alterada', 'blue')
   const sppbTotal = getSPPBTotal(ba.sppbBalance, ba.sppbGait, ba.sppbChair)
   const sppbI = ci(getSPPBStatus(sppbTotal))
 

@@ -214,30 +214,183 @@
     background-color: hsl(199 89% 20%);
     color: hsl(199 89% 70%);
   }
+
+  .report-accent-bar {
+    height: 4px;
+    background-color: hsl(var(--primary));
+  }
+
+  .report-patient-id {
+    background-color: hsl(var(--secondary) / 0.3);
+    border-radius: 0.5rem;
+  }
+
+  .report-field-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+  }
+
+  .report-field-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.125rem;
+  }
+
+  .report-section-marker {
+    width: 0.375rem;
+    height: 0.375rem;
+    background-color: hsl(var(--primary));
+  }
+
+  .report-subsection-marker {
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 50%;
+    background-color: hsl(var(--primary) / 0.5);
+  }
+
+  .report-clinical-summary {
+    background-color: hsl(var(--secondary) / 0.3);
+    border-radius: 0.5rem;
+    line-height: 1.7;
+  }
+
+  .ewgsop2-container {
+    border: 1px solid hsl(var(--border));
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+  }
 }
 
 @media print {
   .report-action-bar {
     display: none !important;
   }
+
+  body {
+    background: white !important;
+  }
+
   .report-document {
     max-width: none !important;
     box-shadow: none !important;
     margin: 0 !important;
     border: none !important;
     border-radius: 0 !important;
+    font-size: 10pt;
   }
+
   .report-document > div {
     padding: 0 !important;
   }
+
+  .report-accent-bar {
+    display: none !important;
+  }
+
+  .report-document,
+  .report-document * {
+    color: #000 !important;
+    background-color: #fff !important;
+    border-radius: 0 !important;
+  }
+
+  .report-document h1,
+  .report-document h2,
+  .report-document h3 {
+    font-size: 12pt !important;
+  }
+
+  .report-section-title {
+    border-bottom: 0.5px solid #000 !important;
+  }
+
+  .report-section-marker,
+  .report-subsection-marker {
+    background-color: #000 !important;
+  }
+
+  .report-patient-id {
+    background-color: #fff !important;
+    border: 0.5px solid #000 !important;
+  }
+
+  .report-table {
+    break-inside: avoid;
+  }
+
+  .report-table thead tr {
+    background-color: #fff !important;
+    border-bottom: 0.5px solid #000 !important;
+  }
+
+  .report-table thead th {
+    color: #000 !important;
+    border-bottom: 0.5px solid #000 !important;
+  }
+
+  .report-table tbody tr {
+    border-color: #000 !important;
+    border-bottom: 0.5px solid #000 !important;
+  }
+
+  .report-table tbody td {
+    border-bottom: 0.5px solid #000 !important;
+  }
+
+  .clinical-badge-normal,
+  .clinical-badge-reduced,
+  .clinical-badge-moderate,
+  .clinical-badge-blue,
+  .report-print-badge {
+    background-color: transparent !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+    padding: 0 !important;
+    font-size: 10pt !important;
+    border: none !important;
+  }
+
+  .clinical-badge-normal::before,
+  .clinical-badge-reduced::before,
+  .clinical-badge-moderate::before,
+  .clinical-badge-blue::before,
+  .report-print-badge::before {
+    content: '[';
+  }
+
+  .clinical-badge-normal::after,
+  .clinical-badge-reduced::after,
+  .clinical-badge-moderate::after,
+  .clinical-badge-blue::after,
+  .report-print-badge::after {
+    content: ']';
+  }
+
+  .ewgsop2-container {
+    break-inside: avoid;
+    border: 0.5px solid #000 !important;
+  }
+
+  .ewgsop2-container * {
+    opacity: 1 !important;
+  }
+
+  .report-clinical-summary {
+    break-inside: avoid;
+    background-color: #fff !important;
+    border: 0.5px solid #000 !important;
+  }
+
   .report-section {
     break-inside: avoid;
   }
+
   .report-header {
     break-inside: avoid;
-  }
-  body {
-    background: white !important;
   }
 }
 

@@ -71,12 +71,12 @@ export function ReportSectionsB({ assessment, patient }: Props) {
   const fRiskI = fRisk
     ? fRisk === 'baixo'
       ? { text: 'Sem risco', cls: 'normal' as const }
-      : { text: 'Em risco', cls: 'reduced' as const }
+      : { text: 'Em risco', cls: 'moderate' as const }
     : null
   const cfRiskI = cfRisk
     ? cfRisk === 'baixo'
       ? { text: 'Sem risco', cls: 'normal' as const }
-      : { text: 'Em risco', cls: 'reduced' as const }
+      : { text: 'Em risco', cls: 'moderate' as const }
     : null
 
   return (
@@ -244,26 +244,29 @@ export function ReportSectionsB({ assessment, patient }: Props) {
                 },
               ]}
             />
-            <div className="mt-4">
+            <div className="ewgsop2-container mt-4">
               <p className="text-sm font-semibold mb-2">Diagnóstico:</p>
               <div className="grid grid-cols-2 gap-2">
-                {DIAGNOSIS_OPTIONS.map((opt) => (
-                  <div
-                    key={opt.value}
-                    className={`flex items-center gap-2 text-sm p-2 rounded border ${assessment.finalDiagnosis === opt.value ? 'border-primary bg-primary/5' : 'border-border/60'}`}
-                  >
-                    <span
-                      className={
-                        assessment.finalDiagnosis === opt.value
-                          ? 'text-primary font-bold'
-                          : 'text-transparent'
-                      }
+                {DIAGNOSIS_OPTIONS.map((opt) => {
+                  const active = assessment.finalDiagnosis === opt.value
+                  return (
+                    <div
+                      key={opt.value}
+                      className={`flex items-center gap-2 text-sm p-2 rounded border ${
+                        active
+                          ? 'border-primary bg-primary/5 opacity-100'
+                          : 'border-border/60 opacity-50'
+                      }`}
                     >
-                      ✓
-                    </span>
-                    {opt.label}
-                  </div>
-                ))}
+                      {active ? (
+                        <span className="text-primary font-bold">✓</span>
+                      ) : (
+                        <span className="text-muted-foreground">○</span>
+                      )}
+                      {opt.label}
+                    </div>
+                  )
+                })}
               </div>
             </div>
             {ew.notes && <p className="text-sm mt-3 text-muted-foreground">{ew.notes}</p>}
@@ -275,10 +278,12 @@ export function ReportSectionsB({ assessment, patient }: Props) {
 
       <SectionBlock number={11} title="Conclusão">
         <SubSection title="Resumo Clínico">
-          <RichText
-            content={assessment.clinicalSummary}
-            emptyMsg="Sem resumo clínico registrado."
-          />
+          <div className="report-clinical-summary p-4">
+            <RichText
+              content={assessment.clinicalSummary}
+              emptyMsg="Sem resumo clínico registrado."
+            />
+          </div>
         </SubSection>
         <SubSection title="Reavaliação">
           <p className="text-sm">

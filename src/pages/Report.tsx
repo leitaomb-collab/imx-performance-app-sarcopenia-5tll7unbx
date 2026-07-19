@@ -50,7 +50,7 @@ export default function Report() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <div className="h-12 mb-4" />
         <ReportSkeleton />
       </div>
@@ -100,26 +100,35 @@ export default function Report() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="report-action-bar sticky top-0 z-30 bg-background/95 backdrop-blur border-b -mx-4 px-4 py-3 md:-mx-6 md:px-6 mb-6 flex flex-wrap items-center justify-between gap-3">
-        <Button variant="ghost" size="sm" asChild>
+      <div className="report-action-bar sticky top-0 z-30 h-14 bg-card border-b border-border flex items-center justify-between -mx-4 px-4 md:-mx-6 md:px-6 mb-8">
+        <Button variant="secondary" className="h-10 rounded-lg duration-200" asChild>
           <Link to={`/avaliacao/${id}`}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
           </Link>
         </Button>
         <div className="flex items-center gap-2">
+          <Button
+            className="h-10 rounded-lg duration-200"
+            onClick={() => window.print()}
+            disabled={isDraft}
+          >
+            <Printer className="h-4 w-4 mr-1" /> Imprimir
+          </Button>
+          <Button
+            variant="secondary"
+            className="h-10 rounded-lg duration-200"
+            onClick={() => window.print()}
+            disabled={isDraft}
+          >
+            <FileDown className="h-4 w-4 mr-1" /> Baixar PDF
+          </Button>
           {isDraft && (
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="secondary" className="h-10 rounded-lg duration-200" asChild>
               <Link to={`/avaliacao/${id}`}>
-                <Pencil className="h-4 w-4 mr-1" /> Editar
+                <Pencil className="h-4 w-4 mr-1" /> Editar Avaliação
               </Link>
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={() => window.print()} disabled={isDraft}>
-            <FileDown className="h-4 w-4 mr-1" /> Baixar PDF
-          </Button>
-          <Button size="sm" onClick={() => window.print()} disabled={isDraft}>
-            <Printer className="h-4 w-4 mr-1" /> Imprimir
-          </Button>
         </div>
       </div>
 
@@ -135,7 +144,8 @@ export default function Report() {
         </div>
       )}
 
-      <div className="report-document bg-card border rounded-lg shadow-sm overflow-hidden">
+      <div className="report-document bg-card border border-border rounded-none md:rounded-lg md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden md:my-8">
+        <div className="report-accent-bar" />
         <div className="p-6 md:p-10">
           <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
           <ReportSectionsA assessment={data} patient={patient} />

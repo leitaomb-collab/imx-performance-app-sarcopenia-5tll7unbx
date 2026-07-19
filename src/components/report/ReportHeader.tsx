@@ -40,7 +40,7 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
         </p>
       </div>
       <div className="border border-t-0 border-border rounded-b-lg p-6 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+        <div className="report-patient-id grid grid-cols-1 md:grid-cols-2 gap-4 p-4 text-sm">
           <Field label="Nome" value={patient.name} />
           <Field label="Data de Nascimento" value={formatDateBR(patient.birthDate)} />
           <Field label="Idade" value={`${age} anos`} />
@@ -60,11 +60,11 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
               Status:
             </span>
             <Badge
-              className={
+              className={`report-print-badge ${
                 assessment.status === 'concluida'
                   ? 'bg-green-500 hover:bg-green-600'
                   : 'bg-yellow-500 hover:bg-yellow-600'
-              }
+              }`}
             >
               {assessment.status === 'concluida' ? 'Concluída' : 'Rascunho'}
             </Badge>
@@ -74,7 +74,7 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
               <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
                 Diagnóstico:
               </span>
-              <Badge className={diagInfo.className}>{diagInfo.label}</Badge>
+              <Badge className={`report-print-badge ${diagInfo.className}`}>{diagInfo.label}</Badge>
             </div>
           )}
           {evaluator && <Field label="Avaliador" value={evaluator.name} />}
@@ -87,8 +87,8 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{label}</dt>
-      <dd className="font-medium mt-0.5">{value}</dd>
+      <dt className="report-field-label">{label}</dt>
+      <dd className="report-field-value">{value}</dd>
     </div>
   )
 }

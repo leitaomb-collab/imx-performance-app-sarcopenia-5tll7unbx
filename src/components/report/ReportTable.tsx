@@ -6,7 +6,11 @@ export interface ReportRow {
   value?: string | null
   ref?: string
   interp?: string
-  interpClass?: 'normal' | 'altered' | 'reduced'
+  interpClass?: 'normal' | 'altered' | 'reduced' | 'blue' | 'moderate'
+}
+
+function Dash() {
+  return <span className="text-muted-foreground">-</span>
 }
 
 export function ReportTable({
@@ -22,13 +26,13 @@ export function ReportTable({
   const showInterp = headers.length >= 4
   return (
     <div className="break-inside-avoid">
-      <table className="w-full text-sm border-collapse">
+      <table className="report-table w-full border-collapse">
         <thead>
-          <tr className="border-b-2 border-border bg-muted/20">
+          <tr className="border-b border-border bg-secondary/50">
             {headers.map((h, i) => (
               <th
                 key={i}
-                className="text-left py-2 px-3 font-semibold text-xs uppercase tracking-wide"
+                className="text-left py-2 px-3 font-semibold text-xs uppercase tracking-wide text-muted-foreground"
               >
                 {h}
               </th>
@@ -38,10 +42,10 @@ export function ReportTable({
         <tbody>
           {rows.map((row, i) => (
             <tr key={i} className="border-b border-border/40 last:border-0">
-              <td className="py-2 px-3">{row.label}</td>
-              <td className="py-2 px-3 font-medium">{row.value ?? '-'}</td>
+              <td className="py-2 px-3 font-medium text-[0.8125rem]">{row.label}</td>
+              <td className="py-2 px-3 font-semibold text-[0.8125rem]">{row.value ?? <Dash />}</td>
               {showRef && (
-                <td className="py-2 px-3 text-muted-foreground text-xs">{row.ref ?? '-'}</td>
+                <td className="py-2 px-3 text-muted-foreground text-xs">{row.ref ?? <Dash />}</td>
               )}
               {showInterp && (
                 <td className="py-2 px-3">
@@ -52,12 +56,14 @@ export function ReportTable({
                         row.interpClass === 'normal' && 'clinical-badge-normal',
                         row.interpClass === 'altered' && 'clinical-badge-reduced',
                         row.interpClass === 'reduced' && 'clinical-badge-reduced',
+                        row.interpClass === 'blue' && 'clinical-badge-blue',
+                        row.interpClass === 'moderate' && 'clinical-badge-moderate',
                       )}
                     >
                       {row.interp}
                     </span>
                   ) : (
-                    '-'
+                    <Dash />
                   )}
                 </td>
               )}
@@ -81,11 +87,11 @@ export function SectionBlock({
 }) {
   return (
     <section className="report-section break-inside-avoid mb-6">
-      <h3 className="text-base font-bold border-b border-border pb-2 mb-3 flex items-center gap-2">
-        <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-primary text-primary-foreground text-xs font-bold">
-          {number}
+      <h3 className="report-section-title text-base font-bold border-b-2 border-border pb-2 mb-3 flex items-center gap-2">
+        <span className="report-section-marker shrink-0" />
+        <span>
+          {number}. {title}
         </span>
-        {title}
       </h3>
       {children}
     </section>
@@ -95,7 +101,8 @@ export function SectionBlock({
 export function SubSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="mb-4 last:mb-0">
-      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+      <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-2">
+        <span className="report-subsection-marker shrink-0" />
         {title}
       </h4>
       {children}
