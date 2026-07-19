@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Users } from 'lucide-react'
+import { Users, UserSearch } from 'lucide-react'
 import { getAllPatients } from '@/services/patients'
 import { getAssessments } from '@/services/assessments'
 import { useRealtime } from '@/hooks/use-realtime'
@@ -67,9 +66,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="dashboard-container animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-[1.5rem] font-bold tracking-[-0.025em]">Dashboard</h1>
         <PatientSelector
           patients={patients}
           value={selectedPatientId}
@@ -83,7 +82,7 @@ export default function Dashboard() {
         patientSelected={!!selectedPatientId}
       />
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-[1fr_1.5fr]">
         <DiagnosisDonut assessments={filteredAssessments} />
         <RecentAssessments assessments={filteredAssessments} />
       </div>
@@ -96,13 +95,13 @@ export default function Dashboard() {
       )}
 
       {!selectedPatient && (
-        <Card className="shadow-subtle border-0">
-          <CardContent className="flex items-center justify-center py-12">
-            <p className="text-sm text-muted-foreground">
-              Selecione um paciente para visualizar a evolução longitudinal.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center py-16 gap-3 animate-fade-in">
+          <UserSearch className="h-10 w-10 text-muted-foreground" />
+          <h3 className="text-[1rem] font-semibold">Evolução Longitudinal</h3>
+          <p className="text-[0.875rem] text-muted-foreground text-center max-w-md">
+            Selecione um paciente para visualizar a evolução longitudinal dos marcadores clínicos.
+          </p>
+        </div>
       )}
     </div>
   )

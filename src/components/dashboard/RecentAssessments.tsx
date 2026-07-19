@@ -1,23 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 import { DIAGNOSIS_LABELS } from '@/types'
-
-const DIAGNOSIS_COLORS: Record<string, string> = {
-  sem_sarcopenia: 'bg-gray-500 hover:bg-gray-600',
-  sarcopenia: 'bg-blue-500 hover:bg-blue-600',
-  sarcopenia_grave: 'bg-red-500 hover:bg-red-600',
-  nao_avaliado: 'bg-gray-300 hover:bg-gray-400 text-gray-700',
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  rascunho: 'bg-yellow-500 hover:bg-yellow-600',
-  concluida: 'bg-green-500 hover:bg-green-600',
-}
 
 const STATUS_LABELS: Record<string, string> = {
   rascunho: 'Rascunho',
@@ -34,7 +21,7 @@ export function RecentAssessments({ assessments }: RecentAssessmentsProps) {
     .slice(0, 5)
 
   return (
-    <Card className="shadow-subtle border-0">
+    <Card className="shadow-subtle rounded-[0.75rem]">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Atividade Recente</CardTitle>
         <Button variant="ghost" size="sm" asChild>
@@ -49,35 +36,38 @@ export function RecentAssessments({ assessments }: RecentAssessmentsProps) {
             Nenhuma avaliação encontrada.
           </p>
         ) : (
-          <div className="space-y-3">
+          <div>
             {recent.map((av) => {
               const patientName = av.expand?.patientId?.name || 'Paciente'
               const patientId = av.expand?.patientId?.id || av.patientId
               return (
-                <div
-                  key={av.id}
-                  className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0 gap-2"
-                >
+                <div key={av.id} className="recent-item">
                   <div className="flex-1 min-w-0">
                     <Link
                       to={`/paciente/${patientId}`}
                       className="text-sm font-medium hover:underline truncate block"
+                      style={{ color: 'hsl(var(--foreground))' }}
                     >
-                      {patientName}
+                      <span className="hover:text-primary transition-colors">{patientName}</span>
                     </Link>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs text-muted-foreground">
                         {format(new Date(av.assessmentDate), 'dd/MM/yyyy')}
                       </span>
-                      <Badge className={`text-xs ${STATUS_COLORS[av.status] || ''}`}>
+                      <span className={`recent-badge recent-badge-${av.status}`}>
                         {STATUS_LABELS[av.status] || av.status}
-                      </Badge>
-                      <Badge className={`text-xs ${DIAGNOSIS_COLORS[av.finalDiagnosis] || ''}`}>
+                      </span>
+                      <span className={`recent-badge recent-badge-${av.finalDiagnosis}`}>
                         {DIAGNOSIS_LABELS[av.finalDiagnosis] || 'Não Avaliado'}
-                      </Badge>
+                      </span>
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" asChild className="shrink-0 min-h-[44px]">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="shrink-0 min-h-[44px] border-primary/30 text-primary rounded-[0.375rem] bg-transparent"
+                  >
                     <Link to={`/avaliacao/${av.id}`}>
                       Ver <ChevronRight className="ml-1 h-4 w-4" />
                     </Link>

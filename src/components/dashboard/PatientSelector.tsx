@@ -39,7 +39,10 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-11 w-full sm:w-[280px] justify-between min-h-[44px]">
+        <Button
+          variant="outline"
+          className="h-11 w-full sm:w-auto sm:min-w-[16rem] justify-between min-h-[44px] bg-card border rounded-[0.5rem]"
+        >
           <span className="flex items-center gap-2 truncate">
             <Users className="h-4 w-4 text-muted-foreground shrink-0" />
             {selected ? selected.name : 'Todos os pacientes'}
@@ -47,7 +50,7 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
           <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[280px] p-0" align="start">
+      <PopoverContent className="w-[280px] p-0 shadow-[0_4px_12px_rgba(0,0,0,0.08)]" align="start">
         <Command shouldFilter={false}>
           <CommandInput placeholder="Buscar paciente..." value={search} onValueChange={setSearch} />
           <CommandList>
@@ -58,7 +61,10 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
                   onChange(null)
                   setOpen(false)
                 }}
-                className="cursor-pointer min-h-[44px]"
+                className={cn(
+                  'cursor-pointer min-h-[44px] py-[0.625rem] px-[0.875rem] data-[selected=true]:bg-primary/30',
+                  !value && 'bg-primary/10 font-medium',
+                )}
               >
                 <Check className={cn('mr-2 h-4 w-4', !value ? 'opacity-100' : 'opacity-0')} />
                 Todos os pacientes
@@ -70,7 +76,10 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
                     onChange(p.id)
                     setOpen(false)
                   }}
-                  className="cursor-pointer min-h-[44px]"
+                  className={cn(
+                    'cursor-pointer min-h-[44px] py-[0.625rem] px-[0.875rem] data-[selected=true]:bg-primary/30',
+                    value === p.id && 'bg-primary/10 font-medium',
+                  )}
                 >
                   <Check
                     className={cn('mr-2 h-4 w-4', value === p.id ? 'opacity-100' : 'opacity-0')}

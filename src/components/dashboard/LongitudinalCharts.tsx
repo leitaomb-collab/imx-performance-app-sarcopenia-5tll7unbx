@@ -1,20 +1,9 @@
 import { useMemo } from 'react'
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  ReferenceLine,
-  ReferenceArea,
-} from 'recharts'
-import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
+import { ReferenceLine, ReferenceArea } from 'recharts'
 import { ChartCard } from './ChartCard'
 import { SimpleLineChart } from './SimpleLineChart'
+import { DualAxisBarChart } from './DualAxisBarChart'
+import { DualLineChart } from './DualLineChart'
 import {
   extractChartData,
   sortAssessmentsByDate,
@@ -140,22 +129,58 @@ export function LongitudinalCharts({ assessments, patientGender }: LongitudinalC
               y={8}
               stroke="hsl(0 84% 60%)"
               strokeDasharray="4 4"
-              label={{ value: 'Baixo desempenho', fontSize: 9, fill: 'hsl(0 84% 60%)' }}
+              label={{ value: 'Baixo', fontSize: 9, fill: 'hsl(0 84% 60%)' }}
             />
             <ReferenceLine
               y={10}
               stroke="hsl(142 71% 45%)"
               strokeDasharray="4 4"
-              label={{ value: 'Bom desempenho', fontSize: 9, fill: 'hsl(142 71% 45%)' }}
+              label={{ value: 'Bom', fontSize: 9, fill: 'hsl(142 71% 45%)' }}
             />
           </SimpleLineChart>
         </ChartCard>
 
         <ChartCard title="TUG (s)" isEmpty={tugData.length === 0} note={singleNote(tugData.length)}>
           <SimpleLineChart data={tugData} color="hsl(var(--chart-4))">
-            <ReferenceArea y1={0} y2={10} fill="hsl(142 71% 45%)" fillOpacity={0.08} />
-            <ReferenceArea y1={10} y2={19} fill="hsl(45 93% 47%)" fillOpacity={0.08} />
-            <ReferenceArea y1={19} y2={60} fill="hsl(0 84% 60%)" fillOpacity={0.08} />
+            <ReferenceArea
+              y1={0}
+              y2={10}
+              fill="hsl(142 71% 45%)"
+              fillOpacity={0.25}
+              label={{
+                value: 'Normal',
+                position: 'insideRight',
+                fill: 'hsl(142 71% 45%)',
+                fillOpacity: 0.7,
+                fontSize: 9,
+              }}
+            />
+            <ReferenceArea
+              y1={10}
+              y2={19}
+              fill="hsl(45 93% 47%)"
+              fillOpacity={0.25}
+              label={{
+                value: 'Intermediário',
+                position: 'insideRight',
+                fill: 'hsl(45 93% 47%)',
+                fillOpacity: 0.7,
+                fontSize: 9,
+              }}
+            />
+            <ReferenceArea
+              y1={19}
+              y2={60}
+              fill="hsl(0 84% 60%)"
+              fillOpacity={0.25}
+              label={{
+                value: 'Risco',
+                position: 'insideRight',
+                fill: 'hsl(0 84% 60%)',
+                fillOpacity: 0.7,
+                fontSize: 9,
+              }}
+            />
           </SimpleLineChart>
         </ChartCard>
 
@@ -164,61 +189,17 @@ export function LongitudinalCharts({ assessments, patientGender }: LongitudinalC
           isEmpty={bodyCompData.length === 0}
           note={singleNote(bodyCompData.length)}
         >
-          <ChartContainer
+          <DualAxisBarChart
+            data={bodyCompData}
             config={{
               fat: { label: '% Gordura', color: 'hsl(var(--chart-1))' },
-              phase: { label: 'Ângulo de Fase', color: 'hsl(var(--chart-2))' },
+              phase: { label: 'Ângulo de Fase', color: 'hsl(25 95% 55%)' },
             }}
-            className="h-[200px] w-full"
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={bodyCompData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis
-                  dataKey="date"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  yAxisId="left"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <Tooltip content={<ChartTooltipContent />} />
-                <ReferenceLine
-                  yAxisId="left"
-                  y={fatMid}
-                  stroke="var(--color-fat)"
-                  strokeDasharray="4 4"
-                />
-                <ReferenceLine
-                  yAxisId="right"
-                  y={phaseCutoff}
-                  stroke="var(--color-phase)"
-                  strokeDasharray="4 4"
-                />
-                <Bar yAxisId="left" dataKey="fat" fill="var(--color-fat)" radius={[4, 4, 0, 0]} />
-                <Bar
-                  yAxisId="right"
-                  dataKey="phase"
-                  fill="var(--color-phase)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+            leftKey="fat"
+            rightKey="phase"
+            leftRef={fatMid}
+            rightRef={phaseCutoff}
+          />
         </ChartCard>
 
         <ChartCard
@@ -241,54 +222,18 @@ export function LongitudinalCharts({ assessments, patientGender }: LongitudinalC
           isEmpty={spiroData.length === 0}
           note={singleNote(spiroData.length)}
         >
-          <ChartContainer
+          <DualLineChart
+            data={spiroData}
             config={{
               fev1: { label: 'VEF₁ %', color: 'hsl(var(--chart-1))' },
               cvf: { label: 'CVF %', color: 'hsl(var(--chart-2))' },
             }}
-            className="h-[200px] w-full"
-          >
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={spiroData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                <XAxis
-                  dataKey="date"
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  domain={[0, 120]}
-                />
-                <Tooltip content={<ChartTooltipContent />} />
-                <ReferenceLine
-                  y={80}
-                  stroke="hsl(var(--destructive))"
-                  strokeDasharray="4 4"
-                  label={{ value: 'Limite inferior', fontSize: 9, fill: 'hsl(var(--destructive))' }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="fev1"
-                  stroke="var(--color-fev1)"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="cvf"
-                  stroke="var(--color-cvf)"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
+            line1Key="fev1"
+            line2Key="cvf"
+            referenceY={80}
+            referenceLabel="Limite inferior"
+            yDomain={[0, 120]}
+          />
         </ChartCard>
       </div>
     </div>

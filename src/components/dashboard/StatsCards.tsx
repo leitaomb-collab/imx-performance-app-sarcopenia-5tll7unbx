@@ -1,9 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Users, Activity, AlertTriangle, Clock } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { Patient } from '@/types'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 import { isReassessmentDue } from '@/lib/chart-utils'
+import { CountUpNumber } from './CountUpNumber'
 
 interface StatsCardsProps {
   patients: Patient[]
@@ -11,12 +12,31 @@ interface StatsCardsProps {
   patientSelected: boolean
 }
 
-interface StatCard {
+interface StatCardData {
   title: string
   value: number
   subtitle: string
   icon: ComponentType<{ className?: string }>
-  color: string
+  valueColor?: string
+}
+
+function StatCardItem({ card }: { card: StatCardData }) {
+  const Icon = card.icon
+  return (
+    <Card className="stats-card">
+      <CardContent className="p-5">
+        <Icon className="stats-card-icon" />
+        <p className="stats-card-title">{card.title}</p>
+        <p
+          className="stats-card-value"
+          style={card.valueColor ? { color: card.valueColor } : undefined}
+        >
+          <CountUpNumber target={card.value} />
+        </p>
+        <p className="stats-card-subtitle">{card.subtitle}</p>
+      </CardContent>
+    </Card>
+  )
 }
 
 export function StatsCards({ patients, assessments, patientSelected }: StatsCardsProps) {
@@ -42,14 +62,13 @@ export function StatsCards({ patients, assessments, patientSelected }: StatsCard
     return isReassessmentDue(a.assessmentDate, a.reassessmentMonths).isLate
   }).length
 
-  const cards: StatCard[] = []
+  const cards: StatCardData[] = []
   if (!patientSelected) {
     cards.push({
       title: 'Pacientes Cadastrados',
       value: patients.length,
       subtitle: `${newThisMonth} novos no mês`,
       icon: Users,
-      color: 'text-primary',
     })
   }
   cards.push({
@@ -57,14 +76,13 @@ export function StatsCards({ patients, assessments, patientSelected }: StatsCard
     value: assessments.length,
     subtitle: `${concludedCount} concluídas`,
     icon: Activity,
-    color: 'text-chart-3',
   })
   cards.push({
     title: 'Em Risco de Sarcopenia',
     value: sarcopeniaRisk,
     subtitle: `${sarcopeniaGrave} sarcopenia grave`,
     icon: AlertTriangle,
-    color: 'text-chart-4',
+    valueColor: sarcopeniaRisk > 0 ? 'hsl(var(--destructive))' : undefined,
   })
   if (!patientSelected) {
     cards.push({
@@ -72,29 +90,19 @@ export function StatsCards({ patients, assessments, patientSelected }: StatsCard
       value: pendingReassessments,
       subtitle: `${lateReassessments} em atraso`,
       icon: Clock,
-      color: 'text-destructive',
+      valueColor: pendingReassessments > 0 ? 'hsl(var(--warning))' : undefined,
     })
   }
 
-  const gridClass = patientSelected ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-4'
+  const gridClass = patientSelected
+    ? 'grid-cols-1 md:grid-cols-2'
+    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
 
   return (
     <div className={`grid gap-4 ${gridClass}`}>
-      {cards.map((card, i) => {
-        const Icon = card.icon
-        return (
-          <Card key={i} className="shadow-subtle border-0 bg-card">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <Icon className={`h-4 w-4 ${card.color}`} />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-              <p className="text-xs text-muted-foreground">{card.subtitle}</p>
-            </CardContent>
-          </Card>
-        )
-      })}
+      {cards.map((card, i) => (
+        <StatCardItem key={i} card={card} />
+      ))}
     </div>
   )
 }

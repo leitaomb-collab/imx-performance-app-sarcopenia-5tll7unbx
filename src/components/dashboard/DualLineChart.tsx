@@ -1,4 +1,3 @@
-import { ReactNode } from 'react'
 import {
   LineChart,
   Line,
@@ -7,23 +6,32 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
+  ReferenceLine,
 } from 'recharts'
 import { ChartContainer } from '@/components/ui/chart'
 import { ChartTooltip } from './ChartTooltip'
 
-interface SimpleLineChartProps {
-  data: Array<{ date: string; value: number }>
-  color: string
+interface DualLineChartProps {
+  data: Array<Record<string, any>>
+  config: Record<string, { label: string; color: string }>
+  line1Key: string
+  line2Key: string
+  referenceY?: number
+  referenceLabel?: string
   yDomain?: [number, number]
-  children?: ReactNode
 }
 
-export function SimpleLineChart({ data, color, yDomain, children }: SimpleLineChartProps) {
+export function DualLineChart({
+  data,
+  config,
+  line1Key,
+  line2Key,
+  referenceY,
+  referenceLabel,
+  yDomain,
+}: DualLineChartProps) {
   return (
-    <ChartContainer
-      config={{ value: { label: 'Valor', color } }}
-      className="h-[14rem] md:h-[18rem] w-full"
-    >
+    <ChartContainer config={config} className="h-[14rem] md:h-[18rem] w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
@@ -42,17 +50,31 @@ export function SimpleLineChart({ data, color, yDomain, children }: SimpleLineCh
             domain={yDomain}
           />
           <Tooltip content={<ChartTooltip />} />
-          {children}
+          {referenceY != null && (
+            <ReferenceLine
+              y={referenceY}
+              stroke="hsl(var(--destructive))"
+              strokeDasharray="4 4"
+              label={{ value: referenceLabel, fontSize: 9, fill: 'hsl(var(--destructive))' }}
+            />
+          )}
           <Line
             type="monotone"
-            dataKey="value"
-            stroke="var(--color-value)"
+            dataKey={line1Key}
+            stroke={`var(--color-${line1Key})`}
             strokeWidth={2}
             dot={{ r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
-            activeDot={{ r: 5, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
             isAnimationActive
             animationDuration={600}
-            animationBegin={0}
+          />
+          <Line
+            type="monotone"
+            dataKey={line2Key}
+            stroke={`var(--color-${line2Key})`}
+            strokeWidth={2}
+            dot={{ r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
+            isAnimationActive
+            animationDuration={600}
           />
         </LineChart>
       </ResponsiveContainer>
