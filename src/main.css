@@ -296,36 +296,49 @@
   }
 
   .clinical-badge-normal {
-    background-color: hsl(142 76% 90%);
-    color: hsl(142 76% 36%);
+    background-color: hsl(142 71% 45% / 0.12);
+    color: hsl(142 71% 30%);
+    border-radius: 9999px;
   }
   .dark .clinical-badge-normal {
-    background-color: hsl(142 76% 20%);
-    color: hsl(142 76% 70%);
+    background-color: hsl(142 71% 45% / 0.15);
+    color: hsl(142 71% 65%);
   }
   .clinical-badge-reduced {
-    background-color: hsl(0 84% 90%);
+    background-color: hsl(0 84% 50% / 0.12);
     color: hsl(0 84% 40%);
+    border-radius: 9999px;
   }
   .dark .clinical-badge-reduced {
-    background-color: hsl(0 84% 20%);
-    color: hsl(0 84% 70%);
+    background-color: hsl(0 84% 50% / 0.15);
+    color: hsl(0 84% 65%);
   }
   .clinical-badge-moderate {
-    background-color: hsl(45 93% 90%);
-    color: hsl(45 93% 37%);
+    background-color: hsl(45 93% 45% / 0.12);
+    color: hsl(45 93% 35%);
+    border-radius: 9999px;
   }
   .dark .clinical-badge-moderate {
-    background-color: hsl(45 93% 20%);
-    color: hsl(45 93% 70%);
+    background-color: hsl(45 93% 45% / 0.15);
+    color: hsl(45 93% 65%);
   }
   .clinical-badge-blue {
-    background-color: hsl(199 89% 90%);
+    background-color: hsl(199 89% 45% / 0.12);
     color: hsl(199 89% 40%);
+    border-radius: 9999px;
   }
   .dark .clinical-badge-blue {
-    background-color: hsl(199 89% 20%);
-    color: hsl(199 89% 70%);
+    background-color: hsl(199 89% 45% / 0.15);
+    color: hsl(199 89% 65%);
+  }
+  .clinical-badge-orange {
+    background-color: hsl(25 95% 50% / 0.12);
+    color: hsl(25 95% 40%);
+    border-radius: 9999px;
+  }
+  .dark .clinical-badge-orange {
+    background-color: hsl(25 95% 50% / 0.15);
+    color: hsl(25 95% 60%);
   }
 
   .report-accent-bar {
@@ -375,6 +388,139 @@
     border: 1px solid hsl(var(--border));
     padding: 1.25rem;
     border-radius: 0.5rem;
+  }
+
+  .report-institution-name {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: hsl(215 25% 15%);
+    line-height: 1.2;
+  }
+
+  .report-institution-subtitle {
+    font-size: 0.875rem;
+    color: hsl(215 15% 50%);
+    margin-top: 0.25rem;
+  }
+
+  .report-institution-protocol {
+    font-size: 0.75rem;
+    color: hsl(215 15% 50%);
+    margin-top: 0.125rem;
+  }
+
+  .report-institution-header {
+    border-bottom: 1px solid hsl(215 20% 90%);
+  }
+  .dark .report-institution-header {
+    border-bottom-color: hsl(215 20% 25%);
+  }
+
+  .report-section-title {
+    font-size: 0.9375rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid hsl(215 20% 90%);
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .dark .report-section-title {
+    border-bottom-color: hsl(215 20% 25%);
+  }
+
+  .report-table {
+    border: 1px solid hsl(215 20% 90%);
+    border-radius: 0.5rem;
+  }
+  .dark .report-table {
+    border-color: hsl(215 20% 25%);
+  }
+
+  .report-table thead tr {
+    background-color: hsl(215 20% 96%);
+  }
+  .dark .report-table thead tr {
+    background-color: hsl(215 20% 15%);
+  }
+
+  .report-table thead th {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: hsl(215 15% 50%);
+  }
+
+  .report-table tbody tr:nth-child(even) {
+    background-color: hsl(215 20% 98%);
+  }
+  .dark .report-table tbody tr:nth-child(even) {
+    background-color: hsl(215 20% 12%);
+  }
+
+  .report-table-value {
+    min-width: 6rem;
+    font-weight: 700;
+  }
+
+  .report-table-ref {
+    font-size: 0.6875rem;
+    color: hsl(215 15% 50%);
+  }
+
+  .report-action-bar {
+    height: 3.5rem;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background-color: hsl(var(--card) / 0.85);
+  }
+
+  .report-draft-warning {
+    background-color: hsl(45 93% 45% / 0.08);
+    border: 1px solid hsl(45 93% 45% / 0.3);
+  }
+
+  .report-btn-print {
+    background-color: hsl(215 25% 25%) !important;
+    color: hsl(0 0% 100%) !important;
+    min-height: 44px;
+  }
+  .report-btn-print:hover {
+    background-color: hsl(215 25% 20%) !important;
+  }
+
+  .report-btn-secondary {
+    background-color: transparent !important;
+    border: 1px solid hsl(215 25% 25% / 0.2) !important;
+    color: hsl(215 25% 25%) !important;
+    min-height: 44px;
+  }
+  .report-btn-secondary:hover {
+    background-color: hsl(215 25% 25% / 0.05) !important;
+  }
+
+  .report-footer-signature {
+    width: 18rem;
+    max-width: 100%;
+    border-top: 1px solid hsl(215 20% 50%);
+    margin: 3rem auto 0;
+    padding-top: 0.5rem;
+    text-align: center;
+  }
+
+  .report-skeleton-block {
+    background-color: hsl(215 20% 92%);
+    animation: report-skeleton-pulse 1.5s ease-in-out infinite;
+    border-radius: 0.5rem;
+  }
+
+  @keyframes report-skeleton-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 
   .dashboard-container {
@@ -696,7 +842,7 @@ button.tactile:active {
 }
 
 *:focus-visible {
-  outline: 2px solid hsl(var(--primary));
+  outline: 2px solid hsl(215 25% 25%);
   outline-offset: 2px;
 }
 
@@ -707,6 +853,10 @@ button.tactile:active {
   }
 
   .report-action-bar {
+    display: none !important;
+  }
+
+  .report-draft-warning {
     display: none !important;
   }
 
@@ -760,31 +910,37 @@ button.tactile:active {
 
   .report-table {
     break-inside: avoid;
+    border: 1px solid #000 !important;
   }
 
   .report-table thead tr {
     background-color: #fff !important;
-    border-bottom: 0.5px solid #000 !important;
+    border-bottom: 1px solid #000 !important;
   }
 
   .report-table thead th {
     color: #000 !important;
-    border-bottom: 0.5px solid #000 !important;
+    border-bottom: 1px solid #000 !important;
   }
 
   .report-table tbody tr {
     border-color: #000 !important;
-    border-bottom: 0.5px solid #000 !important;
+    border-bottom: 1px solid #000 !important;
+  }
+
+  .report-table tbody tr:nth-child(even) {
+    background-color: transparent !important;
   }
 
   .report-table tbody td {
-    border-bottom: 0.5px solid #000 !important;
+    border-bottom: 1px solid #000 !important;
   }
 
   .clinical-badge-normal,
   .clinical-badge-reduced,
   .clinical-badge-moderate,
   .clinical-badge-blue,
+  .clinical-badge-orange,
   .report-print-badge {
     background-color: transparent !important;
     color: #000 !important;
@@ -792,12 +948,18 @@ button.tactile:active {
     padding: 0 !important;
     font-size: 10pt !important;
     border: none !important;
+    border-radius: 0 !important;
+  }
+
+  .clinical-badge-reduced {
+    text-decoration: underline !important;
   }
 
   .clinical-badge-normal::before,
   .clinical-badge-reduced::before,
   .clinical-badge-moderate::before,
   .clinical-badge-blue::before,
+  .clinical-badge-orange::before,
   .report-print-badge::before {
     content: '[';
   }
@@ -806,6 +968,7 @@ button.tactile:active {
   .clinical-badge-reduced::after,
   .clinical-badge-moderate::after,
   .clinical-badge-blue::after,
+  .clinical-badge-orange::after,
   .report-print-badge::after {
     content: ']';
   }
@@ -832,15 +995,20 @@ button.tactile:active {
   .report-header {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .report-institution-header {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1;
+    background-color: #fff !important;
+    border-bottom: 1px solid #000 !important;
   }
 
   .report-body {
-    padding-top: 10rem;
+    padding-top: 6rem;
   }
 
   .report-section,
@@ -949,6 +1117,24 @@ button.tactile:active {
   .text-xs {
     font-size: 0.75rem !important;
     line-height: 1rem !important;
+  }
+}
+
+/* ===== Report Small Mobile ===== */
+@media (max-width: 479px) {
+  .report-btn-label {
+    display: none !important;
+  }
+  .report-document {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  .report-document > div {
+    padding: 1.25rem !important;
+  }
+  .report-patient-id {
+    grid-template-columns: 1fr !important;
   }
 }
 

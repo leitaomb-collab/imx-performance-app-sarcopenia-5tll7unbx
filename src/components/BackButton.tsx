@@ -34,8 +34,9 @@ export function BackButton({
       size={size}
       className={cn('w-fit tactile', className)}
       onClick={handleBack}
+      aria-label={label}
     >
-      <ArrowLeft className="mr-2 h-4 w-4" /> {label}
+      <ArrowLeft className="mr-2 h-4 w-4" /> <span className="report-btn-label">{label}</span>
     </Button>
   )
 }

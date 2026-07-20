@@ -46,17 +46,17 @@ export function getDiagnosisInfo(diagnosis: string): { label: string; className:
     case 'sem_sarcopenia':
       return {
         label: 'Sem sarcopenia',
-        className: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 hover:bg-gray-500/20',
+        className: 'clinical-badge-normal report-print-badge',
       }
     case 'sarcopenia':
       return {
         label: 'Sarcopenia provável',
-        className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20',
+        className: 'clinical-badge-orange report-print-badge',
       }
     case 'sarcopenia_grave':
       return {
         label: 'Sarcopenia grave',
-        className: 'bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20',
+        className: 'clinical-badge-reduced report-print-badge',
       }
     default:
       return null

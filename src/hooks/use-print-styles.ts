@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react'
 const PRINT_STYLE_ID = 'imx-dynamic-print-styles'
 const PRINT_CSS = `
 @media print {
-  .no-print, .report-action-bar, .summary-action-bar { display: none !important; }
+  .no-print, .report-action-bar, .report-draft-warning, .summary-action-bar { display: none !important; }
 
   .summary-document {
     box-shadow: none !important;

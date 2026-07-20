@@ -19,7 +19,7 @@ import { ReportSectionsA } from '@/components/report/ReportSectionsA'
 import { ReportSectionsB } from '@/components/report/ReportSectionsB'
 import { ReportSkeleton } from '@/components/report/ReportSkeleton'
 import { FinalizeDialog } from '@/components/assessment/detail/FinalizeDialog'
-import { formatDateExtendedBR } from '@/lib/report-utils'
+import { formatDateCuritibaBR } from '@/lib/report-utils'
 import { usePrintStyles } from '@/hooks/use-print-styles'
 import type { Patient, User } from '@/types'
 
@@ -69,7 +69,7 @@ export default function Report() {
         <FileX className="h-12 w-12 text-muted-foreground" />
         <p className="text-lg font-semibold">Avaliação não encontrada</p>
         <Button asChild>
-          <Link to="/dashboard">Voltar ao Dashboard</Link>
+          <Link to="/pacientes">Voltar para Pacientes</Link>
         </Button>
       </div>
     )
@@ -98,7 +98,7 @@ export default function Report() {
         <AlertCircle className="h-12 w-12 text-muted-foreground" />
         <p className="text-lg font-semibold">Dados do paciente não encontrados</p>
         <Button asChild>
-          <Link to="/dashboard">Voltar ao Dashboard</Link>
+          <Link to="/pacientes">Voltar para Pacientes</Link>
         </Button>
       </div>
     )
@@ -106,35 +106,53 @@ export default function Report() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="report-action-bar sticky top-0 z-30 h-14 bg-card border-b border-border flex items-center justify-between -mx-4 px-4 md:-mx-6 md:px-6 mb-8">
+      <div className="report-action-bar sticky top-0 z-30 border-b border-border flex items-center justify-between -mx-4 px-4 md:-mx-6 md:px-6 mb-8">
         <BackButton
           fallback="/dashboard"
           variant="secondary"
-          className="h-10 rounded-lg duration-200"
+          className="report-btn-secondary h-11 rounded-lg duration-200"
         />
         <div className="flex items-center gap-2">
-          <Button className="h-10 rounded-lg duration-200" onClick={handlePrint} disabled={isDraft}>
-            <Printer className="h-4 w-4 mr-1" /> Imprimir
+          <Button
+            className="report-btn-print h-11 rounded-lg duration-200"
+            onClick={handlePrint}
+            disabled={isDraft}
+            aria-label="Imprimir"
+          >
+            <Printer className="h-4 w-4" />
+            <span className="report-btn-label ml-1">Imprimir</span>
           </Button>
           <Button
             variant="secondary"
-            className="h-10 rounded-lg duration-200"
+            className="report-btn-secondary h-11 rounded-lg duration-200"
             onClick={handlePrint}
             disabled={isDraft}
+            aria-label="Baixar PDF"
           >
-            <FileDown className="h-4 w-4 mr-1" /> Baixar PDF
+            <FileDown className="h-4 w-4" />
+            <span className="report-btn-label ml-1">Baixar PDF</span>
           </Button>
           {!isDraft && (
-            <Button variant="secondary" className="h-10 rounded-lg duration-200" asChild>
-              <Link to={`/sumario/${id}`}>
-                <ScrollText className="h-4 w-4 mr-1" /> Sumário
+            <Button
+              variant="secondary"
+              className="report-btn-secondary h-11 rounded-lg duration-200"
+              asChild
+            >
+              <Link to={`/sumario/${id}`} aria-label="Sumário">
+                <ScrollText className="h-4 w-4" />
+                <span className="report-btn-label ml-1">Sumário</span>
               </Link>
             </Button>
           )}
           {isDraft && (
-            <Button variant="secondary" className="h-10 rounded-lg duration-200" asChild>
-              <Link to={`/avaliacao/${id}`}>
-                <Pencil className="h-4 w-4 mr-1" /> Editar Avaliação
+            <Button
+              variant="secondary"
+              className="report-btn-secondary h-11 rounded-lg duration-200"
+              asChild
+            >
+              <Link to={`/avaliacao/${id}`} aria-label="Editar Avaliação">
+                <Pencil className="h-4 w-4" />
+                <span className="report-btn-label ml-1">Editar Avaliação</span>
               </Link>
             </Button>
           )}
@@ -142,7 +160,7 @@ export default function Report() {
       </div>
 
       {isDraft && (
-        <div className="mb-4 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4 flex items-start gap-3">
+        <div className="report-draft-warning mb-4 rounded-lg p-4 flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
           <div className="flex-1">
             <p className="font-semibold text-sm">Esta é uma versão de rascunho</p>
@@ -166,16 +184,19 @@ export default function Report() {
 
       <div className="report-document bg-card border border-border rounded-none md:rounded-lg md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden md:my-8">
         <div className="report-accent-bar" />
-        <div className="p-6 md:p-10 report-body">
+        <div className="p-5 md:p-10 report-body">
           <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
           <ReportSectionsA assessment={data} patient={patient} />
           <ReportSectionsB assessment={data} patient={patient} />
           <footer className="mt-8 pt-6 border-t border-border/60 text-center text-xs text-muted-foreground break-inside-avoid">
-            <p>Relatório gerado em {formatDateExtendedBR(new Date().toISOString())}</p>
+            <p>{formatDateCuritibaBR(new Date().toISOString())}</p>
             <p className="mt-1">
               IMX Performance — Protocolo de Monitoramento de Sarcopenia e Risco de Quedas
             </p>
             {evaluator && <p className="mt-1">Avaliador: {evaluator.name}</p>}
+            <div className="report-footer-signature">
+              <p className="text-xs">{evaluator?.name || 'Avaliador responsável'}</p>
+            </div>
           </footer>
         </div>
       </div>

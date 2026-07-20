@@ -42,11 +42,7 @@ export function ReportTable({
           <thead>
             <tr className="border-b border-border bg-secondary/50">
               {headers.map((h, i) => (
-                <th
-                  key={i}
-                  scope="col"
-                  className="text-left py-2 px-3 font-semibold text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap"
-                >
+                <th key={i} scope="col" className="text-left py-2 px-3 whitespace-nowrap">
                   {h}
                 </th>
               ))}
@@ -61,11 +57,11 @@ export function ReportTable({
                 >
                   {row.label}
                 </td>
-                <td className="py-2 px-3 font-semibold text-[0.75rem] md:text-[0.8125rem] whitespace-nowrap">
+                <td className="report-table-value py-2 px-3 text-[0.75rem] md:text-[0.8125rem] whitespace-nowrap">
                   {row.value ?? <Dash />}
                 </td>
                 {showRef && (
-                  <td className="py-2 px-3 text-muted-foreground text-xs whitespace-nowrap">
+                  <td className="report-table-ref py-2 px-3 whitespace-nowrap">
                     {row.ref ?? <Dash />}
                   </td>
                 )}
@@ -74,7 +70,7 @@ export function ReportTable({
                     {row.interp ? (
                       <span
                         className={cn(
-                          'text-xs font-semibold px-2 py-0.5 rounded',
+                          'inline-flex items-center px-2.5 py-0.5 text-xs font-bold',
                           row.interpClass === 'normal' && 'clinical-badge-normal',
                           row.interpClass === 'altered' && 'clinical-badge-reduced',
                           row.interpClass === 'reduced' && 'clinical-badge-reduced',
@@ -115,7 +111,7 @@ export function SectionBlock({
 }) {
   return (
     <section className="report-section break-inside-avoid mb-6">
-      <h3 className="report-section-title text-base font-bold border-b-2 border-border pb-2 mb-3 flex items-center gap-2">
+      <h3 className="report-section-title flex items-center gap-2">
         <span className="report-section-marker shrink-0" />
         <span>
           {number}. {title}

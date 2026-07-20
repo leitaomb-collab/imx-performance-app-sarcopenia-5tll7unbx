@@ -51,3 +51,10 @@ export function interpBP(
     ? { text: 'Alterada', cls: 'altered' }
     : { text: 'Normal', cls: 'normal' }
 }
+
+export function formatDateCuritibaBR(isoDate: string): string {
+  if (!isoDate) return '-'
+  const d = new Date(isoDate)
+  if (isNaN(d.getTime())) return isoDate
+  return format(d, "'Curitiba, 'dd' de 'MMMM' de 'yyyy", { locale: ptBR })
+}

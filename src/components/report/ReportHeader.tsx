@@ -30,12 +30,12 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
 
   return (
     <header className="report-header break-inside-avoid mb-6">
-      <div className="bg-primary text-primary-foreground p-6 rounded-t-lg">
-        <h1 className="text-2xl font-bold">IMX Performance</h1>
-        <p className="text-sm opacity-90 mt-1">
+      <div className="report-institution-header p-6 rounded-t-lg">
+        <h1 className="report-institution-name">IMX Performance</h1>
+        <p className="report-institution-subtitle">
           Relatório de Avaliação Funcional e Nutricional Geriátrica
         </p>
-        <p className="text-xs opacity-75 mt-0.5">
+        <p className="report-institution-protocol">
           Protocolo de Monitoramento de Sarcopenia e Risco de Quedas
         </p>
       </div>
@@ -62,8 +62,8 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
             <Badge
               className={`report-print-badge ${
                 assessment.status === 'concluida'
-                  ? 'bg-green-500 hover:bg-green-600'
-                  : 'bg-yellow-500 hover:bg-yellow-600'
+                  ? 'clinical-badge-normal'
+                  : 'clinical-badge-moderate'
               }`}
             >
               {assessment.status === 'concluida' ? 'Concluída' : 'Rascunho'}
