@@ -11,6 +11,11 @@ export function useCountUp(target: number, duration: number = 800) {
       return
     }
 
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setValue(target)
+      return
+    }
+
     startTimeRef.current = null
     const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
 

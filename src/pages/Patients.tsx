@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Search, Plus, Loader2, Users, UserX, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
+import { useAccessibility } from '@/hooks/use-accessibility'
 import { getPatients } from '@/services/patients'
 import { useRealtime } from '@/hooks/use-realtime'
 import type { Patient } from '@/types'
@@ -34,6 +35,7 @@ export default function Patients() {
   const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null)
   const [fadingOutId, setFadingOutId] = useState<string | null>(null)
   const skipRealtimeRef = useRef(false)
+  const { announce } = useAccessibility()
 
   const buildFilter = (s: string, g: string): string | undefined => {
     const conditions: string[] = []
@@ -53,6 +55,10 @@ export default function Patients() {
         setPatients((prev) => (append ? [...prev, ...result.items] : result.items))
         setTotalPages(result.totalPages)
         setPage(pageNum)
+        if (!append) {
+          const count = result.totalItems
+          announce(`${count} ${count === 1 ? 'paciente encontrado' : 'pacientes encontrados'}`)
+        }
       } catch {
         setError(true)
         if (!append) toast.error('Não foi possível carregar a lista de pacientes')

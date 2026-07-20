@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Card, CardContent } from '@/components/ui/card'
 import { ChevronLeft, ChevronRight, Save, CheckCircle2, CloudUpload } from 'lucide-react'
-import { WizardSidebar } from '@/components/assessment/WizardSidebar'
+import { WizardSidebar, WIZARD_STEPS } from '@/components/assessment/WizardSidebar'
 import { PatientSummaryBar } from '@/components/assessment/PatientSummaryBar'
 import {
   Step1Identification,
@@ -58,7 +58,9 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
     <div className="space-y-4">
       <div className="md:hidden sticky top-0 z-30 bg-card border-b">
         <div className="flex items-center justify-between px-4 h-12">
-          <span className="text-sm font-medium">Etapa {step + 1} de 12</span>
+          <span className="text-sm font-medium" aria-live="polite">
+            Etapa {step + 1} de 12: {WIZARD_STEPS[step]}
+          </span>
           <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
         </div>
         <div className="h-1 bg-secondary">

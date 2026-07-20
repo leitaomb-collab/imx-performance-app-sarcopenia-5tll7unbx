@@ -65,6 +65,7 @@ export function NotificationBell() {
           className="relative tactile min-h-[44px] min-w-[44px]"
           aria-label="Notificações"
           aria-expanded={open}
+          aria-haspopup="menu"
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
@@ -88,7 +89,27 @@ export function NotificationBell() {
           )}
         </div>
 
-        <div role="menu" className="max-h-[400px] overflow-y-auto">
+        <div
+          role="menu"
+          className="max-h-[400px] overflow-y-auto"
+          onKeyDown={(e) => {
+            const items = Array.from(
+              document.querySelectorAll<HTMLDivElement>('[role="menuitem"]'),
+            ).filter((el) => el.offsetParent !== null)
+            const currentIndex = items.findIndex((el) => el === document.activeElement)
+            if (e.key === 'ArrowDown') {
+              e.preventDefault()
+              items[Math.min(currentIndex + 1, items.length - 1)]?.focus()
+            } else if (e.key === 'ArrowUp') {
+              e.preventDefault()
+              items[Math.max(currentIndex - 1, 0)]?.focus()
+            } else if (e.key === 'Delete' && currentIndex >= 0) {
+              e.preventDefault()
+              const notif = notifications[currentIndex]
+              if (notif) removeNotification(notif.id)
+            }
+          }}
+        >
           {loading ? (
             <div className="space-y-3 p-4">
               {[1, 2, 3].map((i) => (
@@ -119,7 +140,11 @@ export function NotificationBell() {
                 <div
                   key={notif.id}
                   role="menuitem"
+                  tabIndex={0}
                   onClick={() => handleItemClick(notif)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleItemClick(notif)
+                  }}
                   className={cn(
                     'relative flex items-start gap-2 px-4 py-3 cursor-pointer transition-colors duration-200',
                     !notif.isRead && 'bg-primary/5',

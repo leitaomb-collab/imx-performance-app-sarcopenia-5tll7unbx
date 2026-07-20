@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useTheme } from '@/components/theme-provider'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
+import { usePageTitle } from '@/hooks/use-page-title'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -14,6 +15,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { NotificationBell } from '@/components/NotificationBell'
+import { SkipLink } from '@/components/SkipLink'
+import { SrAnnouncer } from '@/components/SrAnnouncer'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -22,20 +25,43 @@ const navLinks = [
   { name: 'Avaliações', path: '/avaliacao/nova', icon: Activity },
 ]
 
+const ROUTE_TITLES: Record<string, string> = {
+  dashboard: 'Dashboard',
+  pacientes: 'Pacientes',
+  paciente: 'Perfil do Paciente',
+  avaliacao: 'Avaliação',
+  relatorio: 'Relatório',
+}
+
 export default function Layout() {
   const { user, signOut } = useAuth()
   const { theme, setTheme } = useTheme()
   const location = useLocation()
   const prefersReducedMotion = useReducedMotion()
   const [supportsVT, setSupportsVT] = useState(false)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+
+  const routeKey = location.pathname.split('/')[1] || 'dashboard'
+  usePageTitle(ROUTE_TITLES[routeKey] || 'IMX Performance')
 
   useEffect(() => {
     setSupportsVT('startViewTransition' in document)
   }, [])
 
+  const handleNavKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      const links = e.currentTarget.parentElement?.querySelectorAll<HTMLAnchorElement>('.nav-link')
+      if (!links) return
+      const dir = e.key === 'ArrowDown' ? 1 : -1
+      const next = Math.min(Math.max(index + dir, 0), links.length - 1)
+      links[next]?.focus()
+    }
+  }
+
   const NavItems = ({ onNavigate }: { onNavigate?: () => void }) => (
-    <div className="flex flex-col space-y-1 mt-6">
-      {navLinks.map((link) => {
+    <nav aria-label="Navegação principal" className="flex flex-col space-y-1 mt-6">
+      {navLinks.map((link, index) => {
         const Icon = link.icon
         const isActive = location.pathname.startsWith(link.path)
         return (
@@ -44,6 +70,8 @@ export default function Layout() {
             to={link.path}
             viewTransition
             onClick={onNavigate}
+            onKeyDown={(e) => handleNavKeyDown(e, index)}
+            aria-current={isActive ? 'page' : undefined}
             className={cn(
               'nav-link tactile flex items-center space-x-3 px-4 py-3 rounded-md',
               isActive
@@ -51,12 +79,12 @@ export default function Layout() {
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            <Icon size={20} />
+            <Icon size={20} aria-hidden="true" />
             <span>{link.name}</span>
           </Link>
         )
       })}
-    </div>
+    </nav>
   )
 
   const showFallback = !prefersReducedMotion && !supportsVT
@@ -64,6 +92,7 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground animate-fade-in">
+      <SkipLink />
       <aside className="layout-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
         <div className="p-6 pb-2">
           <h1 className="text-2xl font-bold text-primary tracking-tight">
@@ -76,22 +105,32 @@ export default function Layout() {
       </aside>
 
       <div className="flex-1 flex flex-col md:pl-64">
-        <header className="layout-header sticky top-0 z-20 flex items-center justify-between px-4 md:px-8 py-4 backdrop-blur-md bg-background/80 border-b">
+        <header
+          role="banner"
+          className="layout-header sticky top-0 z-20 flex items-center justify-between px-4 md:px-8 py-4 backdrop-blur-md bg-background/80 border-b"
+        >
           <div className="flex items-center">
-            <Sheet>
+            <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden mr-2 tactile">
-                  <Menu size={24} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden mr-2 tactile"
+                  aria-expanded={mobileNavOpen}
+                  aria-controls="mobile-nav-sheet"
+                  aria-label="Abrir menu de navegação"
+                >
+                  <Menu size={24} aria-hidden="true" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0">
+              <SheetContent side="left" className="w-64 p-0" id="mobile-nav-sheet">
                 <div className="p-6 pb-2">
                   <h1 className="text-2xl font-bold text-primary tracking-tight">
                     IMX<span className="text-foreground font-semibold">Perf</span>
                   </h1>
                 </div>
                 <div className="px-4">
-                  <NavItems />
+                  <NavItems onNavigate={() => setMobileNavOpen(false)} />
                 </div>
               </SheetContent>
             </Sheet>
@@ -106,14 +145,23 @@ export default function Layout() {
               variant="ghost"
               size="icon"
               className="tactile"
+              aria-label="Alternar tema escuro"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+              {theme === 'dark' ? (
+                <Sun size={20} aria-hidden="true" />
+              ) : (
+                <Moon size={20} aria-hidden="true" />
+              )}
             </Button>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full tactile">
+                <Button
+                  variant="ghost"
+                  className="relative h-10 w-10 rounded-full tactile"
+                  aria-label="Menu do usuário"
+                >
                   <Avatar>
                     <AvatarFallback className="bg-primary/20 text-primary">
                       {user?.name?.charAt(0) || 'U'}
@@ -127,7 +175,7 @@ export default function Layout() {
                   onClick={signOut}
                   className="text-destructive cursor-pointer mt-1"
                 >
-                  <LogOut size={16} className="mr-2" />
+                  <LogOut size={16} className="mr-2" aria-hidden="true" />
                   Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -135,7 +183,12 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 w-full max-w-[1400px] mx-auto">
+        <main
+          id="main-content"
+          role="main"
+          tabIndex={-1}
+          className="flex-1 overflow-y-auto p-4 md:p-8 w-full max-w-[1400px] mx-auto focus:outline-none"
+        >
           <div
             key={location.pathname}
             className={cn(
@@ -146,7 +199,15 @@ export default function Layout() {
             <Outlet />
           </div>
         </main>
+
+        <footer
+          role="contentinfo"
+          className="border-t px-4 md:px-8 py-3 text-center text-xs text-muted-foreground"
+        >
+          © {new Date().getFullYear()} IMX Performance
+        </footer>
       </div>
+      <SrAnnouncer />
     </div>
   )
 }

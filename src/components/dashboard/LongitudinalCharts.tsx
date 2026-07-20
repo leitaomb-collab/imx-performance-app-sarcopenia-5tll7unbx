@@ -105,7 +105,11 @@ export function LongitudinalCharts({
           isEmpty={hgData.length === 0}
           note={singleNote(hgData.length)}
         >
-          <SimpleLineChart data={hgData} color="hsl(var(--chart-1))">
+          <SimpleLineChart
+            data={hgData}
+            color="hsl(var(--chart-1))"
+            ariaLabel="Força de Preensão Manual em kg"
+          >
             <ReferenceLine
               y={hgCutoff}
               stroke="hsl(var(--destructive))"
@@ -124,7 +128,7 @@ export function LongitudinalCharts({
           isEmpty={almiData.length === 0}
           note={singleNote(almiData.length)}
         >
-          <SimpleLineChart data={almiData} color="hsl(var(--chart-2))">
+          <SimpleLineChart data={almiData} color="hsl(var(--chart-2))" ariaLabel="ALMI em kg/m²">
             <ReferenceLine
               y={almiCutoff}
               stroke="hsl(var(--destructive))"
@@ -143,7 +147,12 @@ export function LongitudinalCharts({
           isEmpty={sppbData.length === 0}
           note={singleNote(sppbData.length)}
         >
-          <SimpleLineChart data={sppbData} color="hsl(var(--chart-3))" yDomain={[0, 12]}>
+          <SimpleLineChart
+            data={sppbData}
+            color="hsl(var(--chart-3))"
+            yDomain={[0, 12]}
+            ariaLabel="SPPB de 0 a 12"
+          >
             <ReferenceLine
               y={8}
               stroke="hsl(0 84% 60%)"
@@ -160,7 +169,7 @@ export function LongitudinalCharts({
         </ChartCard>
 
         <ChartCard title="TUG (s)" isEmpty={tugData.length === 0} note={singleNote(tugData.length)}>
-          <SimpleLineChart data={tugData} color="hsl(var(--chart-4))">
+          <SimpleLineChart data={tugData} color="hsl(var(--chart-4))" ariaLabel="TUG em segundos">
             <ReferenceArea
               y1={0}
               y2={10}
@@ -218,6 +227,7 @@ export function LongitudinalCharts({
             rightKey="phase"
             leftRef={fatMid}
             rightRef={phaseCutoff}
+            ariaLabel="Percentual de gordura e ângulo de fase"
           />
         </ChartCard>
 
@@ -226,7 +236,12 @@ export function LongitudinalCharts({
           isEmpty={gaitData.length === 0}
           note={singleNote(gaitData.length)}
         >
-          <SimpleLineChart data={gaitData} color="hsl(var(--chart-5))" yDomain={[0, 4]}>
+          <SimpleLineChart
+            data={gaitData}
+            color="hsl(var(--chart-5))"
+            yDomain={[0, 4]}
+            ariaLabel="Velocidade de Marcha SPPB Gait de 0 a 4"
+          >
             <ReferenceLine
               y={1}
               stroke="hsl(var(--destructive))"
@@ -252,6 +267,7 @@ export function LongitudinalCharts({
             referenceY={80}
             referenceLabel="Limite inferior"
             yDomain={[0, 120]}
+            ariaLabel="VEF1 e CVF em percentual"
           />
         </ChartCard>
       </div>

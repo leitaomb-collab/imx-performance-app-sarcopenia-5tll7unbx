@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Users, UserSearch } from 'lucide-react'
+import { useAccessibility } from '@/hooks/use-accessibility'
 import { getAllPatients } from '@/services/patients'
 import { getAssessments } from '@/services/assessments'
 import { useRealtime } from '@/hooks/use-realtime'
@@ -19,14 +20,16 @@ export default function Dashboard() {
   const [assessments, setAssessments] = useState<DashboardAssessment[]>([])
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const { announce } = useAccessibility()
 
   const loadData = async () => {
     try {
       const [p, a] = await Promise.all([getAllPatients(), getAssessments()])
       setPatients(p)
       setAssessments(a as DashboardAssessment[])
+      announce('Conteúdo carregado')
     } catch {
-      // error handled by empty state
+      announce('Erro ao carregar conteúdo')
     } finally {
       setLoading(false)
     }

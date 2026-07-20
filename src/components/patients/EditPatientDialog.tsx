@@ -128,8 +128,14 @@ export function EditPatientDialog({
               required
               value={form.name}
               onChange={(e) => updateForm('name', e.target.value)}
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? 'edit-name-error' : undefined}
             />
-            {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+            {errors.name && (
+              <p id="edit-name-error" className="text-sm text-destructive">
+                {errors.name}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-birthDate">Data de Nascimento</Label>
@@ -139,13 +145,22 @@ export function EditPatientDialog({
               required
               value={form.birthDate}
               onChange={(e) => updateForm('birthDate', e.target.value)}
+              aria-invalid={!!errors.birthDate}
+              aria-describedby={errors.birthDate ? 'edit-birthDate-error' : undefined}
             />
-            {errors.birthDate && <p className="text-sm text-destructive">{errors.birthDate}</p>}
+            {errors.birthDate && (
+              <p id="edit-birthDate-error" className="text-sm text-destructive">
+                {errors.birthDate}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Gênero</Label>
             <Select value={form.gender} onValueChange={(v) => updateForm('gender', v)}>
-              <SelectTrigger>
+              <SelectTrigger
+                aria-invalid={!!errors.gender}
+                aria-describedby={errors.gender ? 'edit-gender-error' : undefined}
+              >
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
@@ -153,7 +168,11 @@ export function EditPatientDialog({
                 <SelectItem value="F">Feminino</SelectItem>
               </SelectContent>
             </Select>
-            {errors.gender && <p className="text-sm text-destructive">{errors.gender}</p>}
+            {errors.gender && (
+              <p id="edit-gender-error" className="text-sm text-destructive">
+                {errors.gender}
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

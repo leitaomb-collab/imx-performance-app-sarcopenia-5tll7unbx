@@ -25,13 +25,14 @@ export function ReportTable({
   const showRef = headers.length >= 3
   const showInterp = headers.length >= 4
   return (
-    <div className="break-inside-avoid">
+    <div className="break-inside-avoid" tabIndex={0}>
       <table className="report-table w-full border-collapse">
         <thead>
           <tr className="border-b border-border bg-secondary/50">
             {headers.map((h, i) => (
               <th
                 key={i}
+                scope="col"
                 className="text-left py-2 px-3 font-semibold text-xs uppercase tracking-wide text-muted-foreground"
               >
                 {h}
@@ -42,7 +43,9 @@ export function ReportTable({
         <tbody>
           {rows.map((row, i) => (
             <tr key={i} className="border-b border-border/40 last:border-0">
-              <td className="py-2 px-3 font-medium text-[0.8125rem]">{row.label}</td>
+              <td scope="row" className="py-2 px-3 font-medium text-[0.8125rem]">
+                {row.label}
+              </td>
               <td className="py-2 px-3 font-semibold text-[0.8125rem]">{row.value ?? <Dash />}</td>
               {showRef && (
                 <td className="py-2 px-3 text-muted-foreground text-xs">{row.ref ?? <Dash />}</td>
