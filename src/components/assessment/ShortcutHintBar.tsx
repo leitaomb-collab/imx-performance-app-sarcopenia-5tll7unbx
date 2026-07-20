@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 export function ShortcutHintBar({ hidden }: { hidden: boolean }) {
   const [isMac, setIsMac] = useState(false)
   const [isCoarse, setIsCoarse] = useState(false)
+
   useEffect(() => {
     setIsMac(/Mac|iPod|iPhone|iPad/.test(navigator.platform))
     setIsCoarse(window.matchMedia('(pointer: coarse)').matches)
@@ -13,11 +14,13 @@ export function ShortcutHintBar({ hidden }: { hidden: boolean }) {
 
   const mod = isMac ? '⌘' : 'Ctrl'
   const items = [
-    { keys: ['←', '→'], label: 'Navegar' },
-    { keys: [mod, 'S'], label: 'Salvar rascunho' },
-    { keys: [mod, '↵'], label: 'Finalizar' },
+    { keys: ['↵'], label: 'Avançar' },
+    { keys: ['⇧', '↵'], label: 'Voltar' },
+    { keys: [mod, '↵'], label: 'Salvar' },
     { keys: ['Esc'], label: 'Fechar' },
+    { keys: ['Tab'], label: 'Navegar' },
   ]
+
   return (
     <div
       className={cn(

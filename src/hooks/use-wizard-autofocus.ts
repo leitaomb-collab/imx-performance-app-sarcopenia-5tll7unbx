@@ -8,30 +8,49 @@ export function useWizardAutofocus(step: number, suppress: boolean) {
     const timer = setTimeout(() => {
       const container = containerRef.current
       if (!container) return
-      const selectors = [
-        'input:not([type="hidden"]):not([disabled]):not([readonly])',
-        'textarea:not([disabled])',
-        '[role="combobox"]:not([disabled])',
-        'select:not([disabled])',
-      ].join(', ')
-      const first = container.querySelector<HTMLElement>(selectors)
-      if (first) {
-        first.focus()
-        if (first.tagName === 'INPUT' && first.getAttribute('type') === 'number') {
-          ;(first as HTMLInputElement).select()
+
+      const firstInput = container.querySelector<HTMLElement>(
+        'input:not([type="hidden"]):not([disabled]):not([readonly]):not([type="radio"]), textarea:not([disabled]), select:not([disabled])',
+      )
+
+      if (firstInput) {
+        firstInput.focus()
+        if (firstInput.tagName === 'INPUT' && firstInput.getAttribute('type') === 'number') {
+          ;(firstInput as HTMLInputElement).select()
         }
-        if (first.getAttribute('role') === 'combobox') {
-          const hasVal = !!first.textContent?.trim() && first.textContent.trim() !== 'Selecione...'
-          if (!hasVal) first.click()
-        }
-      } else {
-        const heading = container.querySelector<HTMLElement>('h3')
-        if (heading) {
-          heading.setAttribute('tabindex', '-1')
-          heading.focus()
-        }
+        return
       }
-    }, 250)
+
+      const selectTrigger = container.querySelector<HTMLElement>(
+        '[role="combobox"]:not([disabled])',
+      )
+      if (selectTrigger) {
+        selectTrigger.focus()
+        selectTrigger.click()
+        return
+      }
+
+      const firstRadio = container.querySelector<HTMLElement>('input[type="radio"]:not([disabled])')
+      if (firstRadio) {
+        firstRadio.focus()
+        return
+      }
+
+      const buttons = container.querySelectorAll<HTMLElement>(
+        'button:not([disabled]):not([role="combobox"])',
+      )
+      if (buttons.length > 0) {
+        buttons[buttons.length - 1].focus()
+        return
+      }
+
+      const heading = container.querySelector<HTMLElement>('h3')
+      if (heading) {
+        heading.setAttribute('tabindex', '-1')
+        heading.focus()
+      }
+    }, 300)
+
     return () => clearTimeout(timer)
   }, [step, suppress])
 

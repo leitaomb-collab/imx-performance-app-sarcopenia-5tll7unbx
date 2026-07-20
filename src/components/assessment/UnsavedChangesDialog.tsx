@@ -1,40 +1,38 @@
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 
 export function UnsavedChangesDialog({
   open,
-  onCancel,
   onConfirm,
+  onCancel,
 }: {
   open: boolean
-  onCancel: () => void
   onConfirm: () => void
+  onCancel: () => void
 }) {
   return (
-    <AlertDialog open={open} onOpenChange={(v) => !v && onCancel()}>
+    <AlertDialog open={open} onOpenChange={() => {}}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Sair sem salvar?</AlertDialogTitle>
+          <AlertDialogTitle>Alterações não salvas</AlertDialogTitle>
           <AlertDialogDescription>
-            Você tem alterações não salvas. Deseja sair sem salvar?
+            Você tem alterações não salvas. Sair agora vai perder o rascunho local.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={onCancel}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
+        <AlertDialogFooter className="flex-row gap-2 sm:justify-end">
+          <Button variant="outline" onClick={onCancel}>
+            Continuar editando
+          </Button>
+          <Button variant="destructive" onClick={onConfirm}>
             Sair sem salvar
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
