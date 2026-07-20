@@ -4,7 +4,6 @@ import { BlurInput, BlurTextarea, BlurNumberInput } from '@/components/assessmen
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
@@ -190,13 +189,6 @@ export function Step5Postural({ form, updateField }: StepProps) {
             className="h-11 rounded-lg text-sm"
           />
         </StepField>
-      </div>
-      <div className="flex items-center gap-3 pt-2">
-        <Switch
-          checked={pa.photosAttached ?? false}
-          onCheckedChange={(val) => set({ photosAttached: val })}
-        />
-        <Label>Fotografias anexas</Label>
       </div>
       <StepField label="Observações">
         <BlurTextarea

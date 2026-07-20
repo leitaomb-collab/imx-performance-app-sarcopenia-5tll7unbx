@@ -19,7 +19,6 @@ import { Printer, FileText, ScrollText } from 'lucide-react'
 import { format } from 'date-fns'
 import { SectionCard } from '@/components/assessment/detail/SectionCard'
 import { DefList, obj, isEmpty, type DisplayField } from '@/components/assessment/detail/primitives'
-import { PosturalPhotoGallery } from '@/components/assessment/PosturalPhotoGallery'
 import { DIAGNOSIS_LABELS, STATUS_LABELS } from '@/types'
 import type { Assessment } from '@/types'
 import { toast } from 'sonner'
@@ -147,17 +146,6 @@ export default function AssessmentDetail() {
         onEdit={openEdit}
       >
         <DefList fields={posturalFields} />
-        <div className="mt-4 pt-4 border-t">
-          <p className="text-sm font-semibold mb-3">Fotografias Posturais</p>
-          <PosturalPhotoGallery
-            assessmentId={assessment.id}
-            photos={assessment.posturalPhotos || []}
-            isReadOnly={isReadOnly}
-            onPhotoDeleted={(remaining) => {
-              setAssessment((prev) => (prev ? { ...prev, posturalPhotos: remaining } : prev))
-            }}
-          />
-        </div>
       </SectionCard>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
