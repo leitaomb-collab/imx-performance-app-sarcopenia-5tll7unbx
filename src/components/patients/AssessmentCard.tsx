@@ -11,14 +11,16 @@ import type { Assessment } from '@/types'
 interface AssessmentCardProps {
   assessment: Assessment
   onDelete: (assessment: Assessment) => void
+  deletingId?: string | null
 }
 
-function AssessmentCardBase({ assessment, onDelete }: AssessmentCardProps) {
+function AssessmentCardBase({ assessment, onDelete, deletingId }: AssessmentCardProps) {
   const isCompleted = assessment.status === 'concluida'
   const diagnosisInfo = isCompleted ? getDiagnosisInfo(assessment.finalDiagnosis) : null
+  const isDeleting = deletingId === assessment.id
 
   return (
-    <Card>
+    <Card className={cn('transition-all duration-200', isDeleting && 'opacity-0 scale-95')}>
       <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1.5">
           <p
@@ -31,8 +33,8 @@ function AssessmentCardBase({ assessment, onDelete }: AssessmentCardProps) {
             <Badge
               className={cn(
                 isCompleted
-                  ? 'bg-green-500 hover:bg-green-600'
-                  : 'bg-yellow-500 hover:bg-yellow-600',
+                  ? 'bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20'
+                  : 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 hover:bg-yellow-500/20',
               )}
             >
               {isCompleted ? 'Concluída' : 'Rascunho'}

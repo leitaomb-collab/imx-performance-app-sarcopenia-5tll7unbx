@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { AlertTriangle, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { deleteAssessment } from '@/services/assessments'
 import { formatDateBR } from '@/lib/patient-utils'
@@ -47,7 +47,12 @@ export function DeleteAssessmentDialog({
   return (
     <Dialog open={!!assessment} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
+        <div className="flex flex-col items-center gap-2 pb-2">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+            <AlertTriangle className="h-6 w-6 text-destructive" />
+          </div>
+        </div>
+        <DialogHeader className="text-center">
           <DialogTitle>Excluir Avaliação</DialogTitle>
           <DialogDescription>
             Tem certeza que deseja excluir a avaliação de {dateLabel}?

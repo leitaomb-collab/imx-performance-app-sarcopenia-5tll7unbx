@@ -1,16 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { calculateIMC, formatDateBR, getIMCCategory } from '@/lib/patient-utils'
 import { RichText } from '@/components/patients/RichText'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
+import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 
 export function PatientInfoCards({ patient }: { patient: Patient }) {
   const imc = patient.weight && patient.height ? calculateIMC(patient.weight, patient.height) : null
+  const prefersReducedMotion = useReducedMotion()
+
+  const cardProps = (i: number) => ({
+    className: cn(!prefersReducedMotion && 'animate-fade-in-up'),
+    style: !prefersReducedMotion ? { animationDelay: `${i * 50}ms` } : undefined,
+  })
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      <Card>
+      <Card {...cardProps(0)}>
         <CardHeader>
-          <CardTitle className="text-base">Dados Cadastrais</CardTitle>
+          <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">
+            Dados Cadastrais
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-1 text-sm">
           <p>
@@ -32,23 +42,31 @@ export function PatientInfoCards({ patient }: { patient: Patient }) {
           )}
         </CardContent>
       </Card>
-      <Card>
+      <Card {...cardProps(1)}>
         <CardHeader>
-          <CardTitle className="text-base">Medicamentos de Uso Contínuo</CardTitle>
+          <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">
+            Medicamentos de Uso Contínuo
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <RichText
-            content={patient.chronicMedications}
-            emptyMsg="Nenhum medicamento registrado."
-          />
+          <div className="max-h-32 overflow-y-auto">
+            <RichText
+              content={patient.chronicMedications}
+              emptyMsg="Nenhum medicamento registrado."
+            />
+          </div>
         </CardContent>
       </Card>
-      <Card>
+      <Card {...cardProps(2)}>
         <CardHeader>
-          <CardTitle className="text-base">Observações</CardTitle>
+          <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">
+            Observações
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <RichText content={patient.notes} emptyMsg="Sem observações." />
+          <div className="max-h-32 overflow-y-auto">
+            <RichText content={patient.notes} emptyMsg="Sem observações." />
+          </div>
         </CardContent>
       </Card>
     </div>

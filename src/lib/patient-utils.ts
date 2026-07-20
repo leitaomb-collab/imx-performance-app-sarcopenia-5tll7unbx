@@ -44,12 +44,62 @@ export function formatDateBR(isoDate: string): string {
 export function getDiagnosisInfo(diagnosis: string): { label: string; className: string } | null {
   switch (diagnosis) {
     case 'sem_sarcopenia':
-      return { label: 'Sem sarcopenia', className: 'bg-gray-500 hover:bg-gray-600' }
+      return {
+        label: 'Sem sarcopenia',
+        className: 'bg-gray-500/10 text-gray-600 dark:text-gray-400 hover:bg-gray-500/20',
+      }
     case 'sarcopenia':
-      return { label: 'Sarcopenia provável', className: 'bg-blue-500 hover:bg-blue-600' }
+      return {
+        label: 'Sarcopenia provável',
+        className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20',
+      }
     case 'sarcopenia_grave':
-      return { label: 'Sarcopenia grave', className: 'bg-red-500 hover:bg-red-600' }
+      return {
+        label: 'Sarcopenia grave',
+        className: 'bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500/20',
+      }
     default:
       return null
   }
+}
+
+export type MetricTrendDirection = 'higher-is-better' | 'lower-is-better' | 'neutral'
+
+export interface MetricTrend {
+  direction: 'up' | 'down' | 'stable'
+  changePercent: number
+  improving: boolean
+}
+
+export function formatMetricTrend(
+  values: Array<{ date: string; value: number }>,
+  metricDirection: MetricTrendDirection,
+): MetricTrend {
+  if (values.length < 2) {
+    return { direction: 'stable', changePercent: 0, improving: false }
+  }
+
+  if (metricDirection === 'neutral') {
+    return { direction: 'stable', changePercent: 0, improving: false }
+  }
+
+  const sorted = [...values].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+  const first = sorted[0].value
+  const last = sorted[sorted.length - 1].value
+
+  if (first === 0) {
+    return { direction: 'stable', changePercent: 0, improving: false }
+  }
+
+  const changePercent = Math.round(((last - first) / Math.abs(first)) * 100)
+
+  if (Math.abs(changePercent) < 5) {
+    return { direction: 'stable', changePercent: 0, improving: false }
+  }
+
+  const direction = changePercent > 0 ? 'up' : 'down'
+  const improving =
+    metricDirection === 'higher-is-better' ? direction === 'up' : direction === 'down'
+
+  return { direction, changePercent: Math.abs(changePercent), improving }
 }

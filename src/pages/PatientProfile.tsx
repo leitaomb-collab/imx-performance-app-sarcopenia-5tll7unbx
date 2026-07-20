@@ -14,7 +14,9 @@ import { DeleteAssessmentDialog } from '@/components/patients/DeleteAssessmentDi
 import { AssessmentCard } from '@/components/patients/AssessmentCard'
 import { PatientProfileSkeleton } from '@/components/patients/PatientProfileSkeleton'
 import { PatientInfoCards } from '@/components/patients/PatientInfoCards'
+import { EvolutionCharts } from '@/components/patients/EvolutionCharts'
 import { BackButton } from '@/components/BackButton'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
 
 export default function PatientProfile() {
   const { id } = useParams()
@@ -24,6 +26,24 @@ export default function PatientProfile() {
   const [error, setError] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Assessment | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const prefersReducedMotion = useReducedMotion()
+
+  const handleDeleteSuccess = useCallback(
+    (aid: string) => {
+      setDeleteTarget(null)
+      if (prefersReducedMotion) {
+        setAssessments((prev) => prev.filter((a) => a.id !== aid))
+      } else {
+        setDeletingId(aid)
+        setTimeout(() => {
+          setAssessments((prev) => prev.filter((a) => a.id !== aid))
+          setDeletingId(null)
+        }, 200)
+      }
+    },
+    [prefersReducedMotion],
+  )
 
   const loadData = async () => {
     if (!id) return
@@ -93,7 +113,7 @@ export default function PatientProfile() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
           <h1
-            className="text-3xl font-bold tracking-tight"
+            className="text-2xl font-bold tracking-tight"
             style={{ viewTransitionName: `patient-name-${patient.id}` }}
           >
             {patient.name}
@@ -103,8 +123,8 @@ export default function PatientProfile() {
             <Badge
               className={cn(
                 patient.gender === 'M'
-                  ? 'bg-blue-500 hover:bg-blue-600'
-                  : 'bg-pink-500 hover:bg-pink-600',
+                  ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20'
+                  : 'bg-pink-500/10 text-pink-600 dark:text-pink-400 hover:bg-pink-500/20',
               )}
             >
               {formatGender(patient.gender)}
@@ -131,6 +151,8 @@ export default function PatientProfile() {
 
       <PatientInfoCards patient={patient} />
 
+      <EvolutionCharts assessments={assessments} patient={patient} />
+
       <div className="space-y-3">
         <h2 className="text-xl font-semibold">Histórico de Avaliações</h2>
         {assessments.length === 0 ? (
@@ -145,7 +167,12 @@ export default function PatientProfile() {
           </div>
         ) : (
           assessments.map((av) => (
-            <AssessmentCard key={av.id} assessment={av} onDelete={setDeleteTarget} />
+            <AssessmentCard
+              key={av.id}
+              assessment={av}
+              onDelete={setDeleteTarget}
+              deletingId={deletingId}
+            />
           ))
         )}
       </div>
@@ -159,7 +186,7 @@ export default function PatientProfile() {
       <DeleteAssessmentDialog
         assessment={deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        onSuccess={(aid) => setAssessments((prev) => prev.filter((a) => a.id !== aid))}
+        onSuccess={handleDeleteSuccess}
       />
     </div>
   )
