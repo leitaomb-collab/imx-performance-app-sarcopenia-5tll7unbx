@@ -77,6 +77,7 @@ export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
           <NumberInput
             value={bc.basalMetabolicRate}
             onChange={(v) => set({ basalMetabolicRate: v })}
+            inputMode="numeric"
           />
         </StepField>
         {patient?.weight && patient?.height && (

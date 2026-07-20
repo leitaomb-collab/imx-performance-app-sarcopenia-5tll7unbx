@@ -52,6 +52,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
           <NumberInput
             value={ms.handgripPercentile}
             onChange={(v) => set({ handgripPercentile: v })}
+            inputMode="numeric"
           />
         </StepField>
         <StepField label="Tempo Sentar-Levantar (s)">
@@ -104,6 +105,7 @@ export function Step7Balance({ form, updateField }: StepProps) {
               onChange={(v) => set({ sppbBalance: v })}
               min={0}
               max={4}
+              inputMode="numeric"
             />
           </StepField>
           <StepField label="Marcha (0-4)">
@@ -112,6 +114,7 @@ export function Step7Balance({ form, updateField }: StepProps) {
               onChange={(v) => set({ sppbGait: v })}
               min={0}
               max={4}
+              inputMode="numeric"
             />
           </StepField>
           <StepField label="Sentar-Levantar (0-4)">
@@ -120,6 +123,7 @@ export function Step7Balance({ form, updateField }: StepProps) {
               onChange={(v) => set({ sppbChair: v })}
               min={0}
               max={4}
+              inputMode="numeric"
             />
           </StepField>
         </div>

@@ -71,7 +71,7 @@ export function PosturalPhotoGallery({
               <Button
                 size="icon"
                 variant="ghost"
-                className="text-white hover:text-white hover:bg-white/20"
+                className="text-white hover:text-white hover:bg-white/20 min-h-[44px] min-w-[44px]"
                 onClick={() => setLightboxIndex(index)}
               >
                 <Eye className="h-5 w-5" />
@@ -80,7 +80,7 @@ export function PosturalPhotoGallery({
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                  className="text-red-400 hover:text-red-300 hover:bg-red-500/20 min-h-[44px] min-w-[44px]"
                   onClick={() => setDeleteTarget(photo.name)}
                 >
                   <Trash2 className="h-5 w-5" />

@@ -73,7 +73,7 @@ export default function Layout() {
             onKeyDown={(e) => handleNavKeyDown(e, index)}
             aria-current={isActive ? 'page' : undefined}
             className={cn(
-              'nav-link tactile flex items-center space-x-3 px-4 py-3 rounded-md',
+              'nav-link tactile flex items-center space-x-3 px-4 py-3 rounded-md min-h-[44px]',
               isActive
                 ? 'nav-link-active text-primary font-medium'
                 : 'text-muted-foreground hover:text-foreground',
@@ -93,7 +93,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen bg-background text-foreground animate-fade-in">
       <SkipLink />
-      <aside className="layout-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
+      <aside className="layout-sidebar app-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
         <div className="p-6 pb-2">
           <h1 className="text-2xl font-bold text-primary tracking-tight">
             IMX<span className="text-foreground font-semibold">Performance</span>
@@ -107,7 +107,7 @@ export default function Layout() {
       <div className="flex-1 flex flex-col md:pl-64">
         <header
           role="banner"
-          className="layout-header sticky top-0 z-20 flex items-center justify-between px-4 md:px-8 py-4 backdrop-blur-md bg-background/80 border-b"
+          className="layout-header app-header sticky top-0 z-20 flex items-center justify-between px-4 md:px-8 py-4 backdrop-blur-md bg-background/80 border-b"
         >
           <div className="flex items-center">
             <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
@@ -123,7 +123,11 @@ export default function Layout() {
                   <Menu size={24} aria-hidden="true" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0" id="mobile-nav-sheet">
+              <SheetContent
+                side="left"
+                className="w-64 p-0 app-sheet-content"
+                id="mobile-nav-sheet"
+              >
                 <div className="p-6 pb-2">
                   <h1 className="text-2xl font-bold text-primary tracking-tight">
                     IMX<span className="text-foreground font-semibold">Perf</span>
@@ -187,7 +191,7 @@ export default function Layout() {
           id="main-content"
           role="main"
           tabIndex={-1}
-          className="flex-1 overflow-y-auto p-4 md:p-8 w-full max-w-[1400px] mx-auto focus:outline-none"
+          className="main-content-wrapper flex-1 overflow-y-auto p-4 md:p-8 w-full max-w-[1400px] mx-auto focus:outline-none"
         >
           <div
             key={location.pathname}
@@ -203,6 +207,7 @@ export default function Layout() {
         <footer
           role="contentinfo"
           className="border-t px-4 md:px-8 py-3 text-center text-xs text-muted-foreground"
+          style={{ paddingBottom: 'max(0.75rem, var(--sab))' }}
         >
           © {new Date().getFullYear()} IMX Performance
         </footer>

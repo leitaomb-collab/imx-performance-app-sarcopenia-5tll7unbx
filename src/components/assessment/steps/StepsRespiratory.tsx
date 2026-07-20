@@ -26,17 +26,33 @@ export function Step8Respiratory({ form, updateField }: StepProps) {
       </p>
       <div className="grid md:grid-cols-3 gap-4">
         <StepField label="Pimax Real (cmH₂O)">
-          <NumberInput value={rs.pimaxActual} onChange={(v) => set({ pimaxActual: v })} />
+          <NumberInput
+            value={rs.pimaxActual}
+            onChange={(v) => set({ pimaxActual: v })}
+            inputMode="numeric"
+          />
         </StepField>
         <StepField label="Pimax Previsto (cmH₂O)">
-          <NumberInput value={rs.pimaxPredicted} onChange={(v) => set({ pimaxPredicted: v })} />
+          <NumberInput
+            value={rs.pimaxPredicted}
+            onChange={(v) => set({ pimaxPredicted: v })}
+            inputMode="numeric"
+          />
         </StepField>
         <ReadOnlyField label="Pimax %" value={rs.pimaxPercent} />
         <StepField label="Pemax Real (cmH₂O)">
-          <NumberInput value={rs.pemaxActual} onChange={(v) => set({ pemaxActual: v })} />
+          <NumberInput
+            value={rs.pemaxActual}
+            onChange={(v) => set({ pemaxActual: v })}
+            inputMode="numeric"
+          />
         </StepField>
         <StepField label="Pemax Previsto (cmH₂O)">
-          <NumberInput value={rs.pemaxPredicted} onChange={(v) => set({ pemaxPredicted: v })} />
+          <NumberInput
+            value={rs.pemaxPredicted}
+            onChange={(v) => set({ pemaxPredicted: v })}
+            inputMode="numeric"
+          />
         </StepField>
         <ReadOnlyField label="Pemax %" value={rs.pemaxPercent} />
       </div>

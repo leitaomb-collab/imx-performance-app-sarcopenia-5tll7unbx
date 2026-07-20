@@ -105,7 +105,7 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
             </CardContent>
           </Card>
 
-          <div className="flex items-center justify-between mt-4">
+          <div className="flex items-center justify-between mt-4 sticky bottom-0 bg-card/95 backdrop-blur-sm pt-2 pb-[max(0.5rem,var(--sab))] md:pb-2 -mx-4 px-4 md:mx-0 md:px-0 border-t md:border-0">
             <Button
               variant="outline"
               disabled={step === 0}

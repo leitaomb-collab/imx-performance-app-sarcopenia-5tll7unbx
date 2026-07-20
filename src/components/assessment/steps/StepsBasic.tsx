@@ -95,24 +95,35 @@ export function Step2Vitals({ form, updateField }: StepProps) {
         <NumberInput
           value={v.bloodPressureSystolic}
           onChange={(val) => set({ bloodPressureSystolic: val })}
+          inputMode="numeric"
         />
       </StepField>
       <StepField label="PAD (mmHg)">
         <NumberInput
           value={v.bloodPressureDiastolic}
           onChange={(val) => set({ bloodPressureDiastolic: val })}
+          inputMode="numeric"
         />
       </StepField>
       <StepField label="FC (bpm)">
-        <NumberInput value={v.heartRate} onChange={(val) => set({ heartRate: val })} />
+        <NumberInput
+          value={v.heartRate}
+          onChange={(val) => set({ heartRate: val })}
+          inputMode="numeric"
+        />
       </StepField>
       <StepField label="FR (irpm)">
-        <NumberInput value={v.respiratoryRate} onChange={(val) => set({ respiratoryRate: val })} />
+        <NumberInput
+          value={v.respiratoryRate}
+          onChange={(val) => set({ respiratoryRate: val })}
+          inputMode="numeric"
+        />
       </StepField>
       <StepField label="SpO₂ (%)">
         <NumberInput
           value={v.oxygenSaturation}
           onChange={(val) => set({ oxygenSaturation: val })}
+          inputMode="numeric"
         />
       </StepField>
       <StepField label="Temp. (°C)">
@@ -219,6 +230,7 @@ export function Step12Conclusion({ form, updateField }: StepProps) {
             onChange={(val) => updateField('reassessmentMonths', val ?? 6)}
             min={1}
             max={36}
+            inputMode="numeric"
           />
         </StepField>
       </StepSection>

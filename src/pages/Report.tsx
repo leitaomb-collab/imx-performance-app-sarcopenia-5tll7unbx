@@ -137,7 +137,7 @@ export default function Report() {
 
       <div className="report-document bg-card border border-border rounded-none md:rounded-lg md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden md:my-8">
         <div className="report-accent-bar" />
-        <div className="p-6 md:p-10">
+        <div className="p-6 md:p-10 report-body">
           <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
           <ReportSectionsA assessment={data} patient={patient} />
           <ReportSectionsB assessment={data} patient={patient} />

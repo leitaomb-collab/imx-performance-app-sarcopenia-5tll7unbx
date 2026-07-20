@@ -79,7 +79,7 @@ export function NotificationBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 p-0" align="end">
+      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-96 p-0 app-popover" align="end">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <span className="text-sm font-semibold">Notificações</span>
           {unreadCount > 0 && (
@@ -175,7 +175,7 @@ export function NotificationBell() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 shrink-0 tactile"
+                    className="h-11 w-11 shrink-0 tactile"
                     onClick={(e) => handleDelete(e, notif.id)}
                     aria-label="Excluir notificação"
                   >

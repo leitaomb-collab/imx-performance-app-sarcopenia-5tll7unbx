@@ -6,6 +6,10 @@
 
 @layer base {
   :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
     --background: 0 0% 100%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
@@ -87,6 +91,32 @@
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
+    overscroll-behavior: none;
+  }
+
+  html {
+    overscroll-behavior: none;
+  }
+
+  button,
+  a,
+  [role='button'],
+  [role='menuitem'] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  [role='button'],
+  kbd,
+  .badge {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  img {
+    -webkit-user-drag: none;
+    user-select: none;
   }
 }
 
@@ -599,6 +629,11 @@ button.tactile:active {
 }
 
 @media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   .report-action-bar {
     display: none !important;
   }
@@ -724,12 +759,131 @@ button.tactile:active {
 
   .report-header {
     break-inside: avoid;
+    page-break-inside: avoid;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+  }
+
+  .report-body {
+    padding-top: 10rem;
+  }
+
+  .report-section,
+  .report-table,
+  .ewgsop2-container,
+  .report-clinical-summary {
+    page-break-inside: avoid;
   }
 }
 
 @page {
   size: A4;
   margin: 1.5cm;
+}
+
+/* ===== Mobile Safe Area Layout ===== */
+.app-header {
+  padding-top: max(0.5rem, var(--sat)) !important;
+}
+
+@media (orientation: landscape) and (max-width: 1023px) {
+  .app-header {
+    padding-left: max(1rem, var(--sal)) !important;
+    padding-right: max(1rem, var(--sar)) !important;
+  }
+  .app-sidebar {
+    padding-top: var(--sat);
+    padding-bottom: var(--sab);
+  }
+}
+
+.app-sheet-content {
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+}
+
+.app-popover {
+  margin-top: var(--sat);
+}
+
+/* ===== Mobile Toast Positioning ===== */
+@media (max-width: 639px) {
+  [data-sonner-toaster] {
+    bottom: calc(var(--sab) + 1rem) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+    top: auto !important;
+  }
+}
+
+/* ===== Full-Screen Mobile Dialogs ===== */
+@media (max-width: 639px) {
+  [data-radix-dialog-content] {
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    inset: 0 !important;
+    padding-top: var(--sat) !important;
+    padding-bottom: var(--sab) !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  [data-radix-dialog-content] > *:not(form) {
+    flex-shrink: 0;
+  }
+
+  [data-radix-dialog-content] form {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    min-height: 0;
+  }
+
+  [data-radix-dialog-close] {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* ===== Table Horizontal Scroll ===== */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
+
+.table-scroll-fade {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2rem;
+  background: linear-gradient(to right, transparent, hsl(var(--background)));
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: opacity 200ms ease;
+}
+
+/* ===== Mobile Text Minimum Size ===== */
+@media (max-width: 767px) {
+  .text-xs {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+}
+
+/* ===== Overflow Prevention ===== */
+.main-content-wrapper {
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {

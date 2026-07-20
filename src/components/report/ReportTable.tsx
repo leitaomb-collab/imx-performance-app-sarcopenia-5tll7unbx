@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { useState, useRef, type ReactNode } from 'react'
+import { ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export interface ReportRow {
@@ -22,58 +23,82 @@ export function ReportTable({
   rows: ReportRow[]
   footnote?: string
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [showFade, setShowFade] = useState(true)
+
+  const handleScroll = () => {
+    const el = scrollRef.current
+    if (!el) return
+    setShowFade(el.scrollWidth - el.scrollLeft - el.clientWidth > 4)
+  }
+
   const showRef = headers.length >= 3
   const showInterp = headers.length >= 4
+
   return (
     <div className="break-inside-avoid" tabIndex={0}>
-      <table className="report-table w-full border-collapse">
-        <thead>
-          <tr className="border-b border-border bg-secondary/50">
-            {headers.map((h, i) => (
-              <th
-                key={i}
-                scope="col"
-                className="text-left py-2 px-3 font-semibold text-xs uppercase tracking-wide text-muted-foreground"
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => (
-            <tr key={i} className="border-b border-border/40 last:border-0">
-              <td scope="row" className="py-2 px-3 font-medium text-[0.8125rem]">
-                {row.label}
-              </td>
-              <td className="py-2 px-3 font-semibold text-[0.8125rem]">{row.value ?? <Dash />}</td>
-              {showRef && (
-                <td className="py-2 px-3 text-muted-foreground text-xs">{row.ref ?? <Dash />}</td>
-              )}
-              {showInterp && (
-                <td className="py-2 px-3">
-                  {row.interp ? (
-                    <span
-                      className={cn(
-                        'text-xs font-semibold px-2 py-0.5 rounded',
-                        row.interpClass === 'normal' && 'clinical-badge-normal',
-                        row.interpClass === 'altered' && 'clinical-badge-reduced',
-                        row.interpClass === 'reduced' && 'clinical-badge-reduced',
-                        row.interpClass === 'blue' && 'clinical-badge-blue',
-                        row.interpClass === 'moderate' && 'clinical-badge-moderate',
-                      )}
-                    >
-                      {row.interp}
-                    </span>
-                  ) : (
-                    <Dash />
-                  )}
-                </td>
-              )}
+      <div ref={scrollRef} onScroll={handleScroll} className="table-scroll-wrapper">
+        <table className="report-table w-full border-collapse">
+          <thead>
+            <tr className="border-b border-border bg-secondary/50">
+              {headers.map((h, i) => (
+                <th
+                  key={i}
+                  scope="col"
+                  className="text-left py-2 px-3 font-semibold text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} className="border-b border-border/40 last:border-0">
+                <td
+                  scope="row"
+                  className="py-2 px-3 font-medium text-[0.75rem] md:text-[0.8125rem]"
+                >
+                  {row.label}
+                </td>
+                <td className="py-2 px-3 font-semibold text-[0.75rem] md:text-[0.8125rem] whitespace-nowrap">
+                  {row.value ?? <Dash />}
+                </td>
+                {showRef && (
+                  <td className="py-2 px-3 text-muted-foreground text-xs whitespace-nowrap">
+                    {row.ref ?? <Dash />}
+                  </td>
+                )}
+                {showInterp && (
+                  <td className="py-2 px-3">
+                    {row.interp ? (
+                      <span
+                        className={cn(
+                          'text-xs font-semibold px-2 py-0.5 rounded',
+                          row.interpClass === 'normal' && 'clinical-badge-normal',
+                          row.interpClass === 'altered' && 'clinical-badge-reduced',
+                          row.interpClass === 'reduced' && 'clinical-badge-reduced',
+                          row.interpClass === 'blue' && 'clinical-badge-blue',
+                          row.interpClass === 'moderate' && 'clinical-badge-moderate',
+                        )}
+                      >
+                        {row.interp}
+                      </span>
+                    ) : (
+                      <Dash />
+                    )}
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {showFade && (
+          <div className="table-scroll-fade">
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </div>
+        )}
+      </div>
       {footnote && <p className="text-xs text-muted-foreground mt-2 italic">{footnote}</p>}
     </div>
   )
