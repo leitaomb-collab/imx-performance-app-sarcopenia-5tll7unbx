@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { Printer, FileText } from 'lucide-react'
+import { Printer, FileText, ScrollText } from 'lucide-react'
 import { format } from 'date-fns'
 import { SectionCard } from '@/components/assessment/detail/SectionCard'
 import { DefList, obj, isEmpty, type DisplayField } from '@/components/assessment/detail/primitives'
@@ -115,6 +115,13 @@ export default function AssessmentDetail() {
               <FileText className="mr-2 h-4 w-4" /> Gerar Relatório
             </Link>
           </Button>
+          {assessment.status === 'concluida' && (
+            <Button variant="secondary" asChild>
+              <Link to={`/sumario/${assessment.id}`}>
+                <ScrollText className="mr-2 h-4 w-4" /> Sumário
+              </Link>
+            </Button>
+          )}
           <Button variant="outline" onClick={() => window.print()}>
             <Printer className="mr-2 h-4 w-4" /> Imprimir
           </Button>

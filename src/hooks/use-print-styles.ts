@@ -3,9 +3,13 @@ import { useCallback, useEffect } from 'react'
 const PRINT_STYLE_ID = 'imx-dynamic-print-styles'
 const PRINT_CSS = `
 @media print {
-  .no-print, .report-action-bar { display: none !important; }
-  .report-document { box-shadow: none !important; border: none !important; margin: 0 !important; }
+  .no-print, .report-action-bar, .summary-action-bar { display: none !important; }
+  .report-document, .summary-document { box-shadow: none !important; border: none !important; margin: 0 !important; }
+  .summary-document { max-width: none !important; }
+  .summary-card { break-inside: avoid; }
+  .summary-table th, .summary-table td { font-size: 0.65rem !important; padding: 0.15rem 0.3rem !important; }
   body { background: white !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }
 `
 

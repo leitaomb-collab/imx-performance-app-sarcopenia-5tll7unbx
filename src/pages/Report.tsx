@@ -3,7 +3,15 @@ import { useParams, Link } from 'react-router-dom'
 import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Printer, FileDown, Pencil, AlertCircle, FileX, AlertTriangle } from 'lucide-react'
+import {
+  Printer,
+  FileDown,
+  Pencil,
+  AlertCircle,
+  FileX,
+  AlertTriangle,
+  ScrollText,
+} from 'lucide-react'
 import { BackButton } from '@/components/BackButton'
 import { ReportHeader } from '@/components/report/ReportHeader'
 import { ReportSectionsA } from '@/components/report/ReportSectionsA'
@@ -113,6 +121,13 @@ export default function Report() {
           >
             <FileDown className="h-4 w-4 mr-1" /> Baixar PDF
           </Button>
+          {!isDraft && (
+            <Button variant="secondary" className="h-10 rounded-lg duration-200" asChild>
+              <Link to={`/sumario/${id}`}>
+                <ScrollText className="h-4 w-4 mr-1" /> Sumário
+              </Link>
+            </Button>
+          )}
           {isDraft && (
             <Button variant="secondary" className="h-10 rounded-lg duration-200" asChild>
               <Link to={`/avaliacao/${id}`}>
