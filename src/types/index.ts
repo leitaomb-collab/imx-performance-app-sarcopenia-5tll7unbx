@@ -122,6 +122,7 @@ export interface Assessment {
   spirometry: Spirometry
   sarcopeniaScreening: SarcopeniaScreening
   ewgsop2Analysis: EWGSOP2Analysis
+  posturalPhotos?: string[]
   created: string
   updated: string
   expand?: { patientId?: Patient }

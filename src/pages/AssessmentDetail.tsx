@@ -1,110 +1,190 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { getAvaliacao } from '@/services/api'
+import { useParams, Link } from 'react-router-dom'
+import { getAssessment, updateAssessment } from '@/services/assessments'
+import { useRealtime } from '@/hooks/use-realtime'
 import { BackButton } from '@/components/BackButton'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Printer, Activity } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
+import { Printer, FileText } from 'lucide-react'
 import { format } from 'date-fns'
+import { SectionCard } from '@/components/assessment/detail/SectionCard'
+import { DefList, obj, isEmpty, type DisplayField } from '@/components/assessment/detail/primitives'
+import { PosturalPhotoGallery } from '@/components/assessment/PosturalPhotoGallery'
+import { DIAGNOSIS_LABELS, STATUS_LABELS } from '@/types'
+import type { Assessment } from '@/types'
+import { toast } from 'sonner'
+
+const POSTURAL_FIELDS: Array<{ key: string; label: string }> = [
+  { key: 'head', label: 'Cabeça/Pescoço' },
+  { key: 'shoulders', label: 'Ombros' },
+  { key: 'spine', label: 'Coluna' },
+  { key: 'pelvis', label: 'Pelve' },
+  { key: 'knees', label: 'Joelhos' },
+  { key: 'feet', label: 'Tornozelos/Pés' },
+  { key: 'observations', label: 'Observações' },
+]
 
 export default function AssessmentDetail() {
   const { id } = useParams()
-  const [aval, setAval] = useState<any>(null)
+  const [assessment, setAssessment] = useState<Assessment | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [editOpen, setEditOpen] = useState(false)
+  const [editValues, setEditValues] = useState<Record<string, string>>({})
+
+  const loadData = async () => {
+    if (!id) return
+    try {
+      const data = await getAssessment(id)
+      setAssessment(data)
+    } catch {
+      toast.error('Erro ao carregar avaliação.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    if (id)
-      getAvaliacao(id)
-        .then(setAval)
-        .catch(() => {})
+    loadData()
   }, [id])
 
-  if (!aval) return <div className="p-8 text-center">Carregando relatório...</div>
+  useRealtime('assessments', (e) => {
+    if (e.record.id === id) {
+      setAssessment(e.record as Assessment)
+    }
+  })
 
-  const handlePrint = () => window.print()
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center text-muted-foreground">
+        Carregando...
+      </div>
+    )
+  }
+  if (!assessment) {
+    return <div className="p-8 text-center text-muted-foreground">Avaliação não encontrada.</div>
+  }
+
+  const pa = obj(assessment.posturalAssessment)
+  const isReadOnly = assessment.status === 'concluida'
+
+  const posturalFields: DisplayField[] = POSTURAL_FIELDS.map(({ key, label }) => ({
+    label,
+    value: pa[key] ?? null,
+  }))
+
+  const openEdit = () => {
+    setEditValues(
+      POSTURAL_FIELDS.reduce(
+        (acc, { key }) => ({ ...acc, [key]: pa[key] || '' }),
+        {} as Record<string, string>,
+      ),
+    )
+    setEditOpen(true)
+  }
+
+  const saveEdit = async () => {
+    try {
+      const updated = await updateAssessment(assessment.id, {
+        posturalAssessment: { ...pa, ...editValues },
+      })
+      setAssessment(updated)
+      setEditOpen(false)
+      toast.success('Avaliação postual atualizada.')
+    } catch {
+      toast.error('Erro ao salvar alterações.')
+    }
+  }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in print:p-0 print:m-0">
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
       <div className="flex justify-between items-center print:hidden">
-        <BackButton fallback="/pacientes" label="Voltar ao Perfil" />
-        <Button onClick={handlePrint} variant="outline">
-          <Printer className="mr-2 h-4 w-4" /> Imprimir Relatório
-        </Button>
+        <BackButton fallback="/pacientes" label="Voltar" />
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link to={`/relatorio/${assessment.id}`}>
+              <FileText className="mr-2 h-4 w-4" /> Gerar Relatório
+            </Link>
+          </Button>
+          <Button variant="outline" onClick={() => window.print()}>
+            <Printer className="mr-2 h-4 w-4" /> Imprimir
+          </Button>
+        </div>
       </div>
 
-      <Card className="shadow-subtle border-0 bg-card print:shadow-none print:border-none">
-        <CardHeader className="border-b pb-6 text-center space-y-4">
-          <div className="inline-flex items-center justify-center p-3 bg-primary/10 rounded-full mb-2">
-            <Activity className="h-8 w-8 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-3xl font-bold text-primary tracking-tight">
-              Relatório de Performance IMX
-            </CardTitle>
-            <CardDescription className="text-lg mt-1">
-              {aval.expand?.paciente?.name}
-            </CardDescription>
-          </div>
+      <Card>
+        <CardHeader className="border-b">
+          <CardTitle className="text-2xl">Detalhes da Avaliação</CardTitle>
+          <CardDescription>
+            {assessment.expand?.patientId?.name ?? 'Paciente'} —{' '}
+            {format(new Date(assessment.assessmentDate), 'dd/MM/yyyy')} —{' '}
+            {STATUS_LABELS[assessment.status]} —{' '}
+            {DIAGNOSIS_LABELS[assessment.finalDiagnosis] ?? 'Não avaliado'}
+          </CardDescription>
         </CardHeader>
-        <CardContent className="pt-8 space-y-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="p-4 bg-secondary/50 rounded-lg">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                Tipo
-              </p>
-              <p className="text-lg font-bold mt-1">{aval.tipo}</p>
-            </div>
-            <div className="p-4 bg-secondary/50 rounded-lg">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                Data
-              </p>
-              <p
-                className="text-lg font-bold mt-1"
-                style={{ viewTransitionName: id ? `assessment-date-${id}` : undefined }}
-              >
-                {format(new Date(aval.data), 'dd/MM/yyyy')}
-              </p>
-            </div>
-            <div className="p-4 bg-secondary/50 rounded-lg">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                Gênero
-              </p>
-              <p className="text-lg font-bold mt-1">{aval.expand?.paciente?.gender}</p>
-            </div>
-            <div className="p-4 bg-secondary/50 rounded-lg">
-              <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
-                Avaliador
-              </p>
-              <p className="text-lg font-bold mt-1">IMX Staff</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold border-b pb-2">Resultados (Métricas)</h3>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {Object.entries(aval.metrics || {}).map(([key, val]) => (
-                <div
-                  key={key}
-                  className="flex justify-between items-center p-4 border rounded-md shadow-sm"
-                >
-                  <span className="font-medium text-muted-foreground capitalize">
-                    {key.replace('_', ' ')}
-                  </span>
-                  <span className="text-2xl font-bold text-primary">{String(val)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {aval.observacoes && (
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold border-b pb-2">Observações Clínicas</h3>
-              <p className="text-foreground leading-relaxed p-4 bg-muted/20 rounded-md border">
-                {aval.observacoes}
-              </p>
-            </div>
-          )}
-        </CardContent>
       </Card>
+
+      <SectionCard
+        title="Avaliação Postural"
+        empty={isEmpty(pa)}
+        readOnly={isReadOnly}
+        onEdit={openEdit}
+      >
+        <DefList fields={posturalFields} />
+        <div className="mt-4 pt-4 border-t">
+          <p className="text-sm font-semibold mb-3">Fotografias Posturais</p>
+          <PosturalPhotoGallery
+            assessmentId={assessment.id}
+            photos={assessment.posturalPhotos || []}
+            isReadOnly={isReadOnly}
+            onPhotoDeleted={(remaining) => {
+              setAssessment((prev) => (prev ? { ...prev, posturalPhotos: remaining } : prev))
+            }}
+          />
+        </div>
+      </SectionCard>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar Avaliação Postural</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            {POSTURAL_FIELDS.map(({ key, label }) => (
+              <div key={key} className="space-y-1.5">
+                <Label className="text-sm font-medium">{label}</Label>
+                {key === 'observations' ? (
+                  <Textarea
+                    value={editValues[key] || ''}
+                    onChange={(e) => setEditValues((prev) => ({ ...prev, [key]: e.target.value }))}
+                    rows={3}
+                  />
+                ) : (
+                  <Input
+                    value={editValues[key] || ''}
+                    onChange={(e) => setEditValues((prev) => ({ ...prev, [key]: e.target.value }))}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={saveEdit}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

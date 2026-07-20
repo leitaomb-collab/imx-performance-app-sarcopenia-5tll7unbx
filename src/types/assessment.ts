@@ -104,6 +104,8 @@ export interface EWGSOP2AnalysisData {
 }
 
 export interface AssessmentFormData {
+  id?: string
+  posturalPhotos?: string[]
   patientId: string
   assessmentDate: string
   status: 'rascunho' | 'concluida'

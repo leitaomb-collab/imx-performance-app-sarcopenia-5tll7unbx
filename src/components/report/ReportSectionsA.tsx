@@ -1,4 +1,5 @@
 import { ReportTable, SectionBlock, SubSection, EmptySection } from './ReportTable'
+import { PosturalPhotosReport } from './PosturalPhotosReport'
 import { obj, fmt, hasData, interpRange, interpBP } from '@/lib/report-utils'
 import {
   getALMIStatus,
@@ -172,6 +173,10 @@ export function ReportSectionsA({ assessment, patient }: Props) {
         ) : (
           <EmptySection />
         )}
+        <PosturalPhotosReport
+          assessmentId={assessment.id}
+          photos={assessment.posturalPhotos || []}
+        />
       </SectionBlock>
 
       <SectionBlock number={5} title="Força Muscular">

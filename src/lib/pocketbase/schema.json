@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-20T00:21:39.307Z",
+  "generatedAt": "2026-07-20T00:37:33.314Z",
   "collections": [
     {
       "name": "users",
@@ -267,6 +267,12 @@
           "required": false,
           "system": false,
           "autodateTriggers": ["onCreate", "onUpdate"]
+        },
+        {
+          "name": "posturalPhotos",
+          "type": "file",
+          "required": false,
+          "system": false
         }
       ],
       "indexes": [
