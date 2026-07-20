@@ -28,9 +28,13 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
   return (
     <>
       <header className="text-center mb-3 break-inside-avoid">
-        <h1 className="text-xl font-bold text-primary">IMX Performance</h1>
-        <p className="text-sm text-muted-foreground">Sumário Executivo da Avaliação Funcional</p>
-        <p className="text-xs text-muted-foreground">Protocolo de Sarcopenia e Risco de Quedas</p>
+        <h1 className="summary-header-title text-xl font-bold text-primary">IMX Performance</h1>
+        <p className="summary-header-subtitle text-sm font-semibold text-muted-foreground">
+          Sumário Executivo da Avaliação Funcional
+        </p>
+        <p className="summary-header-protocol text-xs text-muted-foreground">
+          Protocolo de Sarcopenia e Risco de Quedas
+        </p>
       </header>
 
       <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs mb-3 break-inside-avoid">
@@ -44,7 +48,7 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
 
       <div
         className={cn(
-          'rounded-md py-2 px-4 text-center mb-4 break-inside-avoid',
+          'summary-diagnosis-banner rounded-md py-2 px-4 text-center mb-4 break-inside-avoid',
           banner.bgClass,
           banner.textClass,
         )}

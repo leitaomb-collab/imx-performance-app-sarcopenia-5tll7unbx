@@ -22,7 +22,8 @@ export function formatDelta(
   if (current == null || previous == null) return null
   const diff = Math.round((current - previous) * 10) / 10
   const direction = getTrendDirection(current, previous, mode)
-  const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→'
+  if (direction === 'stable') return { text: '-', direction }
+  const arrow = diff > 0 ? '↑' : '↓'
   const sign = diff > 0 ? '+' : ''
   return { text: `${arrow} ${sign}${diff}`, direction }
 }
@@ -36,24 +37,38 @@ export function getDiagnosisBanner(diagnosis: string): {
     case 'sem_sarcopenia':
       return {
         label: 'Sem Sarcopenia',
-        bgClass: 'bg-[hsl(142,76%,90%)]',
-        textClass: 'text-[hsl(142,76%,36%)]',
+        bgClass: 'bg-[hsl(142,76%,90%)] dark:bg-[hsl(142,76%,20%)]',
+        textClass: 'text-[hsl(142,76%,36%)] dark:text-[hsl(142,76%,70%)]',
       }
     case 'sarcopenia':
       return {
         label: 'Sarcopenia Provável',
-        bgClass: 'bg-[hsl(199,89%,90%)]',
-        textClass: 'text-[hsl(199,89%,40%)]',
+        bgClass: 'bg-[hsl(199,89%,90%)] dark:bg-[hsl(199,89%,20%)]',
+        textClass: 'text-[hsl(199,89%,40%)] dark:text-[hsl(199,89%,70%)]',
       }
     case 'sarcopenia_grave':
       return {
         label: 'Sarcopenia Grave',
-        bgClass: 'bg-[hsl(0,84%,90%)]',
-        textClass: 'text-[hsl(0,84%,40%)]',
+        bgClass: 'bg-[hsl(0,84%,90%)] dark:bg-[hsl(0,84%,20%)]',
+        textClass: 'text-[hsl(0,84%,40%)] dark:text-[hsl(0,84%,70%)]',
       }
     default:
-      return { label: 'Não Avaliado', bgClass: 'bg-muted', textClass: 'text-muted-foreground' }
+      return {
+        label: 'Não Avaliado',
+        bgClass: 'bg-muted dark:bg-muted/50',
+        textClass: 'text-muted-foreground',
+      }
   }
+}
+
+export const CARD_INDICATOR_COLORS: Record<string, string> = {
+  'Sinais Vitais': 'bg-red-500',
+  'Composição Corporal': 'bg-blue-500',
+  Antropometria: 'bg-amber-500',
+  'Força Muscular': 'bg-purple-500',
+  'Equilíbrio e Risco de Quedas': 'bg-green-500',
+  'Função Respiratória': 'bg-cyan-500',
+  'Triagem e Diagnóstico': 'bg-orange-500',
 }
 
 export function getNested(obj: Record<string, any>, ...path: string[]): any {

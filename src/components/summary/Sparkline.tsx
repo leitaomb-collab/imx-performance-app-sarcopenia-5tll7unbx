@@ -15,8 +15,14 @@ export function Sparkline({ values, direction }: SparklineProps) {
 
   if (values.length === 1) {
     return (
-      <svg width="50" height="16" viewBox="0 0 50 16" aria-hidden="true">
-        <circle cx="25" cy="8" r="2" fill={color} />
+      <svg
+        className="summary-sparkline"
+        width="50"
+        height="16"
+        viewBox="0 0 50 16"
+        aria-hidden="true"
+      >
+        <circle className="summary-sparkline-dot" cx="25" cy="8" r="2" fill={color} />
       </svg>
     )
   }
@@ -39,7 +45,13 @@ export function Sparkline({ values, direction }: SparklineProps) {
   const last = pts[pts.length - 1]
 
   return (
-    <svg width="50" height="16" viewBox="0 0 50 16" aria-hidden="true">
+    <svg
+      className="summary-sparkline"
+      width="50"
+      height="16"
+      viewBox="0 0 50 16"
+      aria-hidden="true"
+    >
       <path
         d={d}
         fill="none"
@@ -48,7 +60,13 @@ export function Sparkline({ values, direction }: SparklineProps) {
         strokeLinejoin="round"
         strokeLinecap="round"
       />
-      <circle cx={last.x.toFixed(1)} cy={last.y.toFixed(1)} r="2" fill={color} />
+      <circle
+        className="summary-sparkline-dot"
+        cx={last.x.toFixed(1)}
+        cy={last.y.toFixed(1)}
+        r="2"
+        fill={color}
+      />
     </svg>
   )
 }

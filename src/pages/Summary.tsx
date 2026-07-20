@@ -72,22 +72,22 @@ export default function Summary() {
 
   return (
     <div className="max-w-4xl mx-auto" style={{ maxWidth: '52rem' }}>
-      <div className="summary-action-bar sticky top-0 z-30 h-14 bg-card border-b border-border flex items-center justify-between -mx-4 px-4 md:-mx-6 md:px-6 mb-4">
+      <div className="summary-action-bar sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border flex items-center justify-between -mx-4 px-4 py-3 md:-mx-6 md:px-6 mb-4 print:hidden">
         <BackButton
           fallback="/dashboard"
           variant="secondary"
-          className="h-10 rounded-lg duration-200"
+          className="h-11 gap-2 rounded-lg duration-200"
         />
         <div className="flex items-center gap-2">
-          <Button className="h-10 min-h-[44px] rounded-lg duration-200" onClick={handlePrint}>
-            <Printer className="h-4 w-4 mr-1" /> Imprimir
+          <Button className="h-11 gap-2 rounded-lg duration-200" onClick={handlePrint}>
+            <Printer className="w-4 h-4" /> Imprimir
           </Button>
           <Button
             variant="secondary"
-            className="h-10 min-h-[44px] rounded-lg duration-200"
+            className="h-11 gap-2 rounded-lg duration-200"
             onClick={handlePrint}
           >
-            <FileDown className="h-4 w-4 mr-1" /> Baixar PDF
+            <FileDown className="w-4 h-4" /> Baixar PDF
           </Button>
         </div>
       </div>
@@ -104,13 +104,13 @@ export default function Summary() {
         </div>
       )}
 
-      <div className="summary-document bg-card border border-border rounded-lg shadow-md overflow-hidden my-4">
-        <div className="p-5 md:p-6">
+      <div className="summary-document bg-card border border-border rounded-lg shadow-lg overflow-hidden my-4 animate-summary-enter">
+        <div className="p-4 md:p-8">
           <SummaryHeader patient={patient} assessment={assessment} evaluator={evaluator} />
           <SummaryCards cards={cards} />
 
           {summaryText && (
-            <div className="mt-4 p-3 border border-border rounded-lg max-h-24 overflow-hidden break-inside-avoid">
+            <div className="summary-clinical-summary mt-4 p-3 border border-border rounded-lg max-h-24 overflow-hidden break-inside-avoid bg-secondary/30">
               <h2 className="text-sm font-semibold mb-1">Síntese Clínica</h2>
               <p className="text-xs text-muted-foreground line-clamp-4">{summaryText}</p>
             </div>
@@ -125,7 +125,7 @@ export default function Summary() {
             {evaluator && (
               <div className="mt-4">
                 <p className="text-muted-foreground">{evaluator.name}</p>
-                <div className="mx-auto mt-1 w-48 border-t border-border" />
+                <div className="summary-footer-line mx-auto mt-1 w-40 border-t border-border" />
                 <p className="text-[10px] text-muted-foreground mt-0.5">Avaliador</p>
               </div>
             )}
