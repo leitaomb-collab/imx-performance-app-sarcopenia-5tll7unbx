@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { NotificationBell } from '@/components/NotificationBell'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -100,6 +101,7 @@ export default function Layout() {
           </div>
 
           <div className="flex items-center space-x-4">
+            <NotificationBell />
             <Button
               variant="ghost"
               size="icon"

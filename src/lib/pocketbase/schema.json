@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T23:57:10.666Z",
+  "generatedAt": "2026-07-20T00:21:39.307Z",
   "collections": [
     {
       "name": "users",
@@ -272,6 +272,83 @@
       "indexes": [
         "CREATE INDEX idx_assessments_patientId ON assessments (patientId)",
         "CREATE INDEX idx_assessments_evaluatorId ON assessments (evaluatorId)"
+      ]
+    },
+    {
+      "name": "notifications",
+      "type": "base",
+      "apiRules": {
+        "list": "@request.auth.id != '' && userId = @request.auth.id",
+        "view": "@request.auth.id != '' && userId = @request.auth.id",
+        "create": null,
+        "update": "@request.auth.id != '' && userId = @request.auth.id",
+        "delete": "@request.auth.id != '' && userId = @request.auth.id"
+      },
+      "fields": [
+        {
+          "name": "userId",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "users"
+        },
+        {
+          "name": "patientId",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "patients"
+        },
+        {
+          "name": "assessmentId",
+          "type": "relation",
+          "required": true,
+          "system": false,
+          "collectionRef": "assessments"
+        },
+        {
+          "name": "type",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["overdue", "upcoming"]
+        },
+        {
+          "name": "message",
+          "type": "text",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "reassessmentDate",
+          "type": "date",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "isRead",
+          "type": "bool",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "created",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate"]
+        },
+        {
+          "name": "updated",
+          "type": "autodate",
+          "required": false,
+          "system": false,
+          "autodateTriggers": ["onCreate", "onUpdate"]
+        }
+      ],
+      "indexes": [
+        "CREATE INDEX idx_notifications_userId ON notifications (userId)",
+        "CREATE INDEX idx_notifications_assessmentId_type ON notifications (assessmentId, type)"
       ]
     }
   ]
