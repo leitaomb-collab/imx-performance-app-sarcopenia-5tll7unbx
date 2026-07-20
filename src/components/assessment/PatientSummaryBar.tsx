@@ -2,10 +2,10 @@ import { calculateAge, calculateIMC, formatGender, getIMCCategory } from '@/lib/
 import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 
-function getImcBadgeClass(imc: number): string {
-  if (imc >= 18.5 && imc <= 24.9) return 'imc-badge-green'
-  if ((imc >= 17 && imc < 18.5) || (imc >= 25 && imc <= 29.9)) return 'imc-badge-yellow'
-  return 'imc-badge-red'
+function getImcDotColor(imc: number): string {
+  if (imc >= 18.5 && imc <= 24.9) return 'bg-green-500'
+  if ((imc >= 17 && imc < 18.5) || (imc >= 25 && imc <= 29.9)) return 'bg-yellow-500'
+  return 'bg-red-500'
 }
 
 export function PatientSummaryBar({ patient }: { patient: Patient | null }) {
@@ -17,7 +17,7 @@ export function PatientSummaryBar({ patient }: { patient: Patient | null }) {
   const imc = hasIMC ? calculateIMC(patient.weight!, patient.height!) : null
 
   return (
-    <div className="sticky top-2 z-20 rounded-lg bg-secondary/90 backdrop-blur">
+    <div className="sticky top-2 md:top-16 z-20 rounded-lg bg-card border border-border animate-summary-enter">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 px-4 py-3">
         <span className="text-base font-semibold">{patient.name}</span>
         {age !== null && (
@@ -43,13 +43,11 @@ export function PatientSummaryBar({ patient }: { patient: Patient | null }) {
         {imc !== null && (
           <>
             <Dot />
-            <span
-              className={cn(
-                'text-xs font-semibold px-2 py-0.5 rounded-full',
-                getImcBadgeClass(imc),
-              )}
-            >
-              IMC: {imc.toFixed(1)} ({getIMCCategory(imc)})
+            <span className="flex items-center gap-1.5">
+              <span className={cn('h-2 w-2 rounded-full', getImcDotColor(imc))} />
+              <span className="text-sm font-medium">
+                IMC: {imc.toFixed(1)} ({getIMCCategory(imc)})
+              </span>
             </span>
           </>
         )}

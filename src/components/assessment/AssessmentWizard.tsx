@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Card, CardContent } from '@/components/ui/card'
-import { ChevronLeft, ChevronRight, Save, CheckCircle2, CloudUpload } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Save, CheckCircle2, Loader2 } from 'lucide-react'
 import { WizardSidebar, WIZARD_STEPS } from '@/components/assessment/WizardSidebar'
 import { PatientSummaryBar } from '@/components/assessment/PatientSummaryBar'
 import {
@@ -35,6 +35,7 @@ const STEP_COMPONENTS: Array<(props: StepProps) => React.JSX.Element> = [
 
 export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof useAssessmentForm> }) {
   const [step, setStep] = useState(0)
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward')
   const stepProps: StepProps = {
     form: formHook.form,
     patient: formHook.patient,
@@ -47,6 +48,7 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
   const progress = ((step + 1) / 12) * 100
 
   const goToStep = (newStep: number) => {
+    setDirection(newStep > step ? 'forward' : 'backward')
     setStep(newStep)
   }
 
@@ -56,16 +58,22 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
 
   return (
     <div className="space-y-4">
-      <div className="md:hidden sticky top-0 z-30 bg-card border-b">
+      <div className="md:hidden sticky top-0 z-30 bg-background border-b">
         <div className="flex items-center justify-between px-4 h-12">
           <span className="text-sm font-medium" aria-live="polite">
             Etapa {step + 1} de 12: {WIZARD_STEPS[step]}
           </span>
-          <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+          <div className="flex items-center gap-2">
+            {formHook.saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
+            {formHook.lastSaved && !formHook.dirty && !formHook.saving && (
+              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+            )}
+            <span className="text-sm text-muted-foreground">{Math.round(progress)}%</span>
+          </div>
         </div>
         <div className="h-1 bg-secondary">
           <div
-            className="h-full bg-primary transition-all duration-500 ease-out"
+            className="h-full bg-primary transition-all duration-300 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -75,16 +83,23 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
 
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Nova Avaliação</h1>
-        <div className="flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-2">
           {formHook.saving && (
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-primary animate-auto-save-pulse" />
+            <span className="flex items-center gap-1.5 text-xs text-primary">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Salvando...
             </span>
           )}
           {formHook.lastSaved && !formHook.dirty && !formHook.saving && (
+            <span className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-500">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Salvo automaticamente
+            </span>
+          )}
+          {formHook.dirty && !formHook.saving && (
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <CloudUpload className="h-3.5 w-3.5" /> Salvo automaticamente
+              <span className="h-1.5 w-1.5 rounded-full border border-muted-foreground/40" />
+              Não salvo
             </span>
           )}
         </div>
@@ -99,7 +114,12 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
         <div className="flex-1 min-w-0">
           <Card className="border-0 shadow-subtle">
             <CardContent className="pt-6">
-              <div key={step} className="animate-step-in">
+              <div
+                key={step}
+                className={
+                  direction === 'forward' ? 'animate-step-forward' : 'animate-step-backward'
+                }
+              >
                 <StepComponent {...stepProps} />
               </div>
             </CardContent>
@@ -110,7 +130,7 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
               variant="outline"
               disabled={step === 0}
               onClick={() => goToStep(step - 1)}
-              className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+              className="h-11 rounded-lg min-h-[44px] transition-transform duration-200 active:scale-[0.98]"
             >
               <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
             </Button>
@@ -118,7 +138,7 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
               <Button
                 disabled={!canProceed}
                 onClick={() => goToStep(step + 1)}
-                className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+                className="h-11 rounded-lg min-h-[44px] transition-transform duration-200 active:scale-[0.98]"
               >
                 Próximo <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
@@ -128,16 +148,26 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
                   variant="outline"
                   disabled={formHook.saving}
                   onClick={formHook.saveDraft}
-                  className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+                  className="h-11 rounded-lg min-h-[44px] transition-transform duration-200 active:scale-[0.98]"
                 >
-                  <Save className="mr-1 h-4 w-4" /> Salvar Rascunho
+                  {formHook.saving ? (
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-1 h-4 w-4" />
+                  )}
+                  Salvar Rascunho
                 </Button>
                 <Button
                   disabled={formHook.saving}
                   onClick={formHook.finalize}
-                  className="h-11 rounded-lg transition-transform duration-200 active:scale-[0.98]"
+                  className="h-11 rounded-lg min-h-[44px] transition-transform duration-200 active:scale-[0.98]"
                 >
-                  <CheckCircle2 className="mr-1 h-4 w-4" /> Finalizar Avaliação
+                  {formHook.saving ? (
+                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="mr-1 h-4 w-4" />
+                  )}
+                  Finalizar Avaliação
                 </Button>
               </div>
             )}

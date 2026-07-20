@@ -41,7 +41,7 @@ export function CalcField({ label, calcKey, value, onChange, onReset, step }: Ca
       <div className="flex items-center justify-between">
         <Label className="text-sm font-medium">{label}</Label>
         {showCalcLabel(calcKey) && !manual && (
-          <span className="animate-calc-label text-[0.625rem] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+          <span className="animate-calc-label text-[0.625rem] font-medium italic text-primary bg-primary/10 px-1.5 py-0.5 rounded">
             Calculado
           </span>
         )}
@@ -56,7 +56,7 @@ export function CalcField({ label, calcKey, value, onChange, onReset, step }: Ca
               onChange={(e) =>
                 onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))
               }
-              className="h-11 rounded-lg text-sm pr-9"
+              className="h-11 rounded-md text-sm pr-9"
             />
             <button
               type="button"
@@ -76,7 +76,7 @@ export function CalcField({ label, calcKey, value, onChange, onReset, step }: Ca
               readOnly
               tabIndex={-1}
               onDoubleClick={() => markManual(calcKey)}
-              className="h-11 rounded-lg bg-muted font-semibold pl-9 pr-9 cursor-pointer border-input focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="h-11 rounded-md bg-muted/30 font-semibold pl-9 pr-9 cursor-pointer border-input focus-visible:ring-0 focus-visible:ring-offset-0"
             />
             <button
               type="button"

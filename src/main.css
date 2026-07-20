@@ -183,6 +183,46 @@
     animation: step-in 250ms ease-out 50ms both;
   }
 
+  @keyframes step-forward {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  .animate-step-forward {
+    animation: step-forward 200ms ease-out;
+  }
+  @keyframes step-backward {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  .animate-step-backward {
+    animation: step-backward 200ms ease-out;
+  }
+  @keyframes ewgsop2-row-enter {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-ewgsop2-row {
+    animation: ewgsop2-row-enter 200ms ease-out both;
+  }
+
   @keyframes summary-enter {
     from {
       opacity: 0;

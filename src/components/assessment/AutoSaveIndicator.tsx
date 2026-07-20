@@ -1,4 +1,4 @@
-import { CheckCircle2, AlertCircle, RotateCcw } from 'lucide-react'
+import { CheckCircle2, AlertCircle, RotateCcw, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -15,7 +15,7 @@ export function AutoSaveIndicator({
   if (saveState === 'saving') {
     return (
       <span className="flex items-center gap-1.5 text-xs text-primary">
-        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-save-pulse" />
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
         Salvando...
       </span>
     )

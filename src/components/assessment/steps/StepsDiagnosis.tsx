@@ -30,6 +30,12 @@ const SARCF_QUESTIONS = [
   { key: 'falls', label: 'Quedas: quantas vezes caiu no último ano?' },
 ] as const
 
+const SARCF_OPTIONS = [
+  { value: 0, label: 'Nenhuma' },
+  { value: 1, label: 'Alguma' },
+  { value: 2, label: 'Muita' },
+] as const
+
 export function Step10Screening({ form, patient, updateField }: StepProps) {
   const ss = form.sarcopeniaScreening
   const gender = patient?.gender ?? 'M'
@@ -69,23 +75,29 @@ export function Step10Screening({ form, patient, updateField }: StepProps) {
       <SectionTitle title="Triagem de Sarcopenia" />
       <div className="space-y-3">
         {SARCF_QUESTIONS.map((q) => (
-          <div key={q.key} className="flex items-center justify-between gap-4">
-            <Label className="text-sm flex-1">{q.label}</Label>
-            <Select
-              value={String(ss[q.key] ?? '')}
-              onValueChange={(v) =>
-                set({ [q.key]: parseInt(v) } as Partial<SarcopeniaScreeningData>)
-              }
-            >
-              <SelectTrigger className="w-32 h-11 rounded-lg">
-                <SelectValue placeholder="0" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0">0 - Nenhuma</SelectItem>
-                <SelectItem value="1">1 - Alguma</SelectItem>
-                <SelectItem value="2">2 - Muita</SelectItem>
-              </SelectContent>
-            </Select>
+          <div key={q.key} className="rounded-lg border p-3 space-y-2.5">
+            <Label className="text-sm font-medium">{q.label}</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {SARCF_OPTIONS.map((opt) => {
+                const isSelected = ss[q.key] === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => set({ [q.key]: opt.value } as Partial<SarcopeniaScreeningData>)}
+                    className={cn(
+                      'flex flex-col items-center gap-0.5 rounded-md border-2 py-2 px-2 transition-all duration-200 min-h-[44px]',
+                      isSelected
+                        ? 'border-primary bg-primary/5 text-primary'
+                        : 'border-border hover:border-primary/30 hover:bg-accent',
+                    )}
+                  >
+                    <span className="text-lg font-bold">{opt.value}</span>
+                    <span className="text-xs">{opt.label}</span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
         ))}
       </div>
@@ -175,8 +187,12 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.label} className="border-t">
+            {rows.map((r, i) => (
+              <tr
+                key={r.label}
+                className={cn('border-t animate-ewgsop2-row', i % 2 === 1 && 'bg-muted/20')}
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
                 <td className="py-2.5 px-3">{r.label}</td>
                 <td className="text-center py-2.5 px-3">{r.value ?? '-'}</td>
                 <td className="text-center py-2.5 px-3 text-muted-foreground">{r.cutoff}</td>
@@ -201,6 +217,7 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
           {DIAG_OPTS.map((opt) => {
             const isSelected = (ea.diagnosis ?? form.finalDiagnosis) === opt.value
             const isGrave = opt.value === 'sarcopenia_grave'
+            const isSuggested = opt.value === suggested && suggested !== 'sem_sarcopenia'
             return (
               <label
                 key={opt.value}
@@ -223,6 +240,11 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
                 </span>
                 <RadioGroupItem value={opt.value} className="sr-only" />
                 <span className="text-sm font-medium">{opt.label}</span>
+                {isSuggested && (
+                  <span className="ml-auto text-[0.625rem] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                    Sugerido
+                  </span>
+                )}
               </label>
             )
           })}

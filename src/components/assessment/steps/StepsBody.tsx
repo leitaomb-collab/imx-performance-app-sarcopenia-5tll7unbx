@@ -6,6 +6,7 @@ import {
   SectionTitle,
 } from '@/components/assessment/shared'
 import { Input } from '@/components/ui/input'
+import { Info } from 'lucide-react'
 import {
   getALMIStatus,
   getPhaseAngleStatus,
@@ -123,10 +124,17 @@ export function Step4Anthropometry({ form, patient, updateField }: StepProps) {
           <Input
             value={an.somatotype ?? ''}
             onChange={(e) => set({ somatotype: e.target.value })}
-            className="h-11 rounded-lg text-sm"
+            className="h-11 rounded-md text-sm"
             placeholder="Ex: endomorfo, mesomorfo..."
           />
         </StepField>
+      </div>
+      <div className="rounded-lg bg-blue-500/5 p-3 text-sm text-muted-foreground flex items-start gap-2">
+        <Info className="h-4 w-4 shrink-0 mt-0.5 text-blue-500" />
+        <div>
+          Circunferência da panturrilha &lt; 34 cm (homens) ou &lt; 33 cm (mulheres) é indicador de
+          risco para sarcopenia segundo critérios EWGSOP2.
+        </div>
       </div>
     </div>
   )
