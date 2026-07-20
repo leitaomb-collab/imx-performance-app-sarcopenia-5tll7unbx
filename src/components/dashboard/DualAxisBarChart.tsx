@@ -75,6 +75,12 @@ export function DualAxisBarChart({
               fontSize={11}
               tickLine={false}
               axisLine={false}
+              label={{
+                value: '% Gordura',
+                angle: -90,
+                position: 'insideLeft',
+                style: { fontSize: 10, fill: 'hsl(var(--muted-foreground))' },
+              }}
             />
             <YAxis
               yAxisId="right"
@@ -83,6 +89,12 @@ export function DualAxisBarChart({
               fontSize={11}
               tickLine={false}
               axisLine={false}
+              label={{
+                value: 'Ângulo de Fase',
+                angle: 90,
+                position: 'insideRight',
+                style: { fontSize: 10, fill: 'hsl(var(--muted-foreground))' },
+              }}
             />
             <Tooltip content={<ChartTooltip />} />
             {leftRef != null && (

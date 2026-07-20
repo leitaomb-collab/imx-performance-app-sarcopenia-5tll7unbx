@@ -6,14 +6,10 @@ import { cn } from '@/lib/utils'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 
 const DIAGNOSIS_CONFIG = [
-  { key: 'sem_sarcopenia', label: 'Sem sarcopenia', color: 'hsl(var(--diagnosis-sem-sarcopenia))' },
-  { key: 'sarcopenia', label: 'Sarcopenia provável', color: 'hsl(var(--diagnosis-sarcopenia))' },
-  {
-    key: 'sarcopenia_grave',
-    label: 'Sarcopenia grave',
-    color: 'hsl(var(--diagnosis-sarcopenia-grave))',
-  },
-  { key: 'nao_avaliado', label: 'Sem diagnóstico', color: 'hsl(var(--diagnosis-nao-avaliado))' },
+  { key: 'sem_sarcopenia', label: 'Sem sarcopenia', color: 'hsl(215 16% 47% / 0.4)' },
+  { key: 'sarcopenia', label: 'Sarcopenia provável', color: 'hsl(217 91% 60%)' },
+  { key: 'sarcopenia_grave', label: 'Sarcopenia grave', color: 'hsl(0 84% 60%)' },
+  { key: 'nao_avaliado', label: 'Sem diagnóstico', color: 'hsl(215 16% 80%)' },
 ] as const
 
 interface DiagnosisDonutProps {
@@ -46,12 +42,12 @@ function DiagnosisDonutBase({ assessments }: DiagnosisDonutProps) {
         ) : (
           <div className="flex flex-col items-center gap-4">
             <div
-              className="relative w-full h-[200px]"
+              className="relative w-full h-[220px] md:h-[200px]"
               tabIndex={0}
               role="img"
               aria-label={`Distribuição de diagnósticos: ${total} avaliações concluídas`}
             >
-              <ChartContainer config={chartConfig} className="h-[200px] w-full">
+              <ChartContainer config={chartConfig} className="h-[220px] md:h-[200px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -62,9 +58,9 @@ function DiagnosisDonutBase({ assessments }: DiagnosisDonutProps) {
                       cy="50%"
                       innerRadius={60}
                       outerRadius={90}
-                      paddingAngle={2}
+                      paddingAngle={0}
                       stroke="hsl(var(--card))"
-                      strokeWidth={2}
+                      strokeWidth={3}
                       isAnimationActive
                       animationDuration={500}
                       animationEasing="ease-out"
@@ -87,8 +83,8 @@ function DiagnosisDonutBase({ assessments }: DiagnosisDonutProps) {
                 </ResponsiveContainer>
               </ChartContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-3xl font-bold tabular-nums">{total}</span>
-                <span className="text-xs text-muted-foreground">Concluídas</span>
+                <span className="text-2xl font-bold tabular-nums">{total}</span>
+                <span className="text-xs text-muted-foreground">Total</span>
               </div>
             </div>
             <div className="w-full space-y-2">

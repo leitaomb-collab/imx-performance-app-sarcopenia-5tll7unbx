@@ -74,7 +74,7 @@ function SimpleLineChartBase({ data, color, yDomain, ariaLabel, children }: Simp
               type="monotone"
               dataKey="value"
               stroke="var(--color-value)"
-              strokeWidth={2}
+              strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
               activeDot={{ r: 5, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
               isAnimationActive

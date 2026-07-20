@@ -68,15 +68,15 @@ function LongitudinalChartsBase({
         .filter((d) => d.fat != null || d.phase != null),
     [assessments],
   )
-  const spiroData = useMemo(
+  const respData = useMemo(
     () =>
       sortAssessmentsByDate(assessments)
         .map((a) => ({
           date: fmtDate(a.assessmentDate),
-          fev1: a.spirometry?.fev1Percent,
+          pimax: a.respiratoryStrength?.pimaxPercent,
           cvf: a.spirometry?.fvcPercent,
         }))
-        .filter((d) => d.fev1 != null || d.cvf != null),
+        .filter((d) => d.pimax != null || d.cvf != null),
     [assessments],
   )
   const concludedCount = useMemo(
@@ -99,7 +99,7 @@ function LongitudinalChartsBase({
           concludedCount={concludedCount}
         />
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <ChartCard
           title="Força de Preensão Manual (kg)"
           isEmpty={hgData.length === 0}
@@ -113,11 +113,12 @@ function LongitudinalChartsBase({
             <ReferenceLine
               y={hgCutoff}
               stroke="hsl(var(--destructive))"
-              strokeDasharray="4 4"
+              strokeDasharray="6 4"
               label={{
                 value: `EWGSOP2: ${hgCutoff}`,
                 fontSize: 10,
                 fill: 'hsl(var(--destructive))',
+                position: 'right',
               }}
             />
           </SimpleLineChart>
@@ -132,11 +133,12 @@ function LongitudinalChartsBase({
             <ReferenceLine
               y={almiCutoff}
               stroke="hsl(var(--destructive))"
-              strokeDasharray="4 4"
+              strokeDasharray="6 4"
               label={{
                 value: `Cutoff: ${almiCutoff}`,
                 fontSize: 10,
                 fill: 'hsl(var(--destructive))',
+                position: 'right',
               }}
             />
           </SimpleLineChart>
@@ -156,14 +158,14 @@ function LongitudinalChartsBase({
             <ReferenceLine
               y={8}
               stroke="hsl(0 84% 60%)"
-              strokeDasharray="4 4"
-              label={{ value: 'Baixo', fontSize: 9, fill: 'hsl(0 84% 60%)' }}
+              strokeDasharray="6 4"
+              label={{ value: 'Baixo', fontSize: 9, fill: 'hsl(0 84% 60%)', position: 'right' }}
             />
             <ReferenceLine
               y={10}
               stroke="hsl(142 71% 45%)"
-              strokeDasharray="4 4"
-              label={{ value: 'Bom', fontSize: 9, fill: 'hsl(142 71% 45%)' }}
+              strokeDasharray="6 4"
+              label={{ value: 'Bom', fontSize: 9, fill: 'hsl(142 71% 45%)', position: 'right' }}
             />
           </SimpleLineChart>
         </ChartCard>
@@ -174,7 +176,7 @@ function LongitudinalChartsBase({
               y1={0}
               y2={10}
               fill="hsl(142 71% 45%)"
-              fillOpacity={0.25}
+              fillOpacity={0.08}
               label={{
                 value: 'Normal',
                 position: 'insideRight',
@@ -187,7 +189,7 @@ function LongitudinalChartsBase({
               y1={10}
               y2={19}
               fill="hsl(45 93% 47%)"
-              fillOpacity={0.25}
+              fillOpacity={0.08}
               label={{
                 value: 'Intermediário',
                 position: 'insideRight',
@@ -200,7 +202,7 @@ function LongitudinalChartsBase({
               y1={19}
               y2={60}
               fill="hsl(0 84% 60%)"
-              fillOpacity={0.25}
+              fillOpacity={0.08}
               label={{
                 value: 'Risco',
                 position: 'insideRight',
@@ -220,8 +222,8 @@ function LongitudinalChartsBase({
           <DualAxisBarChart
             data={bodyCompData}
             config={{
-              fat: { label: '% Gordura', color: 'hsl(var(--chart-1))' },
-              phase: { label: 'Ângulo de Fase', color: 'hsl(25 95% 55%)' },
+              fat: { label: '% Gordura', color: 'hsl(var(--primary))' },
+              phase: { label: 'Ângulo de Fase', color: 'hsl(280 65% 60%)' },
             }}
             leftKey="fat"
             rightKey="phase"
@@ -245,29 +247,34 @@ function LongitudinalChartsBase({
             <ReferenceLine
               y={1}
               stroke="hsl(var(--destructive))"
-              strokeDasharray="4 4"
-              label={{ value: 'Risco', fontSize: 10, fill: 'hsl(var(--destructive))' }}
+              strokeDasharray="6 4"
+              label={{
+                value: 'Risco',
+                fontSize: 10,
+                fill: 'hsl(var(--destructive))',
+                position: 'right',
+              }}
             />
           </SimpleLineChart>
         </ChartCard>
 
         <ChartCard
-          title="VEF₁ e CVF (%)"
-          isEmpty={spiroData.length === 0}
-          note={singleNote(spiroData.length)}
+          title="PImáx e CVF (%)"
+          isEmpty={respData.length === 0}
+          note={singleNote(respData.length)}
         >
           <DualLineChart
-            data={spiroData}
+            data={respData}
             config={{
-              fev1: { label: 'VEF₁ %', color: 'hsl(var(--chart-1))' },
-              cvf: { label: 'CVF %', color: 'hsl(var(--chart-2))' },
+              pimax: { label: 'PImáx %', color: 'hsl(var(--primary))' },
+              cvf: { label: 'CVF %', color: 'hsl(217 91% 60%)' },
             }}
-            line1Key="fev1"
+            line1Key="pimax"
             line2Key="cvf"
             referenceY={80}
             referenceLabel="Limite inferior"
             yDomain={[0, 120]}
-            ariaLabel="VEF1 e CVF em percentual"
+            ariaLabel="PImáx e CVF em percentual"
           />
         </ChartCard>
       </div>

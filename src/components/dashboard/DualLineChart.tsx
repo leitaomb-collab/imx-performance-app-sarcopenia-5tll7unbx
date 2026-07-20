@@ -83,15 +83,20 @@ export function DualLineChart({
               <ReferenceLine
                 y={referenceY}
                 stroke="hsl(var(--destructive))"
-                strokeDasharray="4 4"
-                label={{ value: referenceLabel, fontSize: 9, fill: 'hsl(var(--destructive))' }}
+                strokeDasharray="6 4"
+                label={{
+                  value: referenceLabel,
+                  fontSize: 9,
+                  fill: 'hsl(var(--destructive))',
+                  position: 'right',
+                }}
               />
             )}
             <Line
               type="monotone"
               dataKey={line1Key}
               stroke={`var(--color-${line1Key})`}
-              strokeWidth={2}
+              strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
               isAnimationActive
               animationDuration={600}
@@ -100,7 +105,7 @@ export function DualLineChart({
               type="monotone"
               dataKey={line2Key}
               stroke={`var(--color-${line2Key})`}
-              strokeWidth={2}
+              strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
               isAnimationActive
               animationDuration={600}

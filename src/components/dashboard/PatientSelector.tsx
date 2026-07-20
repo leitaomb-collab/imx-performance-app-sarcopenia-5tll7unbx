@@ -41,7 +41,7 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="h-11 w-full sm:w-auto sm:min-w-[16rem] justify-between min-h-[44px] bg-card border rounded-[0.5rem]"
+          className="h-11 w-full sm:w-72 justify-between min-h-[44px] bg-card border rounded-[0.5rem]"
         >
           <span className="flex items-center gap-2 truncate">
             <Users className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -52,8 +52,13 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
       </PopoverTrigger>
       <PopoverContent className="w-[280px] p-0 shadow-[0_4px_12px_rgba(0,0,0,0.08)]" align="start">
         <Command shouldFilter={false}>
-          <CommandInput placeholder="Buscar paciente..." value={search} onValueChange={setSearch} />
-          <CommandList>
+          <CommandInput
+            placeholder="Buscar paciente..."
+            value={search}
+            onValueChange={setSearch}
+            className="h-10"
+          />
+          <CommandList className="max-h-[320px]">
             <CommandEmpty>Nenhum paciente encontrado.</CommandEmpty>
             <CommandGroup>
               <CommandItem
@@ -62,8 +67,8 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
                   setOpen(false)
                 }}
                 className={cn(
-                  'cursor-pointer min-h-[44px] py-[0.625rem] px-[0.875rem] data-[selected=true]:bg-primary/30',
-                  !value && 'bg-primary/10 font-medium',
+                  'cursor-pointer min-h-[44px] py-[0.625rem] px-[0.875rem] data-[selected=true]:bg-accent font-bold',
+                  !value && 'bg-primary/10',
                 )}
               >
                 <Check className={cn('mr-2 h-4 w-4', !value ? 'opacity-100' : 'opacity-0')} />
@@ -77,7 +82,7 @@ export function PatientSelector({ patients, value, onChange }: PatientSelectorPr
                     setOpen(false)
                   }}
                   className={cn(
-                    'cursor-pointer min-h-[44px] py-[0.625rem] px-[0.875rem] data-[selected=true]:bg-primary/30',
+                    'cursor-pointer min-h-[44px] py-[0.625rem] px-[0.875rem] data-[selected=true]:bg-accent',
                     value === p.id && 'bg-primary/10 font-medium',
                   )}
                 >

@@ -18,12 +18,20 @@ interface StatCardData {
   subtitle: string
   icon: ComponentType<{ className?: string }>
   valueColor?: string
+  accentColor: string
 }
 
-const StatCardItem = memo(function StatCardItem({ card }: { card: StatCardData }) {
+const StatCardItem = memo(function StatCardItem({
+  card,
+  delay,
+}: {
+  card: StatCardData
+  delay: number
+}) {
   const Icon = card.icon
   return (
-    <Card className="stats-card">
+    <Card className="stats-card stats-card-enter" style={{ animationDelay: `${delay}ms` }}>
+      <div className="stats-card-accent-bar" style={{ backgroundColor: card.accentColor }} />
       <CardContent className="p-5">
         <Icon className="stats-card-icon" />
         <p className="stats-card-title">{card.title}</p>
@@ -72,6 +80,7 @@ function StatsCardsBase({ patients, assessments, patientSelected }: StatsCardsPr
         value: patients.length,
         subtitle: `${newThisMonth} novos no mês`,
         icon: Users,
+        accentColor: 'hsl(var(--primary))',
       })
     }
     result.push({
@@ -79,6 +88,7 @@ function StatsCardsBase({ patients, assessments, patientSelected }: StatsCardsPr
       value: assessments.length,
       subtitle: `${concludedCount} concluídas`,
       icon: Activity,
+      accentColor: 'hsl(217 91% 60%)',
     })
     result.push({
       title: 'Em Risco de Sarcopenia',
@@ -86,6 +96,7 @@ function StatsCardsBase({ patients, assessments, patientSelected }: StatsCardsPr
       subtitle: `${sarcopeniaGrave} sarcopenia grave`,
       icon: AlertTriangle,
       valueColor: sarcopeniaRisk > 0 ? 'hsl(var(--destructive))' : undefined,
+      accentColor: 'hsl(0 84% 60%)',
     })
     if (!patientSelected) {
       result.push({
@@ -94,6 +105,7 @@ function StatsCardsBase({ patients, assessments, patientSelected }: StatsCardsPr
         subtitle: `${lateReassessments} em atraso`,
         icon: Clock,
         valueColor: pendingReassessments > 0 ? 'hsl(var(--warning))' : undefined,
+        accentColor: 'hsl(45 93% 47%)',
       })
     }
     return result
@@ -106,7 +118,7 @@ function StatsCardsBase({ patients, assessments, patientSelected }: StatsCardsPr
   return (
     <div className={`grid gap-4 ${gridClass}`}>
       {cards.map((card, i) => (
-        <StatCardItem key={i} card={card} />
+        <StatCardItem key={i} card={card} delay={i * 60} />
       ))}
     </div>
   )

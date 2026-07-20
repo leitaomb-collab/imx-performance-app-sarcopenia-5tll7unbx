@@ -63,10 +63,10 @@ export function RecentAssessments({ assessments }: RecentAssessmentsProps) {
                     </div>
                   </div>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     asChild
-                    className="shrink-0 min-h-[44px] border-primary/30 text-primary rounded-[0.375rem] bg-transparent"
+                    className="shrink-0 min-h-[44px] text-primary rounded-[0.375rem]"
                   >
                     <Link to={`/avaliacao/${av.id}`}>
                       Ver <ChevronRight className="ml-1 h-4 w-4" />

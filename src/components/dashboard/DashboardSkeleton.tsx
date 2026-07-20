@@ -10,13 +10,11 @@ export function DashboardSkeleton() {
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="shadow-subtle border-0">
-            <CardHeader>
-              <Skeleton className="h-4 w-32" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-8 w-16" />
-              <Skeleton className="h-3 w-24 mt-2" />
+          <Card key={i} className="shadow-subtle border-0 h-32">
+            <CardContent className="p-5">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-7 w-16 mt-2" />
+              <Skeleton className="h-3 w-20 mt-2" />
             </CardContent>
           </Card>
         ))}
@@ -27,7 +25,7 @@ export function DashboardSkeleton() {
             <Skeleton className="h-6 w-48" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-[280px] w-full" />
+            <Skeleton className="h-72 w-full rounded-xl" />
           </CardContent>
         </Card>
         <Card className="shadow-subtle border-0">
