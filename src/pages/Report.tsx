@@ -10,10 +10,12 @@ import { ReportSectionsA } from '@/components/report/ReportSectionsA'
 import { ReportSectionsB } from '@/components/report/ReportSectionsB'
 import { ReportSkeleton } from '@/components/report/ReportSkeleton'
 import { formatDateExtendedBR } from '@/lib/report-utils'
+import { usePrintStyles } from '@/hooks/use-print-styles'
 import type { Patient, User } from '@/types'
 
 export default function Report() {
   const { id } = useParams()
+  const { handlePrint } = usePrintStyles()
   const [data, setData] = useState<Record<string, any> | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -100,17 +102,13 @@ export default function Report() {
           className="h-10 rounded-lg duration-200"
         />
         <div className="flex items-center gap-2">
-          <Button
-            className="h-10 rounded-lg duration-200"
-            onClick={() => window.print()}
-            disabled={isDraft}
-          >
+          <Button className="h-10 rounded-lg duration-200" onClick={handlePrint} disabled={isDraft}>
             <Printer className="h-4 w-4 mr-1" /> Imprimir
           </Button>
           <Button
             variant="secondary"
             className="h-10 rounded-lg duration-200"
-            onClick={() => window.print()}
+            onClick={handlePrint}
             disabled={isDraft}
           >
             <FileDown className="h-4 w-4 mr-1" /> Baixar PDF

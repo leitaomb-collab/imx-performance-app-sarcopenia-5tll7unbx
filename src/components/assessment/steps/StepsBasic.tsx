@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { StepField, NumberInput, StepSection } from '@/components/assessment/shared'
+import { BlurInput, BlurTextarea, BlurNumberInput } from '@/components/assessment/blur-fields'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -137,44 +138,44 @@ export function Step5Postural({ form, updateField }: StepProps) {
       </div>
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="Cabeça">
-          <Input
+          <BlurInput
             value={pa.head ?? ''}
-            onChange={(e) => set({ head: e.target.value })}
+            onCommit={(v) => set({ head: v })}
             className="h-11 rounded-lg text-sm"
           />
         </StepField>
         <StepField label="Ombros">
-          <Input
+          <BlurInput
             value={pa.shoulders ?? ''}
-            onChange={(e) => set({ shoulders: e.target.value })}
+            onCommit={(v) => set({ shoulders: v })}
             className="h-11 rounded-lg text-sm"
           />
         </StepField>
         <StepField label="Coluna">
-          <Input
+          <BlurInput
             value={pa.spine ?? ''}
-            onChange={(e) => set({ spine: e.target.value })}
+            onCommit={(v) => set({ spine: v })}
             className="h-11 rounded-lg text-sm"
           />
         </StepField>
         <StepField label="Pelve">
-          <Input
+          <BlurInput
             value={pa.pelvis ?? ''}
-            onChange={(e) => set({ pelvis: e.target.value })}
+            onCommit={(v) => set({ pelvis: v })}
             className="h-11 rounded-lg text-sm"
           />
         </StepField>
         <StepField label="Joelhos">
-          <Input
+          <BlurInput
             value={pa.knees ?? ''}
-            onChange={(e) => set({ knees: e.target.value })}
+            onCommit={(v) => set({ knees: v })}
             className="h-11 rounded-lg text-sm"
           />
         </StepField>
         <StepField label="Pés">
-          <Input
+          <BlurInput
             value={pa.feet ?? ''}
-            onChange={(e) => set({ feet: e.target.value })}
+            onCommit={(v) => set({ feet: v })}
             className="h-11 rounded-lg text-sm"
           />
         </StepField>
@@ -187,10 +188,10 @@ export function Step5Postural({ form, updateField }: StepProps) {
         <Label>Fotografias anexas</Label>
       </div>
       <StepField label="Observações">
-        <Textarea
+        <BlurTextarea
           rows={3}
           value={pa.observations ?? ''}
-          onChange={(e) => set({ observations: e.target.value })}
+          onCommit={(v) => set({ observations: v })}
           className="rounded-lg text-sm"
         />
       </StepField>
@@ -204,11 +205,11 @@ export function Step12Conclusion({ form, updateField }: StepProps) {
       <StepSection title="Conclusão">
         <div className="space-y-2 md:col-span-2">
           <Label className="text-sm font-medium">Resumo Clínico</Label>
-          <Textarea
+          <BlurTextarea
             rows={6}
             className="min-h-[12rem] rounded-lg text-sm"
             value={form.clinicalSummary}
-            onChange={(e) => updateField('clinicalSummary', e.target.value)}
+            onCommit={(v) => updateField('clinicalSummary', v)}
             placeholder="Síntese dos achados, interpretação clínica e recomendações..."
           />
         </div>

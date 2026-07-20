@@ -40,8 +40,8 @@ export function useAssessmentDetail(id: string | undefined) {
         toast.error('Avaliação excluída por outro usuário')
         const pid = assessment?.patientId
         setTimeout(() => navigate(`/paciente/${pid}`), 2000)
-      } else {
-        loadData()
+      } else if (e.action === 'update') {
+        setAssessment(e.record as Record<string, any>)
       }
     },
     !!id,

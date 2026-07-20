@@ -30,6 +30,8 @@ export function usePhotoUpload({
   const [errors, setErrors] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const dragCounter = useRef(0)
+  const photosRef = useRef<PhotoItem[]>([])
+  photosRef.current = photos
 
   useEffect(() => {
     if (assessmentId && initialPhotos.length > 0) {
@@ -49,6 +51,14 @@ export function usePhotoUpload({
   useEffect(() => {
     onPhotosChange?.(photos.length > 0)
   }, [photos.length, onPhotosChange])
+
+  useEffect(() => {
+    return () => {
+      photosRef.current.forEach((p) => {
+        if (!p.isExisting) URL.revokeObjectURL(p.url)
+      })
+    }
+  }, [])
 
   const validateFiles = (files: File[]): { valid: File[]; errs: string[] } => {
     const valid: File[] = []
@@ -127,6 +137,9 @@ export function usePhotoUpload({
           setErrors((prev) => [...prev, 'Erro ao excluir fotografia.'])
           return
         }
+      }
+      if (!photo.isExisting) {
+        URL.revokeObjectURL(photo.url)
       }
       setPhotos((prev) => prev.filter((p) => p.id !== photoId))
     },

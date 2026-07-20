@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Camera, Eye, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,7 +12,8 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { usePhotoUpload } from '@/hooks/use-photo-upload'
-import { PhotoLightbox } from '@/components/assessment/PhotoLightbox'
+import { LazyLightbox } from '@/components/assessment/LazyLightbox'
+import { LazyImage } from '@/components/ui/lazy-image'
 import { toast } from 'sonner'
 
 interface PosturalPhotoUploaderProps {
@@ -29,6 +30,17 @@ export function PosturalPhotoUploader({
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return
+    try {
+      await removePhoto(deleteTarget)
+      toast.success('Fotografia excluída.')
+    } catch {
+      toast.error('Erro ao excluir fotografia.')
+    }
+    setDeleteTarget(null)
+  }, [deleteTarget, removePhoto])
+
   const {
     photos,
     isDragging,
@@ -44,17 +56,6 @@ export function PosturalPhotoUploader({
     removePhoto,
     clearErrors,
   } = usePhotoUpload({ assessmentId, initialPhotos, onPhotosChange })
-
-  const confirmDelete = async () => {
-    if (!deleteTarget) return
-    try {
-      await removePhoto(deleteTarget)
-      toast.success('Fotografia excluída.')
-    } catch {
-      toast.error('Erro ao excluir fotografia.')
-    }
-    setDeleteTarget(null)
-  }
 
   return (
     <div className="space-y-4">
@@ -128,10 +129,12 @@ export function PosturalPhotoUploader({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {photos.map((photo, index) => (
             <div key={photo.id} className="relative group rounded-lg overflow-hidden border">
-              <img
+              <LazyImage
                 src={photo.url}
                 alt={photo.name}
-                className="w-full h-32 object-cover transition-transform duration-200 group-hover:scale-105"
+                height={128}
+                className="w-full h-32"
+                imgClassName="w-full h-32 object-cover transition-transform duration-200 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <Button
@@ -157,7 +160,7 @@ export function PosturalPhotoUploader({
       )}
 
       {lightboxIndex !== null && (
-        <PhotoLightbox
+        <LazyLightbox
           photos={photos.map((p) => ({ url: p.url, name: p.name }))}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}

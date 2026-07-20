@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Eye, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -9,7 +9,8 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog'
-import { PhotoLightbox } from '@/components/assessment/PhotoLightbox'
+import { LazyLightbox } from '@/components/assessment/LazyLightbox'
+import { LazyImage } from '@/components/ui/lazy-image'
 import { getPhotoUrl } from '@/lib/photo-utils'
 import pb from '@/lib/pocketbase/client'
 import { toast } from 'sonner'
@@ -31,13 +32,7 @@ export function PosturalPhotoGallery({
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  if (!photos || photos.length === 0) {
-    return <p className="text-sm text-muted-foreground py-2">Sem fotografias registradas.</p>
-  }
-
-  const photoUrls = photos.map((name) => ({ url: getPhotoUrl(assessmentId, name), name }))
-
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (!deleteTarget) return
     setIsDeleting(true)
     try {
@@ -52,17 +47,25 @@ export function PosturalPhotoGallery({
     }
     setIsDeleting(false)
     setDeleteTarget(null)
+  }, [deleteTarget, photos, assessmentId, onPhotoDeleted])
+
+  if (!photos || photos.length === 0) {
+    return <p className="text-sm text-muted-foreground py-2">Sem fotografias registradas.</p>
   }
+
+  const photoUrls = photos.map((name) => ({ url: getPhotoUrl(assessmentId, name), name }))
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
         {photoUrls.map((photo, index) => (
           <div key={photo.name} className="relative group rounded-lg overflow-hidden border">
-            <img
+            <LazyImage
               src={photo.url}
               alt={photo.name}
-              className="w-full h-32 object-cover transition-transform duration-200 group-hover:scale-105"
+              height={128}
+              className="w-full h-32"
+              imgClassName="w-full h-32 object-cover transition-transform duration-200 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <Button
@@ -89,7 +92,7 @@ export function PosturalPhotoGallery({
       </div>
 
       {lightboxIndex !== null && (
-        <PhotoLightbox
+        <LazyLightbox
           photos={photoUrls}
           index={lightboxIndex}
           onClose={() => setLightboxIndex(null)}

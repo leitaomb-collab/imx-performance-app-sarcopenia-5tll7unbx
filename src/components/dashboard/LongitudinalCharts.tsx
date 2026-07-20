@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { ReferenceLine, ReferenceArea } from 'recharts'
 import { ChartCard } from './ChartCard'
 import { SimpleLineChart } from './SimpleLineChart'
@@ -31,7 +31,7 @@ function singleNote(len: number) {
   return len === 1 ? 'Apenas uma avaliação registrada' : undefined
 }
 
-export function LongitudinalCharts({
+function LongitudinalChartsBase({
   assessments,
   patientGender,
   patientId,
@@ -274,3 +274,5 @@ export function LongitudinalCharts({
     </div>
   )
 }
+
+export const LongitudinalCharts = memo(LongitudinalChartsBase)

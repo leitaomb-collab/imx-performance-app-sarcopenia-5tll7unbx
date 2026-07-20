@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +13,7 @@ interface AssessmentCardProps {
   onDelete: (assessment: Assessment) => void
 }
 
-export function AssessmentCard({ assessment, onDelete }: AssessmentCardProps) {
+function AssessmentCardBase({ assessment, onDelete }: AssessmentCardProps) {
   const isCompleted = assessment.status === 'concluida'
   const diagnosisInfo = isCompleted ? getDiagnosisInfo(assessment.finalDiagnosis) : null
 
@@ -68,3 +69,5 @@ export function AssessmentCard({ assessment, onDelete }: AssessmentCardProps) {
     </Card>
   )
 }
+
+export const AssessmentCard = memo(AssessmentCardBase)

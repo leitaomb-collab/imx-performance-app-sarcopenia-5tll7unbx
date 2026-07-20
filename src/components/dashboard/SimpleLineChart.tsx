@@ -1,4 +1,4 @@
-import { ReactNode, useRef } from 'react'
+import { memo, type ReactNode, useRef } from 'react'
 import { useAccessibility } from '@/hooks/use-accessibility'
 import {
   LineChart,
@@ -20,13 +20,7 @@ interface SimpleLineChartProps {
   children?: ReactNode
 }
 
-export function SimpleLineChart({
-  data,
-  color,
-  yDomain,
-  ariaLabel,
-  children,
-}: SimpleLineChartProps) {
+function SimpleLineChartBase({ data, color, yDomain, ariaLabel, children }: SimpleLineChartProps) {
   const { announce } = useAccessibility()
   const activeIndexRef = useRef(-1)
 
@@ -94,3 +88,5 @@ export function SimpleLineChart({
     </div>
   )
 }
+
+export const SimpleLineChart = memo(SimpleLineChartBase)

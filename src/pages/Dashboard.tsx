@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, lazy, Suspense, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Users, UserSearch } from 'lucide-react'
@@ -6,40 +6,87 @@ import { useAccessibility } from '@/hooks/use-accessibility'
 import { getAllPatients } from '@/services/patients'
 import { getAssessments } from '@/services/assessments'
 import { useRealtime } from '@/hooks/use-realtime'
+import { useSwrCache } from '@/hooks/use-swr-cache'
 import type { Patient } from '@/types'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 import { PatientSelector } from '@/components/dashboard/PatientSelector'
 import { StatsCards } from '@/components/dashboard/StatsCards'
-import { DiagnosisDonut } from '@/components/dashboard/DiagnosisDonut'
 import { RecentAssessments } from '@/components/dashboard/RecentAssessments'
-import { LongitudinalCharts } from '@/components/dashboard/LongitudinalCharts'
 import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton'
 
+const DiagnosisDonut = lazy(() =>
+  import('@/components/dashboard/DiagnosisDonut').then((m) => ({ default: m.DiagnosisDonut })),
+)
+const LongitudinalCharts = lazy(() =>
+  import('@/components/dashboard/LongitudinalCharts').then((m) => ({
+    default: m.LongitudinalCharts,
+  })),
+)
+
+function ChartsFallback() {
+  return (
+    <div className="flex items-center justify-center h-64 text-muted-foreground">
+      Carregando gráficos...
+    </div>
+  )
+}
+
+interface DashboardData {
+  patients: Patient[]
+  assessments: DashboardAssessment[]
+}
+
 export default function Dashboard() {
-  const [patients, setPatients] = useState<Patient[]>([])
-  const [assessments, setAssessments] = useState<DashboardAssessment[]>([])
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
   const { announce } = useAccessibility()
 
-  const loadData = async () => {
-    try {
-      const [p, a] = await Promise.all([getAllPatients(), getAssessments()])
-      setPatients(p)
-      setAssessments(a as DashboardAssessment[])
-      announce('Conteúdo carregado')
-    } catch {
-      announce('Erro ao carregar conteúdo')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const fetcher = useCallback(async (): Promise<DashboardData> => {
+    const [p, a] = await Promise.all([getAllPatients(), getAssessments()])
+    return { patients: p, assessments: a as DashboardAssessment[] }
+  }, [])
+
+  const { data, loading, mutate } = useSwrCache<DashboardData>('dashboard-data', fetcher)
 
   useEffect(() => {
-    loadData()
-  }, [])
-  useRealtime('patients', loadData)
-  useRealtime('assessments', loadData)
+    if (data) announce('Conteúdo carregado')
+  }, [data, announce])
+
+  useRealtime('patients', (e) => {
+    if (e.action === 'create') {
+      mutate((d) => ({ ...d, patients: [...d.patients, e.record as Patient] }))
+    } else if (e.action === 'update') {
+      mutate((d) => ({
+        ...d,
+        patients: d.patients.map((p) => (p.id === e.record.id ? (e.record as Patient) : p)),
+      }))
+    } else if (e.action === 'delete') {
+      mutate((d) => ({ ...d, patients: d.patients.filter((p) => p.id !== e.record.id) }))
+    }
+  })
+
+  useRealtime('assessments', (e) => {
+    if (e.action === 'create') {
+      mutate((d) => ({
+        ...d,
+        assessments: [...d.assessments, e.record as DashboardAssessment],
+      }))
+    } else if (e.action === 'update') {
+      mutate((d) => ({
+        ...d,
+        assessments: d.assessments.map((a) =>
+          a.id === e.record.id ? (e.record as DashboardAssessment) : a,
+        ),
+      }))
+    } else if (e.action === 'delete') {
+      mutate((d) => ({
+        ...d,
+        assessments: d.assessments.filter((a) => a.id !== e.record.id),
+      }))
+    }
+  })
+
+  const patients = data?.patients ?? []
+  const assessments = data?.assessments ?? []
 
   const selectedPatient = useMemo(
     () => patients.find((p) => p.id === selectedPatientId) ?? null,
@@ -54,7 +101,11 @@ export default function Dashboard() {
     [assessments, selectedPatientId],
   )
 
-  if (loading) return <DashboardSkeleton />
+  const handlePatientChange = useCallback((id: string | null) => {
+    setSelectedPatientId(id)
+  }, [])
+
+  if (loading && !data) return <DashboardSkeleton />
 
   if (patients.length === 0) {
     return (
@@ -75,7 +126,7 @@ export default function Dashboard() {
         <PatientSelector
           patients={patients}
           value={selectedPatientId}
-          onChange={setSelectedPatientId}
+          onChange={handlePatientChange}
         />
       </div>
 
@@ -86,17 +137,21 @@ export default function Dashboard() {
       />
 
       <div className="grid gap-6 md:grid-cols-[1fr_1.5fr]">
-        <DiagnosisDonut assessments={filteredAssessments} />
+        <Suspense fallback={<ChartsFallback />}>
+          <DiagnosisDonut assessments={filteredAssessments} />
+        </Suspense>
         <RecentAssessments assessments={filteredAssessments} />
       </div>
 
       {selectedPatient && (
-        <LongitudinalCharts
-          assessments={filteredAssessments}
-          patientGender={selectedPatient.gender}
-          patientId={selectedPatient.id}
-          patientName={selectedPatient.name}
-        />
+        <Suspense fallback={<ChartsFallback />}>
+          <LongitudinalCharts
+            assessments={filteredAssessments}
+            patientGender={selectedPatient.gender}
+            patientId={selectedPatient.id}
+            patientName={selectedPatient.name}
+          />
+        </Suspense>
       )}
 
       {!selectedPatient && (

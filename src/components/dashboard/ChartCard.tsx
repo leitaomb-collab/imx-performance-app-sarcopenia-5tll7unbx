@@ -1,4 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { memo } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/chart'
 
 interface ChartCardProps {
   title: string
@@ -8,7 +9,7 @@ interface ChartCardProps {
   children: React.ReactNode
 }
 
-export function ChartCard({ title, isEmpty, emptyMessage, note, children }: ChartCardProps) {
+function ChartCardBase({ title, isEmpty, emptyMessage, note, children }: ChartCardProps) {
   return (
     <Card className="shadow-subtle rounded-[0.75rem]">
       <CardHeader className="pb-2">
@@ -30,3 +31,5 @@ export function ChartCard({ title, isEmpty, emptyMessage, note, children }: Char
     </Card>
   )
 }
+
+export const ChartCard = memo(ChartCardBase)

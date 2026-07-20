@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ChartContainer } from '@/components/ui/chart'
@@ -19,7 +20,7 @@ interface DiagnosisDonutProps {
   assessments: DashboardAssessment[]
 }
 
-export function DiagnosisDonut({ assessments }: DiagnosisDonutProps) {
+function DiagnosisDonutBase({ assessments }: DiagnosisDonutProps) {
   const concluded = assessments.filter((a) => a.status === 'concluida')
   const total = concluded.length
 
@@ -121,3 +122,5 @@ export function DiagnosisDonut({ assessments }: DiagnosisDonutProps) {
     </Card>
   )
 }
+
+export const DiagnosisDonut = memo(DiagnosisDonutBase)

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import {
   Select,
   SelectContent,
@@ -13,11 +13,13 @@ import { toast } from 'sonner'
 import { useAccessibility } from '@/hooks/use-accessibility'
 import { getPatients } from '@/services/patients'
 import { useRealtime } from '@/hooks/use-realtime'
+import { useRoutePrefetch } from '@/hooks/use-route-prefetch'
 import type { Patient } from '@/types'
 import { PatientCard } from '@/components/patients/PatientCard'
 import { PatientSkeleton } from '@/components/patients/PatientSkeleton'
 import { CreatePatientDialog } from '@/components/patients/CreatePatientDialog'
 import { DeletePatientDialog } from '@/components/patients/DeletePatientDialog'
+import { VirtualizedGrid } from '@/components/ui/virtualized-grid'
 
 const PER_PAGE = 20
 
@@ -34,8 +36,20 @@ export default function Patients() {
   const [createOpen, setCreateOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null)
   const [fadingOutId, setFadingOutId] = useState<string | null>(null)
+  const [columns, setColumns] = useState(3)
   const skipRealtimeRef = useRef(false)
   const { announce } = useAccessibility()
+  const prefetch = useRoutePrefetch()
+
+  useEffect(() => {
+    const updateColumns = () => {
+      const w = window.innerWidth
+      setColumns(w < 768 ? 1 : w < 1024 ? 2 : 3)
+    }
+    updateColumns()
+    window.addEventListener('resize', updateColumns)
+    return () => window.removeEventListener('resize', updateColumns)
+  }, [])
 
   const buildFilter = (s: string, g: string): string | undefined => {
     const conditions: string[] = []
@@ -67,7 +81,7 @@ export default function Patients() {
         setLoadingMore(false)
       }
     },
-    [debouncedSearch, genderFilter],
+    [debouncedSearch, genderFilter, announce],
   )
 
   useEffect(() => {
@@ -79,14 +93,20 @@ export default function Patients() {
     loadData(1, false)
   }, [loadData])
 
-  useRealtime('patients', () => {
+  useRealtime('patients', (e) => {
     if (skipRealtimeRef.current) return
-    loadData(1, false)
+    if (e.action === 'create') {
+      setPatients((prev) => [...prev, e.record as Patient])
+    } else if (e.action === 'update') {
+      setPatients((prev) => prev.map((p) => (p.id === e.record.id ? (e.record as Patient) : p)))
+    } else if (e.action === 'delete') {
+      setPatients((prev) => prev.filter((p) => p.id !== e.record.id))
+    }
   })
 
-  const handleLoadMore = () => loadData(page + 1, true)
+  const handleLoadMore = useCallback(() => loadData(page + 1, true), [loadData, page])
 
-  const handleDeleteSuccess = (id: string) => {
+  const handleDeleteSuccess = useCallback((id: string) => {
     setFadingOutId(id)
     skipRealtimeRef.current = true
     setTimeout(() => {
@@ -94,11 +114,29 @@ export default function Patients() {
       setPatients((prev) => prev.filter((p) => p.id !== id))
       setFadingOutId(null)
     }, 500)
-  }
+  }, [])
+
+  const handlePrefetchPatient = useCallback(
+    () => prefetch('patient-profile', () => import('@/pages/PatientProfile')),
+    [prefetch],
+  )
 
   const hasFilters = debouncedSearch || genderFilter !== 'all'
   const showEmpty = !loading && !error && patients.length === 0
   const showLoadMore = page < totalPages && !loading && !error
+  const shouldVirtualize = patients.length > 100
+
+  const renderItem = useCallback(
+    (p: Patient) => (
+      <PatientCard
+        patient={p}
+        onDelete={setDeleteTarget}
+        isFadingOut={fadingOutId === p.id}
+        onPrefetch={handlePrefetchPatient}
+      />
+    ),
+    [fadingOutId, handlePrefetchPatient],
+  )
 
   return (
     <div className="space-y-6">
@@ -162,6 +200,13 @@ export default function Patients() {
             </>
           )}
         </div>
+      ) : shouldVirtualize ? (
+        <VirtualizedGrid
+          items={patients}
+          renderItem={renderItem}
+          itemHeight={220}
+          columns={columns}
+        />
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -171,6 +216,7 @@ export default function Patients() {
                 patient={p}
                 onDelete={setDeleteTarget}
                 isFadingOut={fadingOutId === p.id}
+                onPrefetch={handlePrefetchPatient}
               />
             ))}
           </div>

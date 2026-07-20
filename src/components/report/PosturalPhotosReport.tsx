@@ -1,6 +1,9 @@
 import { getPhotoUrl } from '@/lib/photo-utils'
 import { cn } from '@/lib/utils'
 
+const PHOTO_WIDTH = 160
+const PHOTO_HEIGHT = 96
+
 interface PosturalPhotosReportProps {
   assessmentId: string
   photos: string[]
@@ -27,6 +30,9 @@ export function PosturalPhotosReport({ assessmentId, photos }: PosturalPhotosRep
               <img
                 src={getPhotoUrl(assessmentId, name)}
                 alt={`Foto postural ${index + 1}`}
+                loading="lazy"
+                width={PHOTO_WIDTH}
+                height={PHOTO_HEIGHT}
                 className="rounded object-cover h-24 w-full print:h-[3cm] print:w-[4cm]"
               />
             </div>

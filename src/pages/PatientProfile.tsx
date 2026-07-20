@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getPatient } from '@/services/patients'
 import { getAssessments } from '@/services/assessments'
@@ -44,10 +44,22 @@ export default function PatientProfile() {
   }, [id])
 
   useRealtime('assessments', (e) => {
-    if (e.record['patientId'] === id) loadData()
+    if (e.record['patientId'] !== id) return
+    if (e.action === 'create') {
+      setAssessments((prev) => [...prev, e.record as Assessment])
+    } else if (e.action === 'update') {
+      setAssessments((prev) =>
+        prev.map((a) => (a.id === e.record.id ? (e.record as Assessment) : a)),
+      )
+    } else if (e.action === 'delete') {
+      setAssessments((prev) => prev.filter((a) => a.id !== e.record.id))
+    }
   })
   useRealtime('patients', (e) => {
-    if (e.record.id === id) loadData()
+    if (e.record.id === id) {
+      if (e.action === 'delete') return
+      setPatient(e.record as Patient)
+    }
   })
 
   if (loading) return <PatientProfileSkeleton />

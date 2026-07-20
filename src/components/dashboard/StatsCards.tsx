@@ -1,6 +1,6 @@
+import { memo, useMemo, type ComponentType } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Users, Activity, AlertTriangle, Clock } from 'lucide-react'
-import type { ComponentType } from 'react'
 import type { Patient } from '@/types'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 import { isReassessmentDue } from '@/lib/chart-utils'
@@ -20,7 +20,7 @@ interface StatCardData {
   valueColor?: string
 }
 
-function StatCardItem({ card }: { card: StatCardData }) {
+const StatCardItem = memo(function StatCardItem({ card }: { card: StatCardData }) {
   const Icon = card.icon
   return (
     <Card className="stats-card">
@@ -37,62 +37,67 @@ function StatCardItem({ card }: { card: StatCardData }) {
       </CardContent>
     </Card>
   )
-}
+})
 
-export function StatsCards({ patients, assessments, patientSelected }: StatsCardsProps) {
-  const now = new Date()
-  const newThisMonth = patients.filter(
-    (p) =>
-      new Date(p.created).getMonth() === now.getMonth() &&
-      new Date(p.created).getFullYear() === now.getFullYear(),
-  ).length
+function StatsCardsBase({ patients, assessments, patientSelected }: StatsCardsProps) {
+  const cards = useMemo<StatCardData[]>(() => {
+    const now = new Date()
+    const newThisMonth = patients.filter(
+      (p) =>
+        new Date(p.created).getMonth() === now.getMonth() &&
+        new Date(p.created).getFullYear() === now.getFullYear(),
+    ).length
 
-  const concludedCount = assessments.filter((a) => a.status === 'concluida').length
-  const sarcopeniaRisk = assessments.filter(
-    (a) => a.finalDiagnosis === 'sarcopenia' || a.finalDiagnosis === 'sarcopenia_grave',
-  ).length
-  const sarcopeniaGrave = assessments.filter((a) => a.finalDiagnosis === 'sarcopenia_grave').length
+    const concludedCount = assessments.filter((a) => a.status === 'concluida').length
+    const sarcopeniaRisk = assessments.filter(
+      (a) => a.finalDiagnosis === 'sarcopenia' || a.finalDiagnosis === 'sarcopenia_grave',
+    ).length
+    const sarcopeniaGrave = assessments.filter(
+      (a) => a.finalDiagnosis === 'sarcopenia_grave',
+    ).length
 
-  const pendingReassessments = assessments.filter((a) => {
-    if (a.status !== 'concluida') return false
-    return isReassessmentDue(a.assessmentDate, a.reassessmentMonths).isDue
-  }).length
-  const lateReassessments = assessments.filter((a) => {
-    if (a.status !== 'concluida') return false
-    return isReassessmentDue(a.assessmentDate, a.reassessmentMonths).isLate
-  }).length
+    const pendingReassessments = assessments.filter((a) => {
+      if (a.status !== 'concluida') return false
+      return isReassessmentDue(a.assessmentDate, a.reassessmentMonths).isDue
+    }).length
+    const lateReassessments = assessments.filter((a) => {
+      if (a.status !== 'concluida') return false
+      return isReassessmentDue(a.assessmentDate, a.reassessmentMonths).isLate
+    }).length
 
-  const cards: StatCardData[] = []
-  if (!patientSelected) {
-    cards.push({
-      title: 'Pacientes Cadastrados',
-      value: patients.length,
-      subtitle: `${newThisMonth} novos no mês`,
-      icon: Users,
+    const result: StatCardData[] = []
+    if (!patientSelected) {
+      result.push({
+        title: 'Pacientes Cadastrados',
+        value: patients.length,
+        subtitle: `${newThisMonth} novos no mês`,
+        icon: Users,
+      })
+    }
+    result.push({
+      title: 'Avaliações Realizadas',
+      value: assessments.length,
+      subtitle: `${concludedCount} concluídas`,
+      icon: Activity,
     })
-  }
-  cards.push({
-    title: 'Avaliações Realizadas',
-    value: assessments.length,
-    subtitle: `${concludedCount} concluídas`,
-    icon: Activity,
-  })
-  cards.push({
-    title: 'Em Risco de Sarcopenia',
-    value: sarcopeniaRisk,
-    subtitle: `${sarcopeniaGrave} sarcopenia grave`,
-    icon: AlertTriangle,
-    valueColor: sarcopeniaRisk > 0 ? 'hsl(var(--destructive))' : undefined,
-  })
-  if (!patientSelected) {
-    cards.push({
-      title: 'Reavaliações Pendentes',
-      value: pendingReassessments,
-      subtitle: `${lateReassessments} em atraso`,
-      icon: Clock,
-      valueColor: pendingReassessments > 0 ? 'hsl(var(--warning))' : undefined,
+    result.push({
+      title: 'Em Risco de Sarcopenia',
+      value: sarcopeniaRisk,
+      subtitle: `${sarcopeniaGrave} sarcopenia grave`,
+      icon: AlertTriangle,
+      valueColor: sarcopeniaRisk > 0 ? 'hsl(var(--destructive))' : undefined,
     })
-  }
+    if (!patientSelected) {
+      result.push({
+        title: 'Reavaliações Pendentes',
+        value: pendingReassessments,
+        subtitle: `${lateReassessments} em atraso`,
+        icon: Clock,
+        valueColor: pendingReassessments > 0 ? 'hsl(var(--warning))' : undefined,
+      })
+    }
+    return result
+  }, [patients, assessments, patientSelected])
 
   const gridClass = patientSelected
     ? 'grid-cols-1 md:grid-cols-2'
@@ -106,3 +111,5 @@ export function StatsCards({ patients, assessments, patientSelected }: StatsCard
     </div>
   )
 }
+
+export const StatsCards = memo(StatsCardsBase)

@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -17,16 +18,23 @@ interface PatientCardProps {
   patient: Patient
   onDelete: (patient: Patient) => void
   isFadingOut?: boolean
+  onPrefetch?: () => void
 }
 
-export function PatientCard({ patient, onDelete, isFadingOut }: PatientCardProps) {
+function PatientCardBase({ patient, onDelete, isFadingOut, onPrefetch }: PatientCardProps) {
   const age = patient.birthDate ? calculateAge(patient.birthDate) : null
   const hasIMC =
     patient.weight != null && patient.height != null && patient.weight > 0 && patient.height > 0
   const imc = hasIMC ? calculateIMC(patient.weight!, patient.height!) : null
 
+  const handleDelete = useCallback(() => onDelete(patient), [onDelete, patient])
+  const handleMouseEnter = useCallback(() => onPrefetch?.(), [onPrefetch])
+
   return (
-    <Card className={cn('flex flex-col transition-opacity', isFadingOut && 'animate-fade-out')}>
+    <Card
+      className={cn('flex flex-col transition-opacity', isFadingOut && 'animate-fade-out')}
+      onMouseEnter={handleMouseEnter}
+    >
       <CardContent className="flex flex-col gap-3 p-5 flex-1">
         <div className="flex items-start justify-between gap-2">
           <Link
@@ -76,7 +84,7 @@ export function PatientCard({ patient, onDelete, isFadingOut }: PatientCardProps
             size="icon"
             className="h-11 w-11 shrink-0 tactile"
             aria-label="Excluir paciente"
-            onClick={() => onDelete(patient)}
+            onClick={handleDelete}
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
@@ -85,3 +93,5 @@ export function PatientCard({ patient, onDelete, isFadingOut }: PatientCardProps
     </Card>
   )
 }
+
+export const PatientCard = memo(PatientCardBase)

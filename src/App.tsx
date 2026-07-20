@@ -8,15 +8,21 @@ import { AuthProvider, useAuth } from '@/hooks/use-auth'
 import { NavigationProgress } from '@/components/NavigationProgress'
 import Layout from '@/components/Layout'
 
-const Index = lazy(() => import('@/pages/Index'))
-const Login = lazy(() => import('@/pages/Login'))
-const Signup = lazy(() => import('@/pages/Signup'))
-const Dashboard = lazy(() => import('@/pages/Dashboard'))
-const Patients = lazy(() => import('@/pages/Patients'))
-const PatientProfile = lazy(() => import('@/pages/PatientProfile'))
-const NewAssessment = lazy(() => import('@/pages/NewAssessment'))
-const AssessmentDetail = lazy(() => import('@/pages/AssessmentDetail'))
-const Report = lazy(() => import('@/pages/Report'))
+const Index = lazy(() => import(/* webpackChunkName: "index-chunk" */ '@/pages/Index'))
+const Login = lazy(() => import(/* webpackChunkName: "login-chunk" */ '@/pages/Login'))
+const Signup = lazy(() => import(/* webpackChunkName: "signup-chunk" */ '@/pages/Signup'))
+const Dashboard = lazy(() => import(/* webpackChunkName: "dashboard-chunk" */ '@/pages/Dashboard'))
+const Patients = lazy(() => import(/* webpackChunkName: "pacientes-chunk" */ '@/pages/Patients'))
+const PatientProfile = lazy(
+  () => import(/* webpackChunkName: "paciente-chunk" */ '@/pages/PatientProfile'),
+)
+const NewAssessment = lazy(
+  () => import(/* webpackChunkName: "avaliacao-chunk" */ '@/pages/NewAssessment'),
+)
+const AssessmentDetail = lazy(
+  () => import(/* webpackChunkName: "avaliacao-detail-chunk" */ '@/pages/AssessmentDetail'),
+)
+const Report = lazy(() => import(/* webpackChunkName: "relatorio-chunk" */ '@/pages/Report'))
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth()

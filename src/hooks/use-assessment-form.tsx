@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getPatients, getPatient } from '@/services/patients'
 import { createAssessment, updateAssessment } from '@/services/assessments'
 import { toast } from '@/hooks/use-toast'
-import type { AssessmentFormData, Patient } from '@/types'
+import type { Patient } from '@/types'
 import type { AssessmentFormData as FormData } from '@/types/assessment'
 
 const emptyForm: FormData = {
@@ -25,6 +25,9 @@ const emptyForm: FormData = {
   ewgsop2Analysis: {},
 }
 
+const DEBOUNCE_MS = 5_000
+const MIN_SAVE_INTERVAL_MS = 30_000
+
 export function useAssessmentForm(patientIdParam: string | null) {
   const navigate = useNavigate()
   const [form, setForm] = useState<FormData>({ ...emptyForm, patientId: patientIdParam || '' })
@@ -34,11 +37,13 @@ export function useAssessmentForm(patientIdParam: string | null) {
   const [error, setError] = useState(false)
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
+  const [editCount, setEditCount] = useState(0)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [assessmentId, setAssessmentId] = useState<string | null>(null)
   const dirtyRef = useRef(false)
   const formRef = useRef(form)
   const idRef = useRef<string | null>(null)
+  const lastSavedRef = useRef<Date | null>(null)
 
   useEffect(() => {
     formRef.current = form
@@ -49,6 +54,9 @@ export function useAssessmentForm(patientIdParam: string | null) {
   useEffect(() => {
     idRef.current = assessmentId
   }, [assessmentId])
+  useEffect(() => {
+    lastSavedRef.current = lastSaved
+  }, [lastSaved])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -74,6 +82,7 @@ export function useAssessmentForm(patientIdParam: string | null) {
   const updateField = useCallback(<K extends keyof FormData>(key: K, value: FormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
     setDirty(true)
+    setEditCount((c) => c + 1)
   }, [])
 
   const selectPatient = useCallback(async (id: string) => {
@@ -82,6 +91,7 @@ export function useAssessmentForm(patientIdParam: string | null) {
       setPatient(p)
       setForm((prev) => ({ ...prev, patientId: id }))
       setDirty(true)
+      setEditCount((c) => c + 1)
     } catch {
       toast({ title: 'Erro', description: 'Paciente não encontrado.', variant: 'destructive' })
     }
@@ -100,18 +110,26 @@ export function useAssessmentForm(patientIdParam: string | null) {
   }, [])
 
   useEffect(() => {
-    const interval = setInterval(async () => {
+    if (editCount === 0 || !formRef.current.patientId) return
+    const now = Date.now()
+    const timeSinceLastSave = lastSavedRef.current ? now - lastSavedRef.current.getTime() : Infinity
+    const delay = Math.max(DEBOUNCE_MS, MIN_SAVE_INTERVAL_MS - timeSinceLastSave)
+
+    const timer = setTimeout(async () => {
       if (!dirtyRef.current || !formRef.current.patientId) return
       setDirty(false)
       try {
         await doSave('rascunho')
-        setLastSaved(new Date())
+        const savedTime = new Date()
+        setLastSaved(savedTime)
+        lastSavedRef.current = savedTime
       } catch {
         setDirty(true)
       }
-    }, 30000)
-    return () => clearInterval(interval)
-  }, [doSave])
+    }, delay)
+
+    return () => clearTimeout(timer)
+  }, [editCount, doSave])
 
   const saveDraft = useCallback(async () => {
     if (!form.patientId) {
@@ -122,6 +140,9 @@ export function useAssessmentForm(patientIdParam: string | null) {
     try {
       await doSave('rascunho')
       setDirty(false)
+      const savedTime = new Date()
+      setLastSaved(savedTime)
+      lastSavedRef.current = savedTime
       toast({ title: 'Avaliação salva como rascunho' })
       navigate(`/paciente/${form.patientId}`)
     } catch {

@@ -5,7 +5,6 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
-import { exportLongitudinalCsv } from '@/services/export'
 
 interface ExportCsvButtonProps {
   patientId: string
@@ -30,6 +29,7 @@ export function ExportCsvButton({ patientId, patientName, concludedCount }: Expo
   const handleExport = useCallback(async () => {
     setLoading(true)
     try {
+      const { exportLongitudinalCsv } = await import('@/services/export')
       const blob = await exportLongitudinalCsv(patientId)
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
