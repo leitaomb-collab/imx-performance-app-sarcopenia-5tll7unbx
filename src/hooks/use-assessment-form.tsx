@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getPatients, getPatient } from '@/services/patients'
 import { createAssessment, updateAssessment } from '@/services/assessments'
 import { toast } from '@/hooks/use-toast'
+import { getErrorMessage } from '@/lib/pocketbase/errors'
 import type { Patient } from '@/types'
 import type { AssessmentFormData as FormData } from '@/types/assessment'
 
@@ -123,7 +124,8 @@ export function useAssessmentForm(patientIdParam: string | null) {
         const savedTime = new Date()
         setLastSaved(savedTime)
         lastSavedRef.current = savedTime
-      } catch {
+      } catch (err) {
+        console.error('Auto-save error:', err)
         setDirty(true)
       }
     }, delay)
@@ -145,8 +147,12 @@ export function useAssessmentForm(patientIdParam: string | null) {
       lastSavedRef.current = savedTime
       toast({ title: 'Avaliação salva como rascunho' })
       navigate(`/paciente/${form.patientId}`)
-    } catch {
-      toast({ title: 'Erro', description: 'Não foi possível salvar.', variant: 'destructive' })
+    } catch (err) {
+      toast({
+        title: 'Erro ao salvar',
+        description: getErrorMessage(err),
+        variant: 'destructive',
+      })
     }
     setSaving(false)
   }, [form.patientId, doSave, navigate])
@@ -162,8 +168,13 @@ export function useAssessmentForm(patientIdParam: string | null) {
       setDirty(false)
       toast({ title: 'Avaliação finalizada com sucesso' })
       navigate(`/relatorio/${id}`)
-    } catch {
-      toast({ title: 'Erro', description: 'Não foi possível finalizar.', variant: 'destructive' })
+    } catch (err) {
+      console.error('Finalize assessment error:', err)
+      toast({
+        title: 'Erro ao finalizar',
+        description: getErrorMessage(err),
+        variant: 'destructive',
+      })
     }
     setSaving(false)
   }, [form.patientId, doSave, navigate])

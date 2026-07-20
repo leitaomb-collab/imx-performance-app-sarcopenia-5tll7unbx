@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { updateAssessment } from '@/services/assessments'
 import { DIAGNOSIS_OPTIONS } from '@/types/assessment'
+import { getErrorMessage } from '@/lib/pocketbase/errors'
 
 interface FinalizeDialogProps {
   open: boolean
@@ -31,7 +32,7 @@ export function FinalizeDialog({
   currentDiagnosis,
   onSuccess,
 }: FinalizeDialogProps) {
-  const [diagnosis, setDiagnosis] = useState(currentDiagnosis)
+  const [diagnosis, setDiagnosis] = useState<string>(currentDiagnosis)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -48,8 +49,11 @@ export function FinalizeDialog({
       toast.success('Avaliação finalizada com sucesso')
       onOpenChange(false)
       onSuccess()
-    } catch {
-      toast.error('Erro ao finalizar avaliação')
+    } catch (err) {
+      console.error('Finalize assessment error:', err)
+      toast.error('Erro ao finalizar avaliação', {
+        description: getErrorMessage(err),
+      })
     } finally {
       setLoading(false)
     }
