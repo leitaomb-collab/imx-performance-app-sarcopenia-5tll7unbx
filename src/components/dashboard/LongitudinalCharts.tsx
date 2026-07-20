@@ -14,10 +14,13 @@ import {
   type DashboardAssessment,
 } from '@/lib/chart-utils'
 import { format } from 'date-fns'
+import { ExportCsvButton } from './ExportCsvButton'
 
 interface LongitudinalChartsProps {
   assessments: DashboardAssessment[]
   patientGender: 'M' | 'F'
+  patientId: string
+  patientName: string
 }
 
 function fmtDate(d: string) {
@@ -28,7 +31,12 @@ function singleNote(len: number) {
   return len === 1 ? 'Apenas uma avaliação registrada' : undefined
 }
 
-export function LongitudinalCharts({ assessments, patientGender }: LongitudinalChartsProps) {
+export function LongitudinalCharts({
+  assessments,
+  patientGender,
+  patientId,
+  patientName,
+}: LongitudinalChartsProps) {
   const hgData = useMemo(
     () => extractChartData(assessments, (a) => a.muscleStrength?.handgripMax),
     [assessments],
@@ -71,6 +79,10 @@ export function LongitudinalCharts({ assessments, patientGender }: LongitudinalC
         .filter((d) => d.fev1 != null || d.cvf != null),
     [assessments],
   )
+  const concludedCount = useMemo(
+    () => assessments.filter((a) => a.status === 'concluida').length,
+    [assessments],
+  )
 
   const hgCutoff = getEWGSOP2HandgripCutoff(patientGender)
   const almiCutoff = getEWGSOP2ALMICutoff(patientGender)
@@ -79,7 +91,14 @@ export function LongitudinalCharts({ assessments, patientGender }: LongitudinalC
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold tracking-tight">Evolução Longitudinal</h2>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-xl font-semibold tracking-tight">Acompanhamento Longitudinal</h2>
+        <ExportCsvButton
+          patientId={patientId}
+          patientName={patientName}
+          concludedCount={concludedCount}
+        />
+      </div>
       <div className="grid gap-6 md:grid-cols-2">
         <ChartCard
           title="Força de Preensão Manual (kg)"

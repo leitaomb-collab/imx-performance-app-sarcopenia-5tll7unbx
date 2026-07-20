@@ -91,6 +91,8 @@ export default function Dashboard() {
         <LongitudinalCharts
           assessments={filteredAssessments}
           patientGender={selectedPatient.gender}
+          patientId={selectedPatient.id}
+          patientName={selectedPatient.name}
         />
       )}
 
