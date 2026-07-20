@@ -133,14 +133,15 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
   const ea = form.ewgsop2Analysis
 
   const setDiagnosis = (diagnosis: string) => {
+    const validDiagnosis = DIAG_OPTS.find((o) => o.value === diagnosis)?.value ?? 'nao_avaliado'
     updateField('ewgsop2Analysis', {
       ...ea,
-      diagnosis,
+      diagnosis: validDiagnosis as EWGSOP2AnalysisData['diagnosis'],
       muscleStrengthLow: hgLow,
       muscleMassLow: almiLow,
       physicalPerformanceLow: sppbLow,
     } as EWGSOP2AnalysisData)
-    updateField('finalDiagnosis', diagnosis as EWGSOP2AnalysisData['diagnosis'])
+    updateField('finalDiagnosis', validDiagnosis as EWGSOP2AnalysisData['diagnosis'])
   }
 
   const rows = [

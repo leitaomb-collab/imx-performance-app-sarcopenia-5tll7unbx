@@ -10,12 +10,13 @@ import {
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { Loader2 } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Loader2, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { updateAssessment } from '@/services/assessments'
 import { DIAGNOSIS_OPTIONS } from '@/types/assessment'
-import { getErrorMessage } from '@/lib/pocketbase/errors'
+import { extractFieldErrors, getErrorMessage, type FieldErrors } from '@/lib/pocketbase/errors'
 
 interface FinalizeDialogProps {
   open: boolean
@@ -34,13 +35,21 @@ export function FinalizeDialog({
 }: FinalizeDialogProps) {
   const [diagnosis, setDiagnosis] = useState<string>(currentDiagnosis)
   const [loading, setLoading] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) setDiagnosis(currentDiagnosis)
+    if (open) {
+      setDiagnosis(currentDiagnosis)
+      setFieldErrors({})
+      setErrorMessage(null)
+    }
   }, [open, currentDiagnosis])
 
   const handleConfirm = async () => {
     setLoading(true)
+    setFieldErrors({})
+    setErrorMessage(null)
     try {
       await updateAssessment(assessmentId, {
         status: 'concluida',
@@ -51,8 +60,12 @@ export function FinalizeDialog({
       onSuccess()
     } catch (err) {
       console.error('Finalize assessment error:', err)
+      const fieldErrs = extractFieldErrors(err)
+      const msg = getErrorMessage(err)
+      setFieldErrors(fieldErrs)
+      setErrorMessage(msg)
       toast.error('Erro ao finalizar avaliação', {
-        description: getErrorMessage(err),
+        description: msg,
       })
     } finally {
       setLoading(false)
@@ -84,6 +97,19 @@ export function FinalizeDialog({
             ))}
           </div>
         </RadioGroup>
+        {(errorMessage || Object.keys(fieldErrors).length > 0) && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="space-y-1">
+              <p>{errorMessage || 'Erro ao finalizar avaliação.'}</p>
+              {Object.entries(fieldErrors).map(([field, msg]) => (
+                <p key={field} className="text-xs">
+                  <span className="font-medium">{field}:</span> {msg}
+                </p>
+              ))}
+            </AlertDescription>
+          </Alert>
+        )}
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancelar

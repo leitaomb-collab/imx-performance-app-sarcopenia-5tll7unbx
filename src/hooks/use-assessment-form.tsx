@@ -99,7 +99,7 @@ export function useAssessmentForm(patientIdParam: string | null) {
   }, [])
 
   const doSave = useCallback(async (status: 'rascunho' | 'concluida'): Promise<string | null> => {
-    const data = { ...formRef.current, status, evaluatorId: undefined }
+    const data = { ...formRef.current, status }
     delete (data as Record<string, unknown>).evaluatorId
     if (idRef.current) {
       await updateAssessment(idRef.current, data as Record<string, unknown>)

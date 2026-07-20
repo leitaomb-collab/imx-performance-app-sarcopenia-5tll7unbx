@@ -11,12 +11,14 @@ import {
   FileX,
   AlertTriangle,
   ScrollText,
+  CheckCircle2,
 } from 'lucide-react'
 import { BackButton } from '@/components/BackButton'
 import { ReportHeader } from '@/components/report/ReportHeader'
 import { ReportSectionsA } from '@/components/report/ReportSectionsA'
 import { ReportSectionsB } from '@/components/report/ReportSectionsB'
 import { ReportSkeleton } from '@/components/report/ReportSkeleton'
+import { FinalizeDialog } from '@/components/assessment/detail/FinalizeDialog'
 import { formatDateExtendedBR } from '@/lib/report-utils'
 import { usePrintStyles } from '@/hooks/use-print-styles'
 import type { Patient, User } from '@/types'
@@ -28,6 +30,7 @@ export default function Report() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [notFound, setNotFound] = useState(false)
+  const [finalizeOpen, setFinalizeOpen] = useState(false)
 
   const loadData = useCallback(async () => {
     if (!id) return
@@ -141,14 +144,25 @@ export default function Report() {
       {isDraft && (
         <div className="mb-4 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4 flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold text-sm">Avaliação em rascunho</p>
+          <div className="flex-1">
+            <p className="font-semibold text-sm">Esta é uma versão de rascunho</p>
             <p className="text-sm text-muted-foreground">
               Esta avaliação ainda não foi finalizada. Finalize-a para gerar um relatório completo.
             </p>
           </div>
+          <Button size="sm" className="shrink-0" onClick={() => setFinalizeOpen(true)}>
+            <CheckCircle2 className="h-4 w-4 mr-1" /> Finalizar Avaliação
+          </Button>
         </div>
       )}
+
+      <FinalizeDialog
+        open={finalizeOpen}
+        onOpenChange={setFinalizeOpen}
+        assessmentId={data.id}
+        currentDiagnosis={data.finalDiagnosis || 'nao_avaliado'}
+        onSuccess={loadData}
+      />
 
       <div className="report-document bg-card border border-border rounded-none md:rounded-lg md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden md:my-8">
         <div className="report-accent-bar" />
