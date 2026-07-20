@@ -95,9 +95,9 @@ export default function Layout() {
       <SkipLink />
       <aside className="layout-sidebar app-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
         <div className="p-6 pb-2">
-          <h1 className="text-2xl font-bold text-primary tracking-tight">
+          <div className="text-2xl font-bold text-primary tracking-tight" role="banner">
             IMX<span className="text-foreground font-semibold">Performance</span>
-          </h1>
+          </div>
         </div>
         <div className="flex-1 px-4">
           <NavItems />
@@ -129,9 +129,9 @@ export default function Layout() {
                 id="mobile-nav-sheet"
               >
                 <div className="p-6 pb-2">
-                  <h1 className="text-2xl font-bold text-primary tracking-tight">
+                  <div className="text-2xl font-bold text-primary tracking-tight" role="banner">
                     IMX<span className="text-foreground font-semibold">Perf</span>
-                  </h1>
+                  </div>
                 </div>
                 <div className="px-4">
                   <NavItems onNavigate={() => setMobileNavOpen(false)} />

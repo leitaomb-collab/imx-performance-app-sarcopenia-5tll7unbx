@@ -69,13 +69,19 @@ export function NotificationBell() {
         >
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
-            <span
-              className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-white font-bold"
-              style={{ fontSize: '0.625rem' }}
-              aria-live="polite"
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
+            <>
+              <span
+                className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-white font-bold"
+                style={{ fontSize: '0.625rem' }}
+                aria-hidden="true"
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+              <span className="sr-only" aria-live="polite">
+                Você tem {unreadCount}{' '}
+                {unreadCount === 1 ? 'notificação não lida' : 'notificações não lidas'}
+              </span>
+            </>
           )}
         </Button>
       </PopoverTrigger>

@@ -1065,10 +1065,25 @@ button.tactile:active {
   }
 
   .report-section,
-  .report-table,
   .ewgsop2-container,
   .report-clinical-summary {
     page-break-inside: avoid;
+  }
+
+  .report-table {
+    page-break-inside: auto;
+  }
+
+  .report-table thead {
+    display: table-header-group;
+  }
+
+  .report-table tr {
+    page-break-inside: avoid;
+  }
+
+  .report-section-title {
+    page-break-after: avoid;
   }
 }
 
@@ -1149,6 +1164,52 @@ button.tactile:active {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   position: relative;
+}
+
+/* ===== Table-to-Card Mobile Conversion ===== */
+@media (max-width: 767px) {
+  .report-table thead {
+    display: none;
+  }
+
+  .report-table,
+  .report-table tbody,
+  .report-table tr,
+  .report-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .report-table tr {
+    border: 1px solid hsl(var(--border));
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+  }
+
+  .report-table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .report-table .report-table-cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.375rem 0.625rem;
+    border: none;
+    text-align: right;
+    gap: 0.5rem;
+  }
+
+  .report-table .report-table-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+    text-align: left;
+    flex-shrink: 0;
+  }
 }
 
 .table-scroll-fade {

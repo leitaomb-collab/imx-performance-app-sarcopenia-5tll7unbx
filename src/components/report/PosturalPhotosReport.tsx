@@ -31,6 +31,7 @@ export function PosturalPhotosReport({ assessmentId, photos }: PosturalPhotosRep
                 src={getPhotoUrl(assessmentId, name)}
                 alt={`Foto postural ${index + 1}`}
                 loading="lazy"
+                decoding="async"
                 width={PHOTO_WIDTH}
                 height={PHOTO_HEIGHT}
                 className="rounded object-cover h-24 w-full print:h-[3cm] print:w-[4cm]"

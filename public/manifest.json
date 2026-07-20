@@ -1,0 +1,21 @@
+{
+  "name": "IEMEX Performance",
+  "short_name": "IEMEX",
+  "description": "Sistema de avaliação funcional e nutricional geriátrica",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a7a3a",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "192x192",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/og-image.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

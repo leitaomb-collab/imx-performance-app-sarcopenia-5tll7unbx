@@ -53,20 +53,27 @@ export function ReportTable({
               <tr key={i} className="border-b border-border/40 last:border-0">
                 <td
                   scope="row"
-                  className="py-2 px-3 font-medium text-[0.75rem] md:text-[0.8125rem]"
+                  data-label={headers[0]}
+                  className="report-table-cell py-2 px-3 font-medium text-[0.75rem] md:text-[0.8125rem]"
                 >
                   {row.label}
                 </td>
-                <td className="report-table-value py-2 px-3 text-[0.75rem] md:text-[0.8125rem] whitespace-nowrap">
+                <td
+                  data-label={headers[1]}
+                  className="report-table-cell report-table-value py-2 px-3 text-[0.75rem] md:text-[0.8125rem] whitespace-nowrap"
+                >
                   {row.value ?? <Dash />}
                 </td>
                 {showRef && (
-                  <td className="report-table-ref py-2 px-3 whitespace-nowrap">
+                  <td
+                    data-label={headers[2]}
+                    className="report-table-cell report-table-ref py-2 px-3 whitespace-nowrap"
+                  >
                     {row.ref ?? <Dash />}
                   </td>
                 )}
                 {showInterp && (
-                  <td className="py-2 px-3">
+                  <td data-label={headers[3]} className="report-table-cell py-2 px-3">
                     {row.interp ? (
                       <span
                         className={cn(

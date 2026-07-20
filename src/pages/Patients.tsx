@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Select,
   SelectContent,
@@ -11,9 +12,11 @@ import { Input } from '@/components/ui/input'
 import { Search, Plus, Loader2, Users, UserX, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAccessibility } from '@/hooks/use-accessibility'
+import { useDebounce } from '@/hooks/use-debounce'
 import { getPatients } from '@/services/patients'
 import { useRealtime } from '@/hooks/use-realtime'
 import { useRoutePrefetch } from '@/hooks/use-route-prefetch'
+import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 import { PatientCard } from '@/components/patients/PatientCard'
 import { PatientSkeleton } from '@/components/patients/PatientSkeleton'
@@ -28,10 +31,15 @@ export default function Patients() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState('')
-  const [debouncedSearch, setDebouncedSearch] = useState('')
+  const debouncedSearch = useDebounce(search, 300)
+  const isDebouncing = search !== debouncedSearch
   const [genderFilter, setGenderFilter] = useState('all')
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(() => {
+    const p = searchParams.get('page')
+    return p ? Math.max(1, parseInt(p, 10)) : 1
+  })
   const [totalPages, setTotalPages] = useState(1)
   const [createOpen, setCreateOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Patient | null>(null)
@@ -85,9 +93,14 @@ export default function Patients() {
   )
 
   useEffect(() => {
-    const timer = setTimeout(() => setDebouncedSearch(search), 300)
-    return () => clearTimeout(timer)
-  }, [search])
+    const newParams = new URLSearchParams(searchParams)
+    if (page > 1) {
+      newParams.set('page', String(page))
+    } else {
+      newParams.delete('page')
+    }
+    setSearchParams(newParams, { replace: true })
+  }, [page])
 
   useEffect(() => {
     loadData(1, false)
@@ -152,9 +165,10 @@ export default function Patients() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar pacientes..."
-            className="pl-8"
+            className={cn('pl-8', isDebouncing && 'animate-pulse')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Buscar pacientes"
           />
         </div>
         <Select value={genderFilter} onValueChange={setGenderFilter}>
