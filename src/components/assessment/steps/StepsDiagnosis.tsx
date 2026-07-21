@@ -46,11 +46,7 @@ export function Step10Screening({ form, patient, updateField }: StepProps) {
     ss.climbStairs,
     ss.falls,
   ])
-  const sarcCalFTotal = getSarcCalFTotal(
-    sarcFTotal,
-    ss.calfCircumference ?? form.anthropometry.calfCircumference,
-    gender,
-  )
+  const sarcCalFTotal = getSarcCalFTotal(sarcFTotal, ss.calfCircumference, gender)
   const risk = getSarcopeniaRisk(sarcCalFTotal ?? sarcFTotal)
   const set = (patch: Partial<SarcopeniaScreeningData>) => {
     const next = { ...ss, ...patch }
@@ -62,11 +58,7 @@ export function Step10Screening({ form, patient, updateField }: StepProps) {
       next.falls,
     ])
     next.sarcFTotal = total
-    next.sarcCalFTotal = getSarcCalFTotal(
-      total,
-      next.calfCircumference ?? form.anthropometry.calfCircumference,
-      gender,
-    )
+    next.sarcCalFTotal = getSarcCalFTotal(total, next.calfCircumference, gender)
     next.risk = getSarcopeniaRisk(next.sarcCalFTotal ?? total) ?? undefined
     updateField('sarcopeniaScreening', next)
   }
@@ -101,11 +93,15 @@ export function Step10Screening({ form, patient, updateField }: StepProps) {
           </div>
         ))}
       </div>
-      <StepField label="Circunferência da Panturrilha (cm) - SARC-CalF">
+      <StepField label="Circunferência de Panturrilha" hint="Obrigatório · cm · 10 a 80">
         <NumberInput
           value={ss.calfCircumference}
           onChange={(v) => set({ calfCircumference: v })}
           step="0.1"
+          min={10}
+          max={80}
+          inputMode="decimal"
+          aria-label="Circunferência de Panturrilha em centímetros"
         />
       </StepField>
       <div className="flex flex-wrap items-center gap-4 pt-2">

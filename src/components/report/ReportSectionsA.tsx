@@ -1,10 +1,8 @@
 import { ReportTable, SectionBlock, SubSection, EmptySection } from './ReportTable'
-import { PosturalPhotosReport } from './PosturalPhotosReport'
 import { obj, fmt, hasData, interpRange, interpBP } from '@/lib/report-utils'
 import {
   getALMIStatus,
   getPhaseAngleStatus,
-  getCalfCircumferenceStatus,
   getHandgripStatus,
   getChairStandStatus,
   getTUGStatus,
@@ -33,8 +31,6 @@ export function ReportSectionsA({ assessment, patient }: Props) {
   const gender = patient?.gender ?? 'M'
   const v = obj(assessment.vitals)
   const bc = obj(assessment.bodyComposition)
-  const an = obj(assessment.anthropometry)
-  const pa = obj(assessment.posturalAssessment)
   const ms = obj(assessment.muscleStrength)
   const ba = obj(assessment.balanceAssessment)
 
@@ -45,7 +41,6 @@ export function ReportSectionsA({ assessment, patient }: Props) {
   const tempI = interpRange(v.temperature, 35, 37.5)
   const almiI = ci(getALMIStatus(bc.almi, gender))
   const paI = ci(getPhaseAngleStatus(bc.phaseAngle, gender))
-  const ccI = ci(getCalfCircumferenceStatus(an.calfCircumference, gender))
   const hgI = ci(getHandgripStatus(ms.handgripMax, gender))
   const csI = ci(getChairStandStatus(ms.chairStandTime))
   const tugI = ci(getTUGStatus(ba.tugSimple), 'Normal', 'Alterada', 'blue')
@@ -135,51 +130,7 @@ export function ReportSectionsA({ assessment, patient }: Props) {
         )}
       </SectionBlock>
 
-      <SectionBlock number={3} title="Antropometria">
-        {hasData(an) ? (
-          <ReportTable
-            rows={[
-              {
-                label: 'Circunferência da Panturrilha',
-                value: fmt(an.calfCircumference, 'cm'),
-                ref: gender === 'M' ? '≥ 34 cm' : '≥ 33 cm',
-                interp: ccI?.text,
-                interpClass: ccI?.cls,
-              },
-              { label: 'Circunferência da Cintura', value: fmt(an.waistCircumference, 'cm') },
-              { label: 'Somatotipo', value: an.somatotype || '-' },
-            ]}
-            footnote="Critério SARC-CalF: circunferência da panturrilha < 34 cm (homens) ou < 33 cm (mulheres) adiciona 1 ponto ao escore SARC-F."
-          />
-        ) : (
-          <EmptySection />
-        )}
-      </SectionBlock>
-
-      <SectionBlock number={4} title="Avaliação Postural">
-        {hasData(pa) ? (
-          <ReportTable
-            headers={['Segmento', 'Achados']}
-            rows={[
-              { label: 'Cabeça/Pescoço', value: pa.head || '-' },
-              { label: 'Ombros', value: pa.shoulders || '-' },
-              { label: 'Coluna', value: pa.spine || '-' },
-              { label: 'Pelve', value: pa.pelvis || '-' },
-              { label: 'Joelhos', value: pa.knees || '-' },
-              { label: 'Tornozelos/Pés', value: pa.feet || '-' },
-              { label: 'Observações', value: pa.observations || '-' },
-            ]}
-          />
-        ) : (
-          <EmptySection />
-        )}
-        <PosturalPhotosReport
-          assessmentId={assessment.id}
-          photos={assessment.posturalPhotos || []}
-        />
-      </SectionBlock>
-
-      <SectionBlock number={5} title="Força Muscular">
+      <SectionBlock number={3} title="Força Muscular">
         {hasData(ms) ? (
           <>
             <SubSection title="Handgrip (Preensão Manual)">
@@ -217,7 +168,7 @@ export function ReportSectionsA({ assessment, patient }: Props) {
         )}
       </SectionBlock>
 
-      <SectionBlock number={6} title="Equilíbrio e Risco de Quedas">
+      <SectionBlock number={4} title="Equilíbrio e Risco de Quedas">
         {hasData(ba) ? (
           <>
             <SubSection title="Timed Up & Go (TUG)">

@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
 import { StepField, NumberInput, StepSection } from '@/components/assessment/shared'
-import { BlurInput, BlurTextarea, BlurNumberInput } from '@/components/assessment/blur-fields'
+import { BlurTextarea } from '@/components/assessment/blur-fields'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -16,7 +15,6 @@ import { Badge } from '@/components/ui/badge'
 import { calculateAge, formatGender, calculateIMC, getIMCCategory } from '@/lib/patient-utils'
 import { Users } from 'lucide-react'
 import type { StepProps } from '@/types/assessment'
-import type { PosturalAssessmentData } from '@/types/assessment'
 
 export function Step1Identification({
   form,
@@ -133,72 +131,6 @@ export function Step2Vitals({ form, updateField }: StepProps) {
         />
       </StepField>
     </StepSection>
-  )
-}
-
-export function Step5Postural({ form, updateField }: StepProps) {
-  const pa = form.posturalAssessment
-  const set = (patch: Partial<PosturalAssessmentData>) =>
-    updateField('posturalAssessment', { ...pa, ...patch })
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2.5 border-b pb-3">
-        <span className="h-3 w-3 bg-primary rounded-sm shrink-0" />
-        <h3 className="text-lg font-semibold">Avaliação Postural</h3>
-      </div>
-      <div className="grid md:grid-cols-2 gap-4">
-        <StepField label="Cabeça">
-          <BlurInput
-            value={pa.head ?? ''}
-            onCommit={(v) => set({ head: v })}
-            className="h-11 rounded-lg text-sm"
-          />
-        </StepField>
-        <StepField label="Ombros">
-          <BlurInput
-            value={pa.shoulders ?? ''}
-            onCommit={(v) => set({ shoulders: v })}
-            className="h-11 rounded-lg text-sm"
-          />
-        </StepField>
-        <StepField label="Coluna">
-          <BlurInput
-            value={pa.spine ?? ''}
-            onCommit={(v) => set({ spine: v })}
-            className="h-11 rounded-lg text-sm"
-          />
-        </StepField>
-        <StepField label="Pelve">
-          <BlurInput
-            value={pa.pelvis ?? ''}
-            onCommit={(v) => set({ pelvis: v })}
-            className="h-11 rounded-lg text-sm"
-          />
-        </StepField>
-        <StepField label="Joelhos">
-          <BlurInput
-            value={pa.knees ?? ''}
-            onCommit={(v) => set({ knees: v })}
-            className="h-11 rounded-lg text-sm"
-          />
-        </StepField>
-        <StepField label="Pés">
-          <BlurInput
-            value={pa.feet ?? ''}
-            onCommit={(v) => set({ feet: v })}
-            className="h-11 rounded-lg text-sm"
-          />
-        </StepField>
-      </div>
-      <StepField label="Observações">
-        <BlurTextarea
-          rows={3}
-          value={pa.observations ?? ''}
-          onCommit={(v) => set({ observations: v })}
-          className="rounded-lg text-sm"
-        />
-      </StepField>
-    </div>
   )
 }
 

@@ -5,15 +5,9 @@ import {
   ClinicalBadge,
   SectionTitle,
 } from '@/components/assessment/shared'
-import { Input } from '@/components/ui/input'
-import { Info } from 'lucide-react'
-import {
-  getALMIStatus,
-  getPhaseAngleStatus,
-  getCalfCircumferenceStatus,
-} from '@/lib/clinical-utils'
 import { calculateIMC, getIMCCategory } from '@/lib/patient-utils'
-import type { StepProps, BodyCompositionData, AnthropometryData } from '@/types/assessment'
+import { getALMIStatus, getPhaseAngleStatus } from '@/lib/clinical-utils'
+import type { StepProps, BodyCompositionData } from '@/types/assessment'
 
 export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
   const bc = form.bodyComposition
@@ -89,52 +83,6 @@ export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
             )})`}
           />
         )}
-      </div>
-    </div>
-  )
-}
-
-export function Step4Anthropometry({ form, patient, updateField }: StepProps) {
-  const an = form.anthropometry
-  const gender = patient?.gender ?? 'M'
-  const set = (patch: Partial<AnthropometryData>) =>
-    updateField('anthropometry', { ...an, ...patch })
-  return (
-    <div className="space-y-4">
-      <SectionTitle title="Antropometria" />
-      <div className="grid md:grid-cols-2 gap-4">
-        <StepField label="Circunferência da Panturrilha (cm)">
-          <div className="flex items-center gap-2">
-            <NumberInput
-              value={an.calfCircumference}
-              onChange={(v) => set({ calfCircumference: v })}
-              step="0.1"
-            />
-            <ClinicalBadge status={getCalfCircumferenceStatus(an.calfCircumference, gender)} />
-          </div>
-        </StepField>
-        <StepField label="Circunferência da Cintura (cm)">
-          <NumberInput
-            value={an.waistCircumference}
-            onChange={(v) => set({ waistCircumference: v })}
-            step="0.1"
-          />
-        </StepField>
-        <StepField label="Somatotipo">
-          <Input
-            value={an.somatotype ?? ''}
-            onChange={(e) => set({ somatotype: e.target.value })}
-            className="h-11 rounded-md text-sm"
-            placeholder="Ex: endomorfo, mesomorfo..."
-          />
-        </StepField>
-      </div>
-      <div className="rounded-lg bg-blue-500/5 p-3 text-sm text-muted-foreground flex items-start gap-2">
-        <Info className="h-4 w-4 shrink-0 mt-0.5 text-blue-500" />
-        <div>
-          Circunferência da panturrilha &lt; 34 cm (homens) ou &lt; 33 cm (mulheres) é indicador de
-          risco para sarcopenia segundo critérios EWGSOP2.
-        </div>
       </div>
     </div>
   )

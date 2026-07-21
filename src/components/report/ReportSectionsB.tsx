@@ -27,17 +27,9 @@ const DIAGNOSIS_OPTIONS = [
   { value: 'nao_avaliado', label: 'Não avaliado' },
 ]
 
-const SPIRO_PATTERN: Record<string, string> = {
-  normal: 'Normal',
-  obstrutivo: 'Obstrutivo',
-  restritivo: 'Restritivo',
-  misto: 'Misto',
-}
-
 export function ReportSectionsB({ assessment, patient }: Props) {
   const gender = patient?.gender ?? 'M'
   const rs = obj(assessment.respiratoryStrength)
-  const sp = obj(assessment.spirometry)
   const ss = obj(assessment.sarcopeniaScreening)
   const ew = obj(assessment.ewgsop2Analysis)
 
@@ -45,18 +37,6 @@ export function ReportSectionsB({ assessment, patient }: Props) {
   const pemaxPct = rs.pemaxPercent ?? getPct(rs.pemaxActual, rs.pemaxPredicted)
   const pimaxI = pctInterp(pimaxPct)
   const pemaxI = pctInterp(pemaxPct)
-
-  const fvcPct = sp.fvcPercent ?? getPct(sp.fvc, sp.fvcPredicted)
-  const fev1Pct = sp.fev1Percent ?? getPct(sp.fev1, sp.fev1Predicted)
-  const fev1RatioI =
-    sp.fev1FvcRatio != null
-      ? sp.fev1FvcRatio >= 70
-        ? { text: 'Normal', cls: 'normal' as const }
-        : { text: 'Alterada', cls: 'altered' as const }
-      : null
-  const fefPct = sp.fef2575Percent ?? getPct(sp.fef2575, sp.fef2575Predicted)
-  const pfePct =
-    sp.peakExpiratoryFlowPercent ?? getPct(sp.peakExpiratoryFlow, sp.peakExpiratoryFlowPredicted)
 
   const sarcFTotal = getSarcFTotal([
     ss.strength,
@@ -81,7 +61,7 @@ export function ReportSectionsB({ assessment, patient }: Props) {
 
   return (
     <>
-      <SectionBlock number={7} title="Força Respiratória">
+      <SectionBlock number={5} title="Força Respiratória">
         {hasData(rs) ? (
           <ReportTable
             rows={[
@@ -110,63 +90,7 @@ export function ReportSectionsB({ assessment, patient }: Props) {
         )}
       </SectionBlock>
 
-      <SectionBlock number={8} title="Espirometria">
-        {hasData(sp) ? (
-          <ReportTable
-            rows={[
-              {
-                label: 'CVF',
-                value: sp.fvc != null ? `${sp.fvc} L${fvcPct != null ? ` (${fvcPct}%)` : ''}` : '-',
-                ref: sp.fvcPredicted != null ? `${sp.fvcPredicted} L` : '-',
-                interp: pctInterp(fvcPct)?.text,
-                interpClass: pctInterp(fvcPct)?.cls,
-              },
-              {
-                label: 'VEF1',
-                value:
-                  sp.fev1 != null ? `${sp.fev1} L${fev1Pct != null ? ` (${fev1Pct}%)` : ''}` : '-',
-                ref: sp.fev1Predicted != null ? `${sp.fev1Predicted} L` : '-',
-                interp: pctInterp(fev1Pct)?.text,
-                interpClass: pctInterp(fev1Pct)?.cls,
-              },
-              {
-                label: 'VEF1/CVF',
-                value: fmt(sp.fev1FvcRatio, '%'),
-                ref: '≥ 70%',
-                interp: fev1RatioI?.text,
-                interpClass: fev1RatioI?.cls,
-              },
-              {
-                label: 'FEF25-75%',
-                value:
-                  sp.fef2575 != null
-                    ? `${sp.fef2575} L/s${fefPct != null ? ` (${fefPct}%)` : ''}`
-                    : '-',
-                ref: sp.fef2575Predicted != null ? `${sp.fef2575Predicted} L/s` : '-',
-              },
-              {
-                label: 'PFE',
-                value:
-                  sp.peakExpiratoryFlow != null
-                    ? `${sp.peakExpiratoryFlow} L/min${pfePct != null ? ` (${pfePct}%)` : ''}`
-                    : '-',
-                ref:
-                  sp.peakExpiratoryFlowPredicted != null
-                    ? `${sp.peakExpiratoryFlowPredicted} L/min`
-                    : '-',
-              },
-              {
-                label: 'Padrão',
-                value: sp.pattern ? (SPIRO_PATTERN[sp.pattern] ?? sp.pattern) : '-',
-              },
-            ]}
-          />
-        ) : (
-          <EmptySection />
-        )}
-      </SectionBlock>
-
-      <SectionBlock number={9} title="Triagem de Sarcopenia">
+      <SectionBlock number={6} title="Triagem de Sarcopenia">
         {hasData(ss) ? (
           <>
             <SubSection title="SARC-F">
@@ -209,7 +133,7 @@ export function ReportSectionsB({ assessment, patient }: Props) {
         )}
       </SectionBlock>
 
-      <SectionBlock number={10} title="Análise EWGSOP2">
+      <SectionBlock number={7} title="Análise EWGSOP2">
         {hasData(ew) ? (
           <>
             <ReportTable
@@ -276,7 +200,7 @@ export function ReportSectionsB({ assessment, patient }: Props) {
         )}
       </SectionBlock>
 
-      <SectionBlock number={11} title="Conclusão">
+      <SectionBlock number={8} title="Conclusão">
         <SubSection title="Resumo Clínico">
           <div className="report-clinical-summary p-4">
             <RichText

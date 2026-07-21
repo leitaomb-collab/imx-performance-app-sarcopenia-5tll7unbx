@@ -8,12 +8,11 @@ import { PatientSummaryBar } from '@/components/assessment/PatientSummaryBar'
 import {
   Step1Identification,
   Step2Vitals,
-  Step5Postural,
   Step12Conclusion,
 } from '@/components/assessment/steps/StepsBasic'
-import { Step3Bioimpedance, Step4Anthropometry } from '@/components/assessment/steps/StepsBody'
+import { Step3Bioimpedance } from '@/components/assessment/steps/StepsBody'
 import { Step6Strength, Step7Balance } from '@/components/assessment/steps/StepsFunction'
-import { Step8Respiratory, Step9Spirometry } from '@/components/assessment/steps/StepsRespiratory'
+import { Step8Respiratory } from '@/components/assessment/steps/StepsRespiratory'
 import { Step10Screening, Step11EWGSOP2 } from '@/components/assessment/steps/StepsDiagnosis'
 import type { useAssessmentForm } from '@/hooks/use-assessment-form'
 import type { StepProps } from '@/types/assessment'
@@ -22,12 +21,9 @@ const STEP_COMPONENTS: Array<(props: StepProps) => React.JSX.Element> = [
   Step1Identification,
   Step2Vitals,
   Step3Bioimpedance,
-  Step4Anthropometry,
-  Step5Postural,
   Step6Strength,
   Step7Balance,
   Step8Respiratory,
-  Step9Spirometry,
   Step10Screening,
   Step11EWGSOP2,
   Step12Conclusion,
@@ -45,7 +41,7 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
   }
   const StepComponent = STEP_COMPONENTS[step]
   const canProceed = step !== 0 || (!!formHook.form.patientId && !!formHook.form.assessmentDate)
-  const progress = ((step + 1) / 12) * 100
+  const progress = ((step + 1) / 9) * 100
 
   const goToStep = (newStep: number) => {
     setDirection(newStep > step ? 'forward' : 'backward')
@@ -61,7 +57,7 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
       <div className="md:hidden sticky top-0 z-30 bg-background border-b">
         <div className="flex items-center justify-between px-4 h-12">
           <span className="text-sm font-medium" aria-live="polite">
-            Etapa {step + 1} de 12: {WIZARD_STEPS[step]}
+            Etapa {step + 1} de 9: {WIZARD_STEPS[step]}
           </span>
           <div className="flex items-center gap-2">
             {formHook.saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
@@ -134,7 +130,7 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
             >
               <ChevronLeft className="mr-1 h-4 w-4" /> Anterior
             </Button>
-            {step < 11 ? (
+            {step < 8 ? (
               <Button
                 disabled={!canProceed}
                 onClick={() => goToStep(step + 1)}
