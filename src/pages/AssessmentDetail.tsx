@@ -1,24 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getAssessment, updateAssessment } from '@/services/assessments'
+import { getAssessment } from '@/services/assessments'
 import { useRealtime } from '@/hooks/use-realtime'
 import { BackButton } from '@/components/BackButton'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog'
 import { Printer, FileText, ScrollText } from 'lucide-react'
 import { format } from 'date-fns'
-import { SectionCard } from '@/components/assessment/detail/SectionCard'
-import { DefList, obj, isEmpty, type DisplayField } from '@/components/assessment/detail/primitives'
 import { DIAGNOSIS_LABELS, STATUS_LABELS } from '@/types'
 import type { Assessment } from '@/types'
 import { toast } from 'sonner'
@@ -37,8 +25,6 @@ export default function AssessmentDetail() {
   const { id } = useParams()
   const [assessment, setAssessment] = useState<Assessment | null>(null)
   const [loading, setLoading] = useState(true)
-  const [editOpen, setEditOpen] = useState(false)
-  const [editValues, setEditValues] = useState<Record<string, string>>({})
 
   const loadData = async () => {
     if (!id) return
@@ -71,37 +57,6 @@ export default function AssessmentDetail() {
   }
   if (!assessment) {
     return <div className="p-8 text-center text-muted-foreground">Avaliação não encontrada.</div>
-  }
-
-  const pa = obj(assessment.posturalAssessment)
-  const isReadOnly = assessment.status === 'concluida'
-
-  const posturalFields: DisplayField[] = POSTURAL_FIELDS.map(({ key, label }) => ({
-    label,
-    value: pa[key] ?? null,
-  }))
-
-  const openEdit = () => {
-    setEditValues(
-      POSTURAL_FIELDS.reduce(
-        (acc, { key }) => ({ ...acc, [key]: pa[key] || '' }),
-        {} as Record<string, string>,
-      ),
-    )
-    setEditOpen(true)
-  }
-
-  const saveEdit = async () => {
-    try {
-      const updated = await updateAssessment(assessment.id, {
-        posturalAssessment: { ...pa, ...editValues },
-      })
-      setAssessment(updated)
-      setEditOpen(false)
-      toast.success('Avaliação postual atualizada.')
-    } catch {
-      toast.error('Erro ao salvar alterações.')
-    }
   }
 
   return (
@@ -138,48 +93,6 @@ export default function AssessmentDetail() {
           </CardDescription>
         </CardHeader>
       </Card>
-
-      <SectionCard
-        title="Avaliação Postural"
-        empty={isEmpty(pa)}
-        readOnly={isReadOnly}
-        onEdit={openEdit}
-      >
-        <DefList fields={posturalFields} />
-      </SectionCard>
-
-      <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Editar Avaliação Postural</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-            {POSTURAL_FIELDS.map(({ key, label }) => (
-              <div key={key} className="space-y-1.5">
-                <Label className="text-sm font-medium">{label}</Label>
-                {key === 'observations' ? (
-                  <Textarea
-                    value={editValues[key] || ''}
-                    onChange={(e) => setEditValues((prev) => ({ ...prev, [key]: e.target.value }))}
-                    rows={3}
-                  />
-                ) : (
-                  <Input
-                    value={editValues[key] || ''}
-                    onChange={(e) => setEditValues((prev) => ({ ...prev, [key]: e.target.value }))}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={saveEdit}>Salvar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
