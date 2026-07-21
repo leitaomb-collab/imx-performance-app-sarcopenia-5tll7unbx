@@ -24,6 +24,7 @@ const AssessmentDetail = lazy(
 )
 const Report = lazy(() => import(/* webpackChunkName: "relatorio-chunk" */ '@/pages/Report'))
 const Summary = lazy(() => import(/* webpackChunkName: "sumario-chunk" */ '@/pages/Summary'))
+const Resumo = lazy(() => import(/* webpackChunkName: "resumo-chunk" */ '@/pages/Resumo'))
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth()
@@ -74,6 +75,7 @@ export default function App() {
                   <Route path="/avaliacao/:id" element={<AssessmentDetail />} />
                   <Route path="/relatorio/:id" element={<Report />} />
                   <Route path="/sumario/:id" element={<Summary />} />
+                  <Route path="/resumo/:id" element={<Resumo />} />
                 </Route>
               </Routes>
             </Suspense>

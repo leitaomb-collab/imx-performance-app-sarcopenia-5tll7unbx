@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   ScrollText,
   CheckCircle2,
+  FileText,
 } from 'lucide-react'
 import { BackButton } from '@/components/BackButton'
 import { ReportHeader } from '@/components/report/ReportHeader'
@@ -144,6 +145,16 @@ export default function Report() {
               </Link>
             </Button>
           )}
+          <Button
+            variant="secondary"
+            className="report-btn-secondary h-11 rounded-lg duration-200"
+            asChild
+          >
+            <Link to={`/resumo/${id}`} aria-label="Ver Resumo">
+              <FileText className="h-4 w-4" />
+              <span className="report-btn-label ml-1">Ver Resumo</span>
+            </Link>
+          </Button>
           {isDraft && (
             <Button
               variant="secondary"

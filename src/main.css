@@ -251,6 +251,20 @@
     animation: summary-card-enter 300ms ease-out both;
   }
 
+  @keyframes resumo-card-enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-resumo-card {
+    animation: resumo-card-enter 300ms ease-out both;
+  }
+
   .summary-sparkline-dot {
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
   }

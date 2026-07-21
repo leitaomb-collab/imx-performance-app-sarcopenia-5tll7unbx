@@ -3,7 +3,17 @@ import { useCallback, useEffect } from 'react'
 const PRINT_STYLE_ID = 'imx-dynamic-print-styles'
 const PRINT_CSS = `
 @media print {
-  .no-print, .report-action-bar, .report-draft-warning, .summary-action-bar { display: none !important; }
+  .no-print, .report-action-bar, .report-draft-warning, .summary-action-bar, .resumo-action-bar { display: none !important; }
+
+  .resumo-print-header { display: block !important; position: fixed; top: 0; left: 0; right: 0; padding: 0.5cm 0; z-index: 100; background: white !important; }
+  .resumo-content { padding-top: 3cm; }
+  .resumo-card { break-inside: avoid; page-break-inside: avoid; }
+  .resumo-table-wrapper { break-inside: avoid; page-break-inside: avoid; }
+  .resumo-table tr { break-inside: avoid; page-break-inside: avoid; }
+  .resumo-document { box-shadow: none !important; border: none !important; margin: 0 !important; border-radius: 0 !important; }
+  .resumo-footer { break-inside: avoid; page-break-inside: avoid; }
+  .resumo-status-badge { break-inside: avoid; page-break-inside: avoid; }
+  .resumo-general-card { break-inside: avoid; page-break-inside: avoid; }
 
   .summary-document {
     box-shadow: none !important;
