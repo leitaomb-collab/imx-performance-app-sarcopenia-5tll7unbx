@@ -31,17 +31,29 @@ function computeCardStatus(metrics: KpiMetric[]): MetricStatus {
 }
 
 function TrendArrow({ trend, positive }: { trend: TrendDir; positive: boolean | null }) {
-  if (trend === 'stable') return <Minus className="h-3 w-3 text-muted-foreground" />
+  const symbol = trend === 'up' ? '^' : trend === 'down' ? 'v' : '-'
+  if (trend === 'stable')
+    return (
+      <span className="resumo-trend-arrow">
+        <Minus className="resumo-trend-icon h-3 w-3 text-muted-foreground" />
+        <span className="resumo-trend-text hidden">{symbol}</span>
+      </span>
+    )
   const color =
     positive === true
       ? 'text-green-600'
       : positive === false
         ? 'text-red-600'
         : 'text-muted-foreground'
-  return trend === 'up' ? (
-    <TrendingUp className={cn('h-3 w-3', color)} />
-  ) : (
-    <TrendingDown className={cn('h-3 w-3', color)} />
+  return (
+    <span className="resumo-trend-arrow">
+      {trend === 'up' ? (
+        <TrendingUp className={cn('resumo-trend-icon h-3 w-3', color)} />
+      ) : (
+        <TrendingDown className={cn('resumo-trend-icon h-3 w-3', color)} />
+      )}
+      <span className="resumo-trend-text hidden">{symbol}</span>
+    </span>
   )
 }
 

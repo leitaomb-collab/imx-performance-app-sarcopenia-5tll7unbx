@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react'
 const PRINT_STYLE_ID = 'imx-dynamic-print-styles'
 const PRINT_CSS = `
 @media print {
+  @page { size: A4; margin: 1.5cm; }
   .no-print, .report-action-bar, .report-draft-warning, .summary-action-bar, .resumo-action-bar { display: none !important; }
 
   .resumo-print-header { display: block !important; position: fixed; top: 0; left: 0; right: 0; padding: 0.5cm 0; z-index: 100; background: white !important; }
@@ -63,6 +64,13 @@ const PRINT_CSS = `
   .summary-sparkline { opacity: 1 !important; }
   .summary-sparkline path,
   .summary-sparkline circle { opacity: 1 !important; }
+  .resumo-sparkline-path { stroke: #000 !important; stroke-width: 1 !important; fill: none !important; }
+  .resumo-table svg circle { fill: #000 !important; }
+  .resumo-trend-icon { display: none !important; }
+  .resumo-trend-text { display: inline !important; font-weight: 700 !important; color: #000 !important; font-size: 10pt !important; }
+  .resumo-clinical-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+  .resumo-scroll-fade { display: none !important; }
+  .resumo-card-accent { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
   .summary-header-title { font-size: 1.125rem !important; }
   .summary-header-subtitle { font-size: 0.8rem !important; }
