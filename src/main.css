@@ -654,11 +654,14 @@
     overflow: hidden;
     transition:
       border-color 200ms ease,
-      box-shadow 200ms ease;
+      box-shadow 200ms ease,
+      transform 200ms ease;
   }
-  .stats-card:hover {
-    border-color: hsl(var(--primary) / 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  @media (hover: hover) {
+    .stats-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
   }
   .stats-card-icon {
     position: absolute;
@@ -709,15 +712,133 @@
   }
   .stats-card-enter {
     animation: stats-card-enter 400ms ease-out both;
+    will-change: opacity, transform;
+  }
+
+  @keyframes dashboard-header-enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .dashboard-header-enter {
+    animation: dashboard-header-enter 300ms ease-out both;
+    will-change: opacity, transform;
+  }
+
+  @keyframes chart-card-enter {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .chart-card-enter {
+    animation: chart-card-enter 500ms ease-out both;
+    will-change: opacity, transform;
+  }
+
+  .chart-card {
+    transition: border-color 200ms ease;
+  }
+  @media (hover: hover) {
+    .chart-card:hover {
+      border-color: hsl(var(--primary) / 0.3);
+    }
+  }
+
+  @keyframes fade-in-empty {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .animate-fade-in-empty {
+    animation: fade-in-empty 300ms ease-out;
+  }
+
+  .chart-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 14rem;
+    text-align: center;
+  }
+
+  @keyframes refresh-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-refresh-rotate {
+    animation: refresh-rotate 600ms ease-in-out;
+  }
+
+  @keyframes dashboard-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .dashboard-fade-in {
+    animation: dashboard-fade-in 200ms ease-out;
+  }
+
+  @keyframes fade-out-200 {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  .animate-fade-out-200 {
+    animation: fade-out-200 200ms ease-out forwards;
   }
 
   .chart-tooltip {
-    background-color: hsl(var(--foreground) / 0.95);
+    background-color: hsl(var(--foreground) / 0.9);
     color: hsl(var(--background));
     border-radius: 0.375rem;
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    position: relative;
+  }
+  .chart-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-bottom-color: hsl(var(--foreground) / 0.9);
+  }
+  @keyframes tooltip-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .chart-tooltip-enter {
+    animation: tooltip-fade-in 150ms ease-out;
   }
 
   .recent-item {
@@ -1365,6 +1486,7 @@ button.tactile:active {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;

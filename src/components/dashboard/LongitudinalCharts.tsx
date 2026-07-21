@@ -104,6 +104,7 @@ function LongitudinalChartsBase({
           title="Força de Preensão Manual (kg)"
           isEmpty={hgData.length === 0}
           note={singleNote(hgData.length)}
+          index={0}
         >
           <SimpleLineChart
             data={hgData}
@@ -128,6 +129,7 @@ function LongitudinalChartsBase({
           title="ALMI (kg/m²)"
           isEmpty={almiData.length === 0}
           note={singleNote(almiData.length)}
+          index={1}
         >
           <SimpleLineChart data={almiData} color="hsl(var(--chart-2))" ariaLabel="ALMI em kg/m²">
             <ReferenceLine
@@ -148,6 +150,7 @@ function LongitudinalChartsBase({
           title="SPPB (0-12)"
           isEmpty={sppbData.length === 0}
           note={singleNote(sppbData.length)}
+          index={2}
         >
           <SimpleLineChart
             data={sppbData}
@@ -170,7 +173,12 @@ function LongitudinalChartsBase({
           </SimpleLineChart>
         </ChartCard>
 
-        <ChartCard title="TUG (s)" isEmpty={tugData.length === 0} note={singleNote(tugData.length)}>
+        <ChartCard
+          title="TUG (s)"
+          isEmpty={tugData.length === 0}
+          note={singleNote(tugData.length)}
+          index={3}
+        >
           <SimpleLineChart data={tugData} color="hsl(var(--chart-4))" ariaLabel="TUG em segundos">
             <ReferenceArea
               y1={0}
@@ -218,6 +226,7 @@ function LongitudinalChartsBase({
           title="% Gordura e Ângulo de Fase"
           isEmpty={bodyCompData.length === 0}
           note={singleNote(bodyCompData.length)}
+          index={4}
         >
           <DualAxisBarChart
             data={bodyCompData}
@@ -237,6 +246,7 @@ function LongitudinalChartsBase({
           title="Velocidade de Marcha (SPPB Gait, 0-4)"
           isEmpty={gaitData.length === 0}
           note={singleNote(gaitData.length)}
+          index={5}
         >
           <SimpleLineChart
             data={gaitData}
@@ -262,6 +272,7 @@ function LongitudinalChartsBase({
           title="PImáx e CVF (%)"
           isEmpty={respData.length === 0}
           note={singleNote(respData.length)}
+          index={6}
         >
           <DualLineChart
             data={respData}

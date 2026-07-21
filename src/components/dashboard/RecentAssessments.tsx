@@ -21,7 +21,10 @@ export function RecentAssessments({ assessments }: RecentAssessmentsProps) {
     .slice(0, 5)
 
   return (
-    <Card className="shadow-subtle rounded-[0.75rem]">
+    <Card
+      className="chart-card chart-card-enter shadow-subtle rounded-[0.75rem]"
+      style={{ animationDelay: '500ms' }}
+    >
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Atividade Recente</CardTitle>
         <Button variant="ghost" size="sm" asChild>

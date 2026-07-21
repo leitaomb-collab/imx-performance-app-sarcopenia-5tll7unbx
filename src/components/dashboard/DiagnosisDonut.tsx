@@ -1,7 +1,10 @@
 import { memo } from 'react'
+import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { ChartContainer } from '@/components/ui/chart'
+import { BarChart3 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 
@@ -30,14 +33,22 @@ function DiagnosisDonutBase({ assessments }: DiagnosisDonutProps) {
   )
 
   return (
-    <Card className="shadow-subtle rounded-[0.75rem]">
+    <Card
+      className="chart-card chart-card-enter shadow-subtle rounded-[0.75rem]"
+      style={{ animationDelay: '400ms' }}
+    >
       <CardHeader>
         <CardTitle>Distribuição de Diagnósticos</CardTitle>
       </CardHeader>
       <CardContent>
         {total === 0 ? (
-          <div className="flex items-center justify-center h-[280px] text-sm text-muted-foreground">
-            Sem avaliações concluídas
+          <div className="chart-empty-state animate-fade-in-empty">
+            <BarChart3 className="h-10 w-10 text-muted-foreground/50 mb-3" />
+            <h3 className="text-sm font-semibold">Sem dados disponíveis</h3>
+            <p className="text-xs text-muted-foreground mb-3">Nenhuma avaliação registrada ainda</p>
+            <Button asChild size="sm" variant="outline">
+              <Link to="/avaliacao/nova">Nova Avaliação</Link>
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4">

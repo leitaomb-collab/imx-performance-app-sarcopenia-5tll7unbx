@@ -6,13 +6,14 @@ import { useAccessibility } from '@/hooks/use-accessibility'
 import { getAllPatients } from '@/services/patients'
 import { getAssessments } from '@/services/assessments'
 import { useRealtime } from '@/hooks/use-realtime'
-import { useSwrCache } from '@/hooks/use-swr-cache'
+import { useSwrCache, invalidateCache } from '@/hooks/use-swr-cache'
 import type { Patient } from '@/types'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 import { PatientSelector } from '@/components/dashboard/PatientSelector'
 import { StatsCards } from '@/components/dashboard/StatsCards'
 import { RecentAssessments } from '@/components/dashboard/RecentAssessments'
 import { DashboardSkeleton } from '@/components/dashboard/DashboardSkeleton'
+import { RefreshButton } from '@/components/dashboard/RefreshButton'
 
 const DiagnosisDonut = lazy(() =>
   import('@/components/dashboard/DiagnosisDonut').then((m) => ({ default: m.DiagnosisDonut })),
@@ -105,11 +106,15 @@ export default function Dashboard() {
     setSelectedPatientId(id)
   }, [])
 
+  const handleRefresh = useCallback(() => {
+    invalidateCache('dashboard-data')
+  }, [])
+
   if (loading && !data) return <DashboardSkeleton />
 
   if (patients.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
+      <div className="dashboard-fade-in flex flex-col items-center justify-center py-20 gap-4">
         <Users className="h-12 w-12 text-muted-foreground" />
         <h2 className="text-xl font-semibold">Nenhum paciente cadastrado</h2>
         <Button asChild>
@@ -120,14 +125,17 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="dashboard-container animate-fade-in">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="dashboard-container dashboard-fade-in">
+      <div className="dashboard-header-enter flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-[1.5rem] font-bold tracking-[-0.025em]">Dashboard</h1>
-        <PatientSelector
-          patients={patients}
-          value={selectedPatientId}
-          onChange={handlePatientChange}
-        />
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <PatientSelector
+            patients={patients}
+            value={selectedPatientId}
+            onChange={handlePatientChange}
+          />
+          <RefreshButton onRefresh={handleRefresh} />
+        </div>
       </div>
 
       <StatsCards
@@ -155,7 +163,7 @@ export default function Dashboard() {
       )}
 
       {!selectedPatient && (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 animate-fade-in">
+        <div className="flex flex-col items-center justify-center py-16 gap-3 dashboard-fade-in">
           <UserSearch className="h-10 w-10 text-muted-foreground" />
           <h3 className="text-[1rem] font-semibold">Evolução Longitudinal</h3>
           <p className="text-[0.875rem] text-muted-foreground text-center max-w-md">

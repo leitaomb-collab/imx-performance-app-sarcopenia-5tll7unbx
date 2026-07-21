@@ -39,7 +39,7 @@ const StatCardItem = memo(function StatCardItem({
           className="stats-card-value"
           style={card.valueColor ? { color: card.valueColor } : undefined}
         >
-          <CountUpNumber target={card.value} />
+          <CountUpNumber target={card.value} delay={delay + 400} />
         </p>
         <p className="stats-card-subtitle">{card.subtitle}</p>
       </CardContent>
@@ -118,7 +118,7 @@ function StatsCardsBase({ patients, assessments, patientSelected }: StatsCardsPr
   return (
     <div className={`grid gap-4 ${gridClass}`}>
       {cards.map((card, i) => (
-        <StatCardItem key={i} card={card} delay={i * 60} />
+        <StatCardItem key={i} card={card} delay={100 + i * 80} />
       ))}
     </div>
   )

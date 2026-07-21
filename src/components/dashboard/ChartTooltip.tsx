@@ -12,7 +12,7 @@ interface ChartTooltipProps {
 export function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
   return (
-    <div className="chart-tooltip animate-fade-in">
+    <div className="chart-tooltip chart-tooltip-enter">
       {label && <p className="font-medium mb-1">{label}</p>}
       {payload.map((entry, i) => (
         <p key={i} className="flex items-center gap-1.5">

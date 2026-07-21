@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 
-export function useCountUp(target: number, duration: number = 800) {
+export function useCountUp(target: number, duration: number = 800, delay: number = 0) {
   const [value, setValue] = useState(0)
   const startTimeRef = useRef<number | null>(null)
   const rafRef = useRef<number | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (target === 0) {
@@ -29,11 +30,21 @@ export function useCountUp(target: number, duration: number = 800) {
       }
     }
 
-    rafRef.current = requestAnimationFrame(animate)
+    const startAnimation = () => {
+      rafRef.current = requestAnimationFrame(animate)
+    }
+
+    if (delay > 0) {
+      timeoutRef.current = setTimeout(startAnimation, delay)
+    } else {
+      startAnimation()
+    }
+
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [target, duration])
+  }, [target, duration, delay])
 
   return value
 }
