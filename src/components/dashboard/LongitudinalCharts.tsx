@@ -70,16 +70,14 @@ function LongitudinalChartsBase({
   )
   const pimaxData = useMemo(
     () =>
-      sortAssessmentsByDate(assessments)
-        .map((a) => {
-          const raw = a.respiratoryStrength?.pimaxPercent
-          const num = typeof raw === 'string' ? parseFloat(raw) : raw
-          return {
-            date: format(new Date(a.assessmentDate), 'dd/MM/yyyy'),
-            value: num,
-          }
-        })
-        .filter((d): d is { date: string; value: number } => d.value != null && !isNaN(d.value)),
+      sortAssessmentsByDate(assessments).map((a) => {
+        const raw = a.respiratoryStrength?.pimaxPercent
+        const num = typeof raw === 'string' ? parseFloat(raw) : raw
+        return {
+          date: format(new Date(a.assessmentDate), 'dd/MM/yyyy'),
+          value: num != null && !isNaN(num) ? num : null,
+        }
+      }),
     [assessments],
   )
   const concludedCount = useMemo(
@@ -267,9 +265,9 @@ function LongitudinalChartsBase({
         </ChartCard>
         <ChartCard
           title="PImax (% do Predito)"
-          isEmpty={pimaxData.length === 0}
+          isEmpty={pimaxData.length === 0 || pimaxData.every((d) => d.value == null)}
           emptyMessage="Nenhuma avaliação com medida de PImax registrada"
-          note={singleNote(pimaxData.length)}
+          note={singleNote(pimaxData.filter((d) => d.value != null).length)}
           index={6}
         >
           <SimpleLineChart
@@ -278,6 +276,7 @@ function LongitudinalChartsBase({
             yDomain={[0, 120]}
             label="PImax"
             valueSuffix="%"
+            connectNulls
             ariaLabel="PImax em percentual do predito"
           >
             <ReferenceLine

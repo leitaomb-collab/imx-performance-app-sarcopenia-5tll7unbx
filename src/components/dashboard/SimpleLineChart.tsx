@@ -14,12 +14,13 @@ import { ChartContainer } from '@/components/ui/chart'
 import { ChartTooltip } from './ChartTooltip'
 
 interface SimpleLineChartProps {
-  data: Array<{ date: string; value: number }>
+  data: Array<{ date: string; value: number | null }>
   color: string
   yDomain?: [number, number]
   ariaLabel?: string
   label?: string
   valueSuffix?: string
+  connectNulls?: boolean
   children?: ReactNode
 }
 
@@ -30,6 +31,7 @@ function SimpleLineChartBase({
   ariaLabel,
   label,
   valueSuffix,
+  connectNulls = false,
   children,
 }: SimpleLineChartProps) {
   const { announce } = useAccessibility()
@@ -42,12 +44,12 @@ function SimpleLineChartBase({
       e.preventDefault()
       const next = Math.min(activeIndexRef.current + 1, data.length - 1)
       activeIndexRef.current = next
-      announce(`Avaliação de ${data[next].date}: ${data[next].value}`)
+      announce(`Avaliação de ${data[next].date}: ${data[next].value ?? 'sem dados'}`)
     } else if (e.key === 'ArrowLeft') {
       e.preventDefault()
       const prev = Math.max(activeIndexRef.current - 1, 0)
       activeIndexRef.current = prev
-      announce(`Avaliação de ${data[prev].date}: ${data[prev].value}`)
+      announce(`Avaliação de ${data[prev].date}: ${data[prev].value ?? 'sem dados'}`)
     }
   }
 
@@ -87,6 +89,7 @@ function SimpleLineChartBase({
               dataKey="value"
               stroke="var(--color-value)"
               strokeWidth={2.5}
+              connectNulls={connectNulls}
               dot={{ r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
               activeDot={{ r: 5, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
               isAnimationActive={!prefersReducedMotion}
@@ -96,7 +99,9 @@ function SimpleLineChartBase({
           </LineChart>
         </ResponsiveContainer>
       </ChartContainer>
-      <span className="sr-only">{data.map((d) => `${d.date}: ${d.value}`).join(', ')}</span>
+      <span className="sr-only">
+        {data.map((d) => `${d.date}: ${d.value ?? 'sem dados'}`).join(', ')}
+      </span>
     </div>
   )
 }
