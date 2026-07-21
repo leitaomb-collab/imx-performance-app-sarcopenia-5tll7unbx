@@ -329,6 +329,16 @@ export function buildKpiCards(cur: Data, prev: Data | null, _all: Data[], g: 'M'
           sMax(num(cur, 'sarcopeniaScreening', 'sarcCalFTotal'), 10),
           true,
         ),
+        mkMetric(
+          'Circ. Panturrilha',
+          cur,
+          prev,
+          ['anthropometry', 'calfCircumference'],
+          '≥34cm',
+          sMin(num(cur, 'anthropometry', 'calfCircumference'), 34),
+          false,
+          'cm',
+        ),
       ],
     },
   ]
@@ -481,6 +491,12 @@ export function buildComparativeRows(
       p: ['sarcopeniaScreening', 'sarcCalFTotal'],
       r: '<11',
       s: sMax(num(cur, 'sarcopeniaScreening', 'sarcCalFTotal'), 10),
+    },
+    {
+      v: 'Circ. Panturrilha',
+      p: ['anthropometry', 'calfCircumference'],
+      r: '≥34cm',
+      s: sMin(num(cur, 'anthropometry', 'calfCircumference'), 34),
     },
   ]
   return defs.map((d) => {

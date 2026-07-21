@@ -8,8 +8,8 @@ export function ResumoSparkline({ values }: ResumoSparklineProps) {
   }
   if (values.length === 1) {
     return (
-      <svg width="50" height="16" viewBox="0 0 50 16" aria-hidden="true" className="text-primary">
-        <circle cx="25" cy="8" r="2" fill="currentColor" />
+      <svg width="64" height="20" viewBox="0 0 64 20" aria-hidden="true" className="text-primary">
+        <circle cx="32" cy="10" r="2.5" fill="currentColor" />
       </svg>
     )
   }
@@ -17,9 +17,9 @@ export function ResumoSparkline({ values }: ResumoSparklineProps) {
   const min = Math.min(...values)
   const max = Math.max(...values)
   const range = max - min || 1
-  const pad = 2
-  const w = 50 - pad * 2
-  const h = 16 - pad * 2
+  const pad = 3
+  const w = 64 - pad * 2
+  const h = 20 - pad * 2
 
   const pts = values.map((v, i) => ({
     x: pad + (i / (values.length - 1)) * w,
@@ -32,16 +32,17 @@ export function ResumoSparkline({ values }: ResumoSparklineProps) {
   const last = pts[pts.length - 1]
 
   return (
-    <svg width="50" height="16" viewBox="0 0 50 16" aria-hidden="true" className="text-primary">
+    <svg width="64" height="20" viewBox="0 0 64 20" aria-hidden="true" className="text-primary">
       <path
         d={d}
         fill="none"
         stroke="currentColor"
-        stroke-width="1"
+        stroke-width="1.5"
         stroke-linejoin="round"
         stroke-linecap="round"
+        className="resumo-sparkline-path"
       />
-      <circle cx={last.x.toFixed(1)} cy={last.y.toFixed(1)} r="2" fill="currentColor" />
+      <circle cx={last.x.toFixed(1)} cy={last.y.toFixed(1)} r="2.5" fill="currentColor" />
     </svg>
   )
 }

@@ -15,8 +15,8 @@ import { calculateAge, formatGender, formatDateBR } from '@/lib/patient-utils'
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">{label}</p>
-      <p className="text-sm font-medium mt-0.5">{value}</p>
+      <p className="resumo-field-label">{label}</p>
+      <p className="resumo-field-value">{value}</p>
     </div>
   )
 }
@@ -116,7 +116,7 @@ export default function Resumo() {
   return (
     <main className="resumo-page max-w-4xl mx-auto px-4 md:px-6">
       <div className="resumo-print-header hidden print:block">
-        <h1 className="text-lg font-bold">Resumo da Avaliação</h1>
+        <h1 className="resumo-title">Resumo da Avaliação</h1>
         <p className="text-sm">
           {patient.name} • {formatDateBR(assessment.assessmentDate)}
         </p>
@@ -129,9 +129,13 @@ export default function Resumo() {
           </Link>
         </Button>
         <div className="flex-1 text-center px-2 min-w-0">
-          <h1 className="text-base font-semibold truncate">Resumo da Avaliação</h1>
-          <p className="text-xs text-muted-foreground truncate">
-            {patient.name} • {formatDateBR(assessment.assessmentDate)}
+          <h1 className="resumo-title truncate">Resumo da Avaliação</h1>
+          <p className="truncate">
+            <span className="resumo-patient-name">{patient.name}</span>
+            <span className="resumo-patient-date">
+              {' '}
+              • {formatDateBR(assessment.assessmentDate)}
+            </span>
           </p>
         </div>
         <Button
@@ -150,7 +154,7 @@ export default function Resumo() {
       </header>
 
       <div className="resumo-content space-y-6">
-        <section className="resumo-general-card border border-border rounded-lg p-4 md:p-6 break-inside-avoid">
+        <section className="resumo-id-card break-inside-avoid">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Field label="Nome" value={patient.name} />
             <Field label="Idade" value={`${calculateAge(patient.birthDate)} anos`} />
@@ -175,7 +179,7 @@ export default function Resumo() {
         <ResumoTable rows={tableRows} hasMultiple={allAssessments.length > 1} />
 
         <footer className="resumo-footer text-center text-xs text-muted-foreground pt-4 border-t border-border break-inside-avoid">
-          <p className="font-semibold">IMX Performance</p>
+          <p className="font-semibold">IEMEX Performance</p>
           <p className="mt-0.5">
             {formatDateBR(assessment.assessmentDate)} • ID: {assessment.id}
           </p>

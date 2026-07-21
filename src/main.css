@@ -355,6 +355,94 @@
     color: hsl(25 95% 60%);
   }
 
+  .resumo-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: hsl(215 25% 27%);
+  }
+  .dark .resumo-title {
+    color: hsl(215 25% 75%);
+  }
+
+  .resumo-patient-name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .resumo-patient-date {
+    font-size: 0.8125rem;
+    font-weight: 400;
+    color: hsl(215 15% 50%);
+  }
+
+  .resumo-id-card {
+    background-color: hsl(215 20% 97%);
+    border: 1px solid hsl(215 20% 90%);
+    border-radius: 0.75rem;
+    padding: 1.25rem 1.5rem;
+  }
+  .dark .resumo-id-card {
+    background-color: hsl(215 20% 15%);
+    border-color: hsl(215 20% 25%);
+  }
+
+  .resumo-field-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(215 15% 45%);
+    font-weight: 500;
+  }
+
+  .resumo-field-value {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: hsl(215 25% 15%);
+    margin-top: 0.125rem;
+  }
+  .dark .resumo-field-value {
+    color: hsl(215 25% 85%);
+  }
+
+  .resumo-clinical-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(215 20% 90%);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+  }
+  .dark .resumo-clinical-card {
+    border-color: hsl(215 20% 25%);
+  }
+
+  .resumo-sparkline-path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: resumo-sparkline-draw 800ms ease-out forwards;
+  }
+  @keyframes resumo-sparkline-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .resumo-table-zebra tbody tr:nth-child(even) {
+    background-color: hsl(215 20% 98%);
+  }
+  .dark .resumo-table-zebra tbody tr:nth-child(even) {
+    background-color: hsl(215 20% 13%);
+  }
+
+  .resumo-scroll-fade {
+    display: none;
+  }
+  @media (max-width: 767px) {
+    .resumo-scroll-fade {
+      display: block;
+      background: linear-gradient(to right, transparent, hsl(var(--background)));
+    }
+  }
+
   .report-accent-bar {
     height: 4px;
     background-color: hsl(var(--primary));

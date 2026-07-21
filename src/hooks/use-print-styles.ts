@@ -14,6 +14,21 @@ const PRINT_CSS = `
   .resumo-footer { break-inside: avoid; page-break-inside: avoid; }
   .resumo-status-badge { break-inside: avoid; page-break-inside: avoid; }
   .resumo-general-card { break-inside: avoid; page-break-inside: avoid; }
+  .resumo-clinical-card { break-inside: avoid; page-break-inside: avoid; }
+  .resumo-status-pill {
+    background-color: transparent !important;
+    color: #000 !important;
+    border: none !important;
+    padding: 0 !important;
+    font-weight: 700 !important;
+    font-size: 10pt !important;
+    border-radius: 0 !important;
+  }
+  .resumo-status-pill::before { content: '['; }
+  .resumo-status-pill::after { content: ']'; }
+  .resumo-status-dot { display: none !important; }
+  .resumo-card-accent { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  .resumo-table-zebra tbody tr:nth-child(even) { background-color: hsl(215 20% 98%) !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
   .summary-document {
     box-shadow: none !important;

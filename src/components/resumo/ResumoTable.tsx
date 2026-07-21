@@ -12,11 +12,11 @@ function StatusBadge({ status }: { status: MetricStatus }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap',
+        'resumo-status-pill inline-flex items-center gap-1.5 text-xs font-medium whitespace-nowrap',
         cfg.text,
       )}
     >
-      <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', cfg.dot)} />
+      <span className={cn('resumo-status-dot w-1.5 h-1.5 rounded-full shrink-0', cfg.dot)} />
       {cfg.label}
     </span>
   )
@@ -26,7 +26,7 @@ export function ResumoTable({ rows, hasMultiple }: ResumoTableProps) {
   return (
     <section aria-label="Tabela Comparativa">
       <h2 className="text-sm font-semibold mb-2 text-primary">Tabela Comparativa de Evolução</h2>
-      <div className="resumo-table-wrapper relative overflow-x-auto border border-border rounded-lg">
+      <div className="resumo-table-wrapper resumo-table-zebra relative overflow-x-auto border border-border rounded-lg">
         <table className="resumo-table w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
@@ -93,6 +93,7 @@ export function ResumoTable({ rows, hasMultiple }: ResumoTableProps) {
             ))}
           </tbody>
         </table>
+        <div className="resumo-scroll-fade pointer-events-none absolute right-0 top-0 bottom-0 w-8" />
       </div>
     </section>
   )
