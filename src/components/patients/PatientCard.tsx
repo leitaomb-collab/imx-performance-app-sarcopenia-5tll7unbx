@@ -13,15 +13,31 @@ import {
   getIMCColorClass,
 } from '@/lib/patient-utils'
 import { cn } from '@/lib/utils'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
+import { useInView } from '@/hooks/use-in-view'
 
 interface PatientCardProps {
   patient: Patient
   onDelete: (patient: Patient) => void
   isFadingOut?: boolean
   onPrefetch?: () => void
+  index?: number
+  entranceMode?: 'initial' | 'filter'
+  useViewportAnim?: boolean
 }
 
-function PatientCardBase({ patient, onDelete, isFadingOut, onPrefetch }: PatientCardProps) {
+function PatientCardBase({
+  patient,
+  onDelete,
+  isFadingOut,
+  onPrefetch,
+  index = 0,
+  entranceMode = 'initial',
+  useViewportAnim = false,
+}: PatientCardProps) {
+  const reducedMotion = useReducedMotion()
+  const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.1, rootMargin: '50px' })
+
   const age = patient.birthDate ? calculateAge(patient.birthDate) : null
   const hasIMC =
     patient.weight != null && patient.height != null && patient.weight > 0 && patient.height > 0
@@ -30,9 +46,30 @@ function PatientCardBase({ patient, onDelete, isFadingOut, onPrefetch }: Patient
   const handleDelete = useCallback(() => onDelete(patient), [onDelete, patient])
   const handleMouseEnter = useCallback(() => onPrefetch?.(), [onPrefetch])
 
+  const shouldAnimate = !useViewportAnim || inView
+  const staggerMs = Math.min(index, 20) * (entranceMode === 'filter' ? 30 : 40)
+
+  const entranceClass = isFadingOut
+    ? reducedMotion
+      ? 'animate-fade-in-200'
+      : 'animate-delete-slide-out'
+    : shouldAnimate
+      ? reducedMotion
+        ? 'animate-fade-in-200'
+        : entranceMode === 'filter'
+          ? 'animate-card-enter-right'
+          : 'animate-card-enter'
+      : 'opacity-0'
+
   return (
     <Card
-      className={cn('flex flex-col transition-opacity', isFadingOut && 'animate-fade-out')}
+      ref={ref}
+      className={cn(
+        'flex flex-col',
+        !isFadingOut && !reducedMotion && 'patient-card-interactive',
+        entranceClass,
+      )}
+      style={{ '--card-delay': `${staggerMs}ms` } as React.CSSProperties}
       onMouseEnter={handleMouseEnter}
     >
       <CardContent className="flex flex-col gap-3 p-5 flex-1">
@@ -82,7 +119,7 @@ function PatientCardBase({ patient, onDelete, isFadingOut, onPrefetch }: Patient
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 shrink-0 tactile"
+            className="h-11 w-11 shrink-0 tactile patient-action-btn"
             aria-label="Excluir paciente"
             onClick={handleDelete}
           >

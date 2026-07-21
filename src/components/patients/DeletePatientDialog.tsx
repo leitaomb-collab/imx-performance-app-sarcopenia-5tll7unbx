@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { deletePatient } from '@/services/patients'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
+import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 
 interface DeletePatientDialogProps {
@@ -24,7 +26,9 @@ export function DeletePatientDialog({
   onOpenChange,
   onSuccess,
 }: DeletePatientDialogProps) {
+  const reducedMotion = useReducedMotion()
   const [loading, setLoading] = useState(false)
+  const [shake, setShake] = useState(false)
 
   const handleDelete = async () => {
     if (!patient) return
@@ -35,7 +39,9 @@ export function DeletePatientDialog({
       onOpenChange(false)
       onSuccess(patient.id)
     } catch {
-      toast.error('Não foi possível excluir o paciente')
+      setShake(true)
+      toast.error('Não foi possível excluir o paciente. Tente novamente.')
+      setTimeout(() => setShake(false), 300)
     } finally {
       setLoading(false)
     }
@@ -43,7 +49,12 @@ export function DeletePatientDialog({
 
   return (
     <Dialog open={!!patient} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        className={cn(
+          'dialog-anim',
+          shake && (reducedMotion ? 'animate-error-flash' : 'animate-dialog-shake'),
+        )}
+      >
         <DialogHeader>
           <DialogTitle>Excluir Paciente</DialogTitle>
           <DialogDescription>

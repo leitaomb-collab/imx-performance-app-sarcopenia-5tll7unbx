@@ -927,6 +927,323 @@
     color: hsl(var(--muted-foreground));
     border-color: hsl(215 16% 80% / 0.3);
   }
+
+  /* ===== Patient Page Micro-Interactions ===== */
+
+  .search-input {
+    box-shadow: 0 0 0 0px hsl(var(--primary) / 0.3);
+    transition: box-shadow 150ms ease-out;
+  }
+  .search-input:focus,
+  .search-input:focus-visible {
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.3);
+    outline: none;
+  }
+
+  @keyframes debounce-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .animate-debounce-in {
+    animation: debounce-fade-in 100ms ease-out;
+  }
+
+  @keyframes filter-pulse-bg {
+    0% {
+      background-color: transparent;
+    }
+    50% {
+      background-color: hsl(var(--primary) / 0.08);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+  .animate-filter-pulse {
+    animation: filter-pulse-bg 200ms ease-out;
+  }
+
+  .gender-select-content[data-state='open'] {
+    animation: gender-slide-in 150ms ease-out !important;
+  }
+  .gender-select-content[data-state='closed'] {
+    animation: gender-slide-out 100ms ease-in !important;
+  }
+  @keyframes gender-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes gender-slide-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes patient-card-enter {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-card-enter {
+    animation: patient-card-enter 300ms ease-out both;
+    animation-delay: var(--card-delay, 0ms);
+    will-change: transform, opacity;
+  }
+
+  @keyframes card-exit-left {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+  }
+  .animate-card-exit-left {
+    animation: card-exit-left 200ms ease-in forwards;
+    will-change: transform, opacity;
+  }
+
+  @keyframes card-enter-right {
+    from {
+      opacity: 0;
+      transform: translateX(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  .animate-card-enter-right {
+    animation: card-enter-right 250ms ease-out both;
+    animation-delay: var(--card-delay, 0ms);
+    will-change: transform, opacity;
+  }
+
+  @keyframes delete-slide-out {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+  }
+  .animate-delete-slide-out {
+    animation: delete-slide-out 250ms ease-in forwards;
+    will-change: transform, opacity;
+  }
+
+  .patient-card-interactive {
+    transition:
+      transform 200ms ease-out,
+      box-shadow 200ms ease-out;
+  }
+  @media (hover: hover) {
+    .patient-card-interactive:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      will-change: transform;
+    }
+  }
+  .patient-card-interactive:active {
+    transform: scale(0.98);
+    transition: transform 100ms ease-out;
+  }
+
+  .patient-action-btn {
+    opacity: 0.7;
+    transition: opacity 150ms ease-out;
+  }
+  @media (hover: hover) {
+    .patient-card-interactive:hover .patient-action-btn {
+      opacity: 1;
+    }
+  }
+
+  .dialog-anim[data-state='open'] {
+    animation: dialog-enter-anim 250ms ease-out !important;
+  }
+  .dialog-anim[data-state='closed'] {
+    animation: dialog-exit-anim 200ms ease-in forwards !important;
+  }
+  @keyframes dialog-enter-anim {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  @keyframes dialog-exit-anim {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95) translateY(8px);
+    }
+  }
+
+  @keyframes dialog-shake-anim {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-8px);
+    }
+    40% {
+      transform: translateX(8px);
+    }
+    60% {
+      transform: translateX(-8px);
+    }
+    80% {
+      transform: translateX(8px);
+    }
+  }
+  .animate-dialog-shake {
+    animation: dialog-shake-anim 300ms ease-in-out;
+  }
+
+  @keyframes error-flash-anim {
+    0%,
+    100% {
+      box-shadow: none;
+    }
+    50% {
+      box-shadow: 0 0 0 2px hsl(var(--destructive) / 0.5);
+    }
+  }
+  .animate-error-flash {
+    animation: error-flash-anim 300ms ease-in-out;
+  }
+
+  @keyframes success-check-anim {
+    from {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .animate-success-check {
+    animation: success-check-anim 300ms ease-out;
+  }
+
+  @keyframes float-icon-anim {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+  .animate-float-icon {
+    animation: float-icon-anim 2s ease-in-out infinite;
+  }
+
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .skeleton-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--muted) / 0.6) 50%,
+      transparent 100%
+    );
+    animation: shimmer-sweep 1.5s infinite;
+  }
+  @keyframes shimmer-sweep {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes fade-in-200 {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .animate-fade-in-200 {
+    animation: fade-in-200 200ms ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-card-enter,
+    .animate-card-exit-left,
+    .animate-card-enter-right,
+    .animate-delete-slide-out,
+    .animate-dialog-shake,
+    .animate-float-icon,
+    .animate-filter-pulse,
+    .animate-debounce-in,
+    .animate-success-check,
+    .animate-fade-in-200,
+    .dialog-anim[data-state='open'],
+    .dialog-anim[data-state='closed'],
+    .gender-select-content[data-state='open'],
+    .gender-select-content[data-state='closed'] {
+      animation: none !important;
+    }
+    .skeleton-shimmer::after {
+      animation: none !important;
+    }
+    .patient-card-interactive {
+      transition: none !important;
+      transform: none !important;
+    }
+    .patient-card-interactive:active {
+      transform: none !important;
+    }
+    .patient-action-btn {
+      opacity: 1 !important;
+      transition: none !important;
+    }
+    .search-input {
+      transition: none !important;
+    }
+  }
 }
 
 .recharts-cartesian-grid line {

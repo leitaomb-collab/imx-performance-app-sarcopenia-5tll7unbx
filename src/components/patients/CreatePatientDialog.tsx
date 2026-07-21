@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Dialog,
@@ -23,6 +23,9 @@ import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createPatient } from '@/services/patients'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
+import { cn } from '@/lib/utils'
+import { DialogSuccessState } from './DialogSuccessState'
 
 interface CreatePatientDialogProps {
   open: boolean
@@ -47,14 +50,21 @@ const emptyForm = {
 
 export function CreatePatientDialog({ open, onOpenChange }: CreatePatientDialogProps) {
   const navigate = useNavigate()
+  const reducedMotion = useReducedMotion()
   const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [shake, setShake] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
   const [form, setForm] = useState(emptyForm)
+  const successTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => {
     if (!open) {
       setForm(emptyForm)
       setErrors({})
+      setSuccess(false)
+      setShake(false)
+      if (successTimerRef.current) clearTimeout(successTimerRef.current)
     }
   }, [open])
 
@@ -91,11 +101,18 @@ export function CreatePatientDialog({ open, onOpenChange }: CreatePatientDialogP
         notes: form.notes,
       }
       const patient = await createPatient(payload)
-      toast.success('Paciente cadastrado com sucesso')
-      onOpenChange(false)
-      navigate(`/paciente/${patient.id}`)
+      setSuccess(true)
+      successTimerRef.current = setTimeout(() => {
+        onOpenChange(false)
+        toast.success('Paciente criado com sucesso')
+        navigate(`/paciente/${patient.id}`)
+      }, 800)
     } catch (err) {
-      toast.error('Não foi possível cadastrar o paciente', { description: getErrorMessage(err) })
+      setShake(true)
+      toast.error('Não foi possível criar o paciente. Tente novamente.', {
+        description: getErrorMessage(err),
+      })
+      setTimeout(() => setShake(false), 300)
     } finally {
       setLoading(false)
     }
@@ -103,117 +120,126 @@ export function CreatePatientDialog({ open, onOpenChange }: CreatePatientDialogP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className={cn(
+          'max-h-[90vh] overflow-y-auto dialog-anim',
+          shake && (reducedMotion ? 'animate-error-flash' : 'animate-dialog-shake'),
+        )}
+      >
         <DialogHeader>
           <DialogTitle>Novo Paciente</DialogTitle>
           <DialogDescription>Preencha os dados para cadastrar um novo paciente.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
-            <Input
-              id="name"
-              required
-              value={form.name}
-              onChange={(e) => updateForm('name', e.target.value)}
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? 'name-error' : undefined}
-            />
-            {errors.name && (
-              <p id="name-error" className="text-sm text-destructive">
-                {errors.name}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="birthDate">Data de Nascimento</Label>
-            <Input
-              id="birthDate"
-              type="date"
-              required
-              value={form.birthDate}
-              onChange={(e) => updateForm('birthDate', e.target.value)}
-              aria-invalid={!!errors.birthDate}
-              aria-describedby={errors.birthDate ? 'birthDate-error' : undefined}
-            />
-            {errors.birthDate && (
-              <p id="birthDate-error" className="text-sm text-destructive">
-                {errors.birthDate}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Gênero</Label>
-            <Select value={form.gender} onValueChange={(v) => updateForm('gender', v)}>
-              <SelectTrigger
-                aria-invalid={!!errors.gender}
-                aria-describedby={errors.gender ? 'gender-error' : undefined}
-              >
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="M">Masculino</SelectItem>
-                <SelectItem value="F">Feminino</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.gender && (
-              <p id="gender-error" className="text-sm text-destructive">
-                {errors.gender}
-              </p>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+        {success ? (
+          <DialogSuccessState message="Paciente criado" />
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="weight">Peso (kg)</Label>
+              <Label htmlFor="name">Nome</Label>
               <Input
-                id="weight"
-                type="number"
-                min={0}
-                max={500}
-                step={0.1}
-                value={form.weight}
-                onChange={(e) => updateForm('weight', e.target.value)}
+                id="name"
+                required
+                value={form.name}
+                onChange={(e) => updateForm('name', e.target.value)}
+                aria-invalid={!!errors.name}
+                aria-describedby={errors.name ? 'name-error' : undefined}
+              />
+              {errors.name && (
+                <p id="name-error" className="text-sm text-destructive">
+                  {errors.name}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="birthDate">Data de Nascimento</Label>
+              <Input
+                id="birthDate"
+                type="date"
+                required
+                value={form.birthDate}
+                onChange={(e) => updateForm('birthDate', e.target.value)}
+                aria-invalid={!!errors.birthDate}
+                aria-describedby={errors.birthDate ? 'birthDate-error' : undefined}
+              />
+              {errors.birthDate && (
+                <p id="birthDate-error" className="text-sm text-destructive">
+                  {errors.birthDate}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label>Gênero</Label>
+              <Select value={form.gender} onValueChange={(v) => updateForm('gender', v)}>
+                <SelectTrigger
+                  aria-invalid={!!errors.gender}
+                  aria-describedby={errors.gender ? 'gender-error' : undefined}
+                >
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="M">Masculino</SelectItem>
+                  <SelectItem value="F">Feminino</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.gender && (
+                <p id="gender-error" className="text-sm text-destructive">
+                  {errors.gender}
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="weight">Peso (kg)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  min={0}
+                  max={500}
+                  step={0.1}
+                  value={form.weight}
+                  onChange={(e) => updateForm('weight', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="height">Estatura (m)</Label>
+                <Input
+                  id="height"
+                  type="number"
+                  min={0.5}
+                  max={2.5}
+                  step={0.01}
+                  value={form.height}
+                  onChange={(e) => updateForm('height', e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="meds">Medicamentos</Label>
+              <Textarea
+                id="meds"
+                rows={3}
+                placeholder="Medicamentos de uso contínuo"
+                value={form.chronicMedications}
+                onChange={(e) => updateForm('chronicMedications', e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="height">Estatura (m)</Label>
-              <Input
-                id="height"
-                type="number"
-                min={0.5}
-                max={2.5}
-                step={0.01}
-                value={form.height}
-                onChange={(e) => updateForm('height', e.target.value)}
+              <Label htmlFor="notes">Observações</Label>
+              <Textarea
+                id="notes"
+                rows={2}
+                value={form.notes}
+                onChange={(e) => updateForm('notes', e.target.value)}
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="meds">Medicamentos</Label>
-            <Textarea
-              id="meds"
-              rows={3}
-              placeholder="Medicamentos de uso contínuo"
-              value={form.chronicMedications}
-              onChange={(e) => updateForm('chronicMedications', e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="notes">Observações</Label>
-            <Textarea
-              id="notes"
-              rows={2}
-              value={form.notes}
-              onChange={(e) => updateForm('notes', e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={loading || !isFormValid}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Salvar
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button type="submit" disabled={loading || !isFormValid}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Salvar
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   )
