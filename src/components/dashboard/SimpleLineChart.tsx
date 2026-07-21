@@ -1,5 +1,6 @@
 import { memo, type ReactNode, useRef } from 'react'
 import { useAccessibility } from '@/hooks/use-accessibility'
+import { useReducedMotion } from '@/hooks/use-reduced-motion'
 import {
   LineChart,
   Line,
@@ -17,11 +18,22 @@ interface SimpleLineChartProps {
   color: string
   yDomain?: [number, number]
   ariaLabel?: string
+  label?: string
+  valueSuffix?: string
   children?: ReactNode
 }
 
-function SimpleLineChartBase({ data, color, yDomain, ariaLabel, children }: SimpleLineChartProps) {
+function SimpleLineChartBase({
+  data,
+  color,
+  yDomain,
+  ariaLabel,
+  label,
+  valueSuffix,
+  children,
+}: SimpleLineChartProps) {
   const { announce } = useAccessibility()
+  const prefersReducedMotion = useReducedMotion()
   const activeIndexRef = useRef(-1)
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -48,7 +60,7 @@ function SimpleLineChartBase({ data, color, yDomain, ariaLabel, children }: Simp
       className="focus:outline-none focus:ring-2 focus:ring-ring rounded-lg"
     >
       <ChartContainer
-        config={{ value: { label: 'Valor', color } }}
+        config={{ value: { label: label || 'Valor', color } }}
         className="h-[14rem] md:h-[18rem] w-full"
       >
         <ResponsiveContainer width="100%" height="100%">
@@ -68,7 +80,7 @@ function SimpleLineChartBase({ data, color, yDomain, ariaLabel, children }: Simp
               axisLine={false}
               domain={yDomain}
             />
-            <Tooltip content={<ChartTooltip />} />
+            <Tooltip content={<ChartTooltip suffix={valueSuffix} />} />
             {children}
             <Line
               type="monotone"
@@ -77,8 +89,8 @@ function SimpleLineChartBase({ data, color, yDomain, ariaLabel, children }: Simp
               strokeWidth={2.5}
               dot={{ r: 4, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
               activeDot={{ r: 5, strokeWidth: 2, stroke: 'hsl(var(--card))' }}
-              isAnimationActive
-              animationDuration={600}
+              isAnimationActive={!prefersReducedMotion}
+              animationDuration={prefersReducedMotion ? 0 : 600}
               animationBegin={0}
             />
           </LineChart>

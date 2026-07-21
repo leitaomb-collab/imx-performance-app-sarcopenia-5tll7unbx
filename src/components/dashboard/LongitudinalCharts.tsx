@@ -3,7 +3,7 @@ import { ReferenceLine, ReferenceArea } from 'recharts'
 import { ChartCard } from './ChartCard'
 import { SimpleLineChart } from './SimpleLineChart'
 import { DualAxisBarChart } from './DualAxisBarChart'
-import { DualLineChart } from './DualLineChart'
+
 import {
   extractChartData,
   sortAssessmentsByDate,
@@ -68,15 +68,18 @@ function LongitudinalChartsBase({
         .filter((d) => d.fat != null || d.phase != null),
     [assessments],
   )
-  const respData = useMemo(
+  const pimaxData = useMemo(
     () =>
       sortAssessmentsByDate(assessments)
-        .map((a) => ({
-          date: fmtDate(a.assessmentDate),
-          pimax: a.respiratoryStrength?.pimaxPercent,
-          cvf: a.spirometry?.fvcPercent,
-        }))
-        .filter((d) => d.pimax != null || d.cvf != null),
+        .map((a) => {
+          const raw = a.respiratoryStrength?.pimaxPercent
+          const num = typeof raw === 'string' ? parseFloat(raw) : raw
+          return {
+            date: format(new Date(a.assessmentDate), 'dd/MM/yyyy'),
+            value: num,
+          }
+        })
+        .filter((d): d is { date: string; value: number } => d.value != null && !isNaN(d.value)),
     [assessments],
   )
   const concludedCount = useMemo(
@@ -124,7 +127,6 @@ function LongitudinalChartsBase({
             />
           </SimpleLineChart>
         </ChartCard>
-
         <ChartCard
           title="ALMI (kg/m²)"
           isEmpty={almiData.length === 0}
@@ -145,7 +147,6 @@ function LongitudinalChartsBase({
             />
           </SimpleLineChart>
         </ChartCard>
-
         <ChartCard
           title="SPPB (0-12)"
           isEmpty={sppbData.length === 0}
@@ -172,7 +173,6 @@ function LongitudinalChartsBase({
             />
           </SimpleLineChart>
         </ChartCard>
-
         <ChartCard
           title="TUG (s)"
           isEmpty={tugData.length === 0}
@@ -221,7 +221,6 @@ function LongitudinalChartsBase({
             />
           </SimpleLineChart>
         </ChartCard>
-
         <ChartCard
           title="% Gordura e Ângulo de Fase"
           isEmpty={bodyCompData.length === 0}
@@ -241,7 +240,6 @@ function LongitudinalChartsBase({
             ariaLabel="Percentual de gordura e ângulo de fase"
           />
         </ChartCard>
-
         <ChartCard
           title="Velocidade de Marcha (SPPB Gait, 0-4)"
           isEmpty={gaitData.length === 0}
@@ -267,27 +265,34 @@ function LongitudinalChartsBase({
             />
           </SimpleLineChart>
         </ChartCard>
-
         <ChartCard
-          title="PImáx e CVF (%)"
-          isEmpty={respData.length === 0}
-          note={singleNote(respData.length)}
+          title="PImax (% do Predito)"
+          isEmpty={pimaxData.length === 0}
+          emptyMessage="Nenhuma avaliação com medida de PImax registrada"
+          note={singleNote(pimaxData.length)}
           index={6}
         >
-          <DualLineChart
-            data={respData}
-            config={{
-              pimax: { label: 'PImáx %', color: 'hsl(var(--primary))' },
-              cvf: { label: 'CVF %', color: 'hsl(217 91% 60%)' },
-            }}
-            line1Key="pimax"
-            line2Key="cvf"
-            referenceY={80}
-            referenceLabel="Limite inferior"
+          <SimpleLineChart
+            data={pimaxData}
+            color="hsl(var(--primary))"
             yDomain={[0, 120]}
-            ariaLabel="PImáx e CVF em percentual"
-          />
-        </ChartCard>
+            label="PImax"
+            valueSuffix="%"
+            ariaLabel="PImax em percentual do predito"
+          >
+            <ReferenceLine
+              y={80}
+              stroke="hsl(var(--destructive))"
+              strokeDasharray="6 4"
+              label={{
+                value: 'Limite 80%',
+                fontSize: 10,
+                fill: 'hsl(var(--destructive))',
+                position: 'insideTop',
+              }}
+            />
+          </SimpleLineChart>
+        </ChartCard>{' '}
       </div>
     </div>
   )

@@ -7,9 +7,10 @@ interface ChartTooltipProps {
     fill?: string
   }>
   label?: string
+  suffix?: string
 }
 
-export function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
+export function ChartTooltip({ active, payload, label, suffix }: ChartTooltipProps) {
   if (!active || !payload?.length) return null
   return (
     <div className="chart-tooltip chart-tooltip-enter">
@@ -21,6 +22,7 @@ export function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
             style={{ backgroundColor: entry.color || entry.fill }}
           />
           {entry.name}: {entry.value}
+          {suffix || ''}
         </p>
       ))}
     </div>

@@ -37,7 +37,9 @@ function ChartCardBase({
           <div className="chart-empty-state animate-fade-in-empty">
             <BarChart3 className="h-10 w-10 text-muted-foreground/50 mb-3" />
             <h3 className="text-sm font-semibold">Sem dados disponíveis</h3>
-            <p className="text-xs text-muted-foreground mb-3">Nenhuma avaliação registrada ainda</p>
+            <p className="text-xs text-muted-foreground mb-3">
+              {emptyMessage || 'Nenhuma avaliação registrada ainda'}
+            </p>
             <Button asChild size="sm" variant="outline">
               <Link to="/avaliacao/nova">Nova Avaliação</Link>
             </Button>
