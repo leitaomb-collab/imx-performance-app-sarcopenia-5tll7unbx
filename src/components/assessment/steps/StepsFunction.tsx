@@ -64,7 +64,7 @@ function ConsolidatedHandgripInfo({
 
   const citation = (
     <p className="text-[0.625rem] text-muted-foreground/70">
-      Valores normativos: estudo internacional com 2,4 milhões de adultos de 69 países (2024).
+      3. Valores normativos: estudo internacional com 2,4 milhões de adultos de 69 países (2024).
       Cutoff de sarcopenia: consenso EWGSOP2 (2019).
     </p>
   )
@@ -92,19 +92,19 @@ function ConsolidatedHandgripInfo({
     <div className="rounded-lg bg-muted/30 p-3 space-y-2">
       {noNorms ? (
         <p className="text-xs text-muted-foreground">
-          Dados normativos não disponíveis para esta faixa etária
+          1. Dados normativos não disponíveis para esta faixa etária
         </p>
       ) : (
         <p className="text-xs text-muted-foreground">
-          Referência para {sexLabel} de {norms.ageGroup}: normal acima de {norms.p5Value} kg (P5 da
-          população)
+          1. Referência para {sexLabel} de {norms.ageGroup}: normal acima de {norms.p5Value} kg (P5
+          da população)
         </p>
       )}
 
       {hasMaxValue && result?.ewgsop2Status && (
         <div className="pt-2 border-t border-border/50 space-y-1">
           <p className="text-xs font-medium text-muted-foreground">
-            Rastreio de sarcopenia (EWGSOP2)
+            2. Rastreio de sarcopenia (EWGSOP2)
           </p>
           <p className="text-xs text-muted-foreground">
             Limite: {cutoff} kg para {sex === 'M' ? 'homens' : 'mulheres'}
