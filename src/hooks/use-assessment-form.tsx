@@ -6,6 +6,8 @@ import { toast } from '@/hooks/use-toast'
 import { getErrorMessage } from '@/lib/pocketbase/errors'
 import type { Patient } from '@/types'
 import type { AssessmentFormData as FormData } from '@/types/assessment'
+import { calculateAge } from '@/lib/patient-utils'
+import { getHandgripPercentile } from '@/constants/handgripNorms'
 
 const emptyForm: FormData = {
   patientId: '',
@@ -45,6 +47,7 @@ export function useAssessmentForm(patientIdParam: string | null) {
   const formRef = useRef(form)
   const idRef = useRef<string | null>(null)
   const lastSavedRef = useRef<Date | null>(null)
+  const patientRef = useRef<Patient | null>(null)
 
   useEffect(() => {
     formRef.current = form
@@ -58,6 +61,10 @@ export function useAssessmentForm(patientIdParam: string | null) {
   useEffect(() => {
     lastSavedRef.current = lastSaved
   }, [lastSaved])
+
+  useEffect(() => {
+    patientRef.current = patient
+  }, [patient])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -101,7 +108,20 @@ export function useAssessmentForm(patientIdParam: string | null) {
   const doSave = useCallback(async (status: 'rascunho' | 'concluida'): Promise<string | null> => {
     const { anthropometry, posturalAssessment, spirometry, posturalPhotos, ...rest } =
       formRef.current
-    const data: Record<string, unknown> = { ...rest, status }
+
+    const ms = rest.muscleStrength
+    const computedMs = { ...ms }
+    if (ms.handgripLeft != null || ms.handgripRight != null) {
+      computedMs.handgripMax = Math.max(ms.handgripLeft ?? 0, ms.handgripRight ?? 0)
+      const patientData = patientRef.current
+      if (patientData?.birthDate) {
+        const age = calculateAge(patientData.birthDate)
+        const result = getHandgripPercentile(patientData.gender, age, computedMs.handgripMax)
+        computedMs.handgripPercentile = result.percentile ?? undefined
+      }
+    }
+
+    const data: Record<string, unknown> = { ...rest, muscleStrength: computedMs, status }
     delete data.evaluatorId
     delete data.id
     if (idRef.current) {

@@ -2,22 +2,69 @@ import { StepField, NumberInput, ClinicalBadge, SectionTitle } from '@/component
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  getHandgripStatus,
   getChairStandStatus,
   getTUGStatus,
   getSPPBStatus,
   getSPPBTotal,
 } from '@/lib/clinical-utils'
+import { cn } from '@/lib/utils'
+import { calculateAge } from '@/lib/patient-utils'
+import { getHandgripPercentile } from '@/constants/handgripNorms'
 import type { StepProps, MuscleStrengthData, BalanceAssessmentData } from '@/types/assessment'
+
+function HandgripInterpretation({
+  value,
+  patient,
+}: {
+  value?: number
+  patient: StepProps['patient']
+}) {
+  if (!patient?.birthDate) {
+    return <p className="text-xs text-muted-foreground">Data de nascimento não cadastrada</p>
+  }
+
+  const age = calculateAge(patient.birthDate)
+
+  if (age < 20) {
+    return (
+      <p className="text-xs text-muted-foreground">
+        Dados normativos não disponíveis para esta faixa etária
+      </p>
+    )
+  }
+
+  const cutoff = patient.gender === 'M' ? 27 : 16
+
+  if (value == null || value < 0) {
+    return <p className="text-xs text-muted-foreground">Referência: maior que {cutoff} kg</p>
+  }
+
+  const result = getHandgripPercentile(patient.gender, age, value)
+
+  return (
+    <div className="space-y-1">
+      <p className="text-xs text-muted-foreground">Referência: maior que {cutoff} kg</p>
+      {result.interpretation && (
+        <span
+          className={cn(
+            'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap',
+            result.interpretation === 'normal'
+              ? 'clinical-badge-normal'
+              : 'clinical-badge-moderate',
+          )}
+        >
+          {result.interpretation === 'normal' ? 'Normal' : 'Baixa Força Muscular'}
+        </span>
+      )}
+      {result.percentile != null && (
+        <p className="text-xs text-muted-foreground">Percentil: {result.percentile}º</p>
+      )}
+    </div>
+  )
+}
 
 export function Step6Strength({ form, patient, updateField }: StepProps) {
   const ms = form.muscleStrength
-  const gender = patient?.gender ?? 'M'
-  const max =
-    ms.handgripMax ??
-    (ms.handgripLeft != null || ms.handgripRight != null
-      ? Math.max(ms.handgripLeft ?? 0, ms.handgripRight ?? 0)
-      : undefined)
   const set = (patch: Partial<MuscleStrengthData>) =>
     updateField('muscleStrength', { ...ms, ...patch })
   return (
@@ -30,6 +77,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
             onChange={(v) => set({ handgripLeft: v })}
             step="0.1"
           />
+          <HandgripInterpretation value={ms.handgripLeft} patient={patient} />
         </StepField>
         <StepField label="Handgrip Direito (kg)">
           <NumberInput
@@ -37,23 +85,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
             onChange={(v) => set({ handgripRight: v })}
             step="0.1"
           />
-        </StepField>
-        <StepField label="Handgrip Máximo (kg)">
-          <div className="flex items-center gap-2">
-            <NumberInput
-              value={ms.handgripMax}
-              onChange={(v) => set({ handgripMax: v })}
-              step="0.1"
-            />
-            <ClinicalBadge status={getHandgripStatus(max, gender)} />
-          </div>
-        </StepField>
-        <StepField label="Percentil Handgrip (%)">
-          <NumberInput
-            value={ms.handgripPercentile}
-            onChange={(v) => set({ handgripPercentile: v })}
-            inputMode="numeric"
-          />
+          <HandgripInterpretation value={ms.handgripRight} patient={patient} />
         </StepField>
         <StepField label="Tempo Sentar-Levantar (s)">
           <div className="flex items-center gap-2">
