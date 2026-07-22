@@ -5,6 +5,7 @@ import { ResumoSparkline } from '@/components/resumo/ResumoSparkline'
 interface ResumoTableProps {
   rows: ComparativeRow[]
   hasMultiple: boolean
+  footnotes?: string[]
 }
 
 function StatusBadge({ status }: { status: MetricStatus }) {
@@ -22,7 +23,7 @@ function StatusBadge({ status }: { status: MetricStatus }) {
   )
 }
 
-export function ResumoTable({ rows, hasMultiple }: ResumoTableProps) {
+export function ResumoTable({ rows, hasMultiple, footnotes }: ResumoTableProps) {
   return (
     <section aria-label="Tabela Comparativa">
       <h2 className="text-sm font-semibold mb-2 text-primary">Tabela Comparativa de Evolução</h2>
@@ -95,6 +96,15 @@ export function ResumoTable({ rows, hasMultiple }: ResumoTableProps) {
         </table>
         <div className="resumo-scroll-fade pointer-events-none absolute right-0 top-0 bottom-0 w-8" />
       </div>
+      {footnotes && footnotes.length > 0 && (
+        <div className="mt-2 space-y-0.5">
+          {footnotes.map((note, i) => (
+            <p key={i} className="text-[0.6875rem] text-muted-foreground">
+              {note}
+            </p>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

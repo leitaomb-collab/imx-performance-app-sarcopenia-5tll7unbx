@@ -5,6 +5,7 @@ import {
   type KpiMetric,
   type MetricStatus,
   type TrendDir,
+  type HandgripCardData,
   STATUS_CONFIG,
 } from '@/lib/resumo-utils'
 
@@ -18,12 +19,17 @@ const ACCENT_COLORS: Record<MetricStatus, string> = {
   critical: 'hsl(0 84% 50%)',
 }
 
-function computeCardStatus(metrics: KpiMetric[]): MetricStatus {
+function computeCardStatus(card: KpiCard): MetricStatus {
   let hasCritical = false
   let hasAttention = false
-  for (const m of metrics) {
+  for (const m of card.metrics) {
     if (m.status === 'critical') hasCritical = true
     else if (m.status === 'attention') hasAttention = true
+  }
+  if (card.handgrip) {
+    if (card.handgrip.leftInterp === 'Força Reduzida') hasAttention = true
+    if (card.handgrip.rightInterp === 'Força Reduzida') hasAttention = true
+    if (card.handgrip.ewgsop2HasRisk) hasAttention = true
   }
   if (hasCritical) return 'critical'
   if (hasAttention) return 'attention'
@@ -82,19 +88,94 @@ function MetricItem({ metric }: { metric: KpiMetric }) {
   )
 }
 
+function HandgripCardItem({ data }: { data: HandgripCardData }) {
+  const leftSt: MetricStatus = data.leftInterp === 'Força Reduzida' ? 'attention' : 'normal'
+  const rightSt: MetricStatus = data.rightInterp === 'Força Reduzida' ? 'attention' : 'normal'
+  const ewgsop2St: MetricStatus = data.ewgsop2HasRisk ? 'attention' : 'normal'
+
+  return (
+    <div className="space-y-2 py-1">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span>
+          Esquerdo: <strong className="tabular-nums">{data.leftValue}</strong>
+        </span>
+        {data.leftInterp && (
+          <span
+            className={cn(
+              'resumo-status-pill inline-flex items-center gap-1 text-[10px] font-medium',
+              STATUS_CONFIG[leftSt].text,
+            )}
+          >
+            <span
+              className={cn(
+                'resumo-status-dot w-1.5 h-1.5 rounded-full',
+                STATUS_CONFIG[leftSt].dot,
+              )}
+            />
+            {data.leftInterp}
+          </span>
+        )}
+        <span className="text-muted-foreground">|</span>
+        <span>
+          Direito: <strong className="tabular-nums">{data.rightValue}</strong>
+        </span>
+        {data.rightInterp && (
+          <span
+            className={cn(
+              'resumo-status-pill inline-flex items-center gap-1 text-[10px] font-medium',
+              STATUS_CONFIG[rightSt].text,
+            )}
+          >
+            <span
+              className={cn(
+                'resumo-status-dot w-1.5 h-1.5 rounded-full',
+                STATUS_CONFIG[rightSt].dot,
+              )}
+            />
+            {data.rightInterp}
+          </span>
+        )}
+      </div>
+      {data.percentile && (
+        <p className="text-sm">
+          Percentil: <strong className="tabular-nums">{data.percentile}</strong>
+        </p>
+      )}
+      {data.ewgsop2Status && (
+        <p className="text-[10px]">
+          <span
+            className={cn(
+              'resumo-status-pill inline-flex items-center gap-1 font-medium',
+              STATUS_CONFIG[ewgsop2St].text,
+            )}
+          >
+            <span
+              className={cn(
+                'resumo-status-dot w-1.5 h-1.5 rounded-full',
+                STATUS_CONFIG[ewgsop2St].dot,
+              )}
+            />
+            EWGSOP2: {data.ewgsop2Status}
+          </span>
+        </p>
+      )}
+    </div>
+  )
+}
+
 export function ResumoKpiCards({ cards }: ResumoKpiCardsProps) {
   const filteredCards = cards
     .map((card) => ({
       ...card,
       metrics: card.metrics.filter((m) => m.value !== '-'),
     }))
-    .filter((card) => card.metrics.length > 0)
+    .filter((card) => card.metrics.length > 0 || !!card.handgrip)
 
   return (
     <section aria-label="Indicadores Clínicos">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredCards.map((card, index) => {
-          const cardStatus = computeCardStatus(card.metrics)
+          const cardStatus = computeCardStatus(card)
           return (
             <div
               key={card.category}
@@ -109,11 +190,15 @@ export function ResumoKpiCards({ cards }: ResumoKpiCardsProps) {
                 <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border/40">
                   <h2 className="text-sm font-semibold text-primary">{card.category}</h2>
                 </div>
-                <div className="divide-y divide-border/20">
-                  {card.metrics.map((m) => (
-                    <MetricItem key={m.name} metric={m} />
-                  ))}
-                </div>
+                {card.handgrip ? (
+                  <HandgripCardItem data={card.handgrip} />
+                ) : (
+                  <div className="divide-y divide-border/20">
+                    {card.metrics.map((m) => (
+                      <MetricItem key={m.name} metric={m} />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )

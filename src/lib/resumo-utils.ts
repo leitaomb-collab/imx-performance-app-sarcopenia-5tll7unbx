@@ -1,10 +1,11 @@
 import {
-  getEWGSOP2HandgripCutoff,
   getEWGSOP2ALMICutoff,
   getPhaseAngleCutoff,
   sortAssessmentsByDate,
   extractChartData,
 } from '@/lib/chart-utils'
+import { getHandgripPercentile } from '@/constants/handgripNorms'
+import { calculateAge } from '@/lib/patient-utils'
 
 export type MetricStatus = 'normal' | 'attention' | 'critical'
 export type TrendDir = 'up' | 'down' | 'stable'
@@ -17,10 +18,20 @@ export interface KpiMetric {
   trend: TrendDir | null
   trendPositive: boolean | null
 }
+export interface HandgripCardData {
+  leftValue: string
+  rightValue: string
+  leftInterp: 'Normal' | 'Força Reduzida' | null
+  rightInterp: 'Normal' | 'Força Reduzida' | null
+  percentile: string | null
+  ewgsop2Status: string | null
+  ewgsop2HasRisk: boolean
+}
 export interface KpiCard {
   category: string
   indicatorColor: string
   metrics: KpiMetric[]
+  handgrip?: HandgripCardData
 }
 export interface ComparativeRow {
   variable: string
@@ -47,6 +58,11 @@ export const CATEGORY_COLORS: Record<string, string> = {
   'Rastreamento de Sarcopenia': 'bg-orange-500',
   'Sinais Vitais': 'bg-red-500',
 }
+
+export const HANDGRIP_FOOTNOTES: string[] = [
+  '1. Dados normativos baseados em revisão sistemática de 2,4 milhões de adultos de 20 a 100+ anos de 69 países (ScienceDirect, 2024).',
+  '2. Pontos de corte (27 kg homens, 16 kg mulheres) do consenso EWGSOP2 (Cruz-Jentoft et al., 2019).',
+]
 
 export const STATUS_CONFIG: Record<MetricStatus, { label: string; dot: string; text: string }> = {
   normal: { label: 'Normal', dot: 'bg-green-500', text: 'text-green-700 dark:text-green-400' },
@@ -139,8 +155,37 @@ function mkMetric(
   }
 }
 
-export function buildKpiCards(cur: Data, prev: Data | null, _all: Data[], g: 'M' | 'F'): KpiCard[] {
-  const hg = getEWGSOP2HandgripCutoff(g)
+function buildHandgripCard(cur: Data, g: 'M' | 'F', birthDate: string): KpiCard {
+  const age = birthDate ? calculateAge(birthDate) : -1
+  const hgLeft = num(cur, 'muscleStrength', 'handgripLeft')
+  const hgRight = num(cur, 'muscleStrength', 'handgripRight')
+  const hgMax = num(cur, 'muscleStrength', 'handgripMax')
+  const leftR = getHandgripPercentile(g, age, hgLeft)
+  const rightR = getHandgripPercentile(g, age, hgRight)
+  const maxR = getHandgripPercentile(g, age, hgMax)
+  return {
+    category: 'Força de Preensão Manual',
+    indicatorColor: CATEGORY_COLORS['Força Muscular'],
+    metrics: [],
+    handgrip: {
+      leftValue: hgLeft != null ? `${hgLeft} kg` : 'Não registrado',
+      rightValue: hgRight != null ? `${hgRight} kg` : 'Não registrado',
+      leftInterp: leftR.interpretation,
+      rightInterp: rightR.interpretation,
+      percentile: maxR.percentile != null ? `${maxR.percentile}º` : null,
+      ewgsop2Status: maxR.ewgsop2Status,
+      ewgsop2HasRisk: maxR.ewgsop2Status?.includes('Sugestivo') ?? false,
+    },
+  }
+}
+
+export function buildKpiCards(
+  cur: Data,
+  prev: Data | null,
+  _all: Data[],
+  g: 'M' | 'F',
+  birthDate: string,
+): KpiCard[] {
   const almi = getEWGSOP2ALMICutoff(g)
   const pa = getPhaseAngleCutoff(g)
   const fMin = g === 'M' ? 10 : 18,
@@ -196,16 +241,6 @@ export function buildKpiCards(cur: Data, prev: Data | null, _all: Data[], g: 'M'
       indicatorColor: CATEGORY_COLORS['Força Muscular'],
       metrics: [
         mkMetric(
-          'Handgrip Máx',
-          cur,
-          prev,
-          ['muscleStrength', 'handgripMax'],
-          `≥${hg}kg`,
-          sMin(num(cur, 'muscleStrength', 'handgripMax'), hg),
-          false,
-          'kg',
-        ),
-        mkMetric(
           'Sentar-Levantar',
           cur,
           prev,
@@ -215,17 +250,9 @@ export function buildKpiCards(cur: Data, prev: Data | null, _all: Data[], g: 'M'
           true,
           's',
         ),
-        mkMetric(
-          'Percentil HG',
-          cur,
-          prev,
-          ['muscleStrength', 'handgripPercentile'],
-          '≥50',
-          sMin(num(cur, 'muscleStrength', 'handgripPercentile'), 50),
-          false,
-        ),
       ],
     },
+    buildHandgripCard(cur, g, birthDate),
     {
       category: 'Função Respiratória',
       indicatorColor: CATEGORY_COLORS['Função Respiratória'],
@@ -399,8 +426,8 @@ export function buildComparativeRows(
   all: Data[],
   g: 'M' | 'F',
   hasMultiple: boolean,
+  birthDate: string,
 ): ComparativeRow[] {
-  const hg = getEWGSOP2HandgripCutoff(g)
   const almi = getEWGSOP2ALMICutoff(g)
   const pa = getPhaseAngleCutoff(g)
   const fMin = g === 'M' ? 10 : 18,
@@ -424,19 +451,6 @@ export function buildComparativeRows(
       p: ['bodyComposition', 'phaseAngle'],
       r: `≥${pa}`,
       s: sMin(num(cur, 'bodyComposition', 'phaseAngle'), pa),
-    },
-    {
-      v: 'Handgrip Máx',
-      p: ['muscleStrength', 'handgripMax'],
-      r: `≥${hg}kg`,
-      s: sMin(num(cur, 'muscleStrength', 'handgripMax'), hg),
-    },
-    {
-      v: 'Percentil HG',
-      p: ['muscleStrength', 'handgripPercentile'],
-      r: '≥50',
-      s: sMin(num(cur, 'muscleStrength', 'handgripPercentile'), 50),
-      pct: true,
     },
     {
       v: 'Sentar-Levantar',
@@ -499,7 +513,7 @@ export function buildComparativeRows(
       s: sMin(num(cur, 'anthropometry', 'calfCircumference'), 34),
     },
   ]
-  return defs.map((d) => {
+  const baseRows = defs.map((d) => {
     const c = num(cur, ...d.p)
     return {
       variable: d.v,
@@ -511,6 +525,55 @@ export function buildComparativeRows(
       isFirst: !hasMultiple,
     }
   })
+
+  const age = birthDate ? calculateAge(birthDate) : -1
+  const sexLabel = g === 'M' ? 'homem' : 'mulher'
+  const hgLeft = num(cur, 'muscleStrength', 'handgripLeft')
+  const hgRight = num(cur, 'muscleStrength', 'handgripRight')
+  const hgMax = num(cur, 'muscleStrength', 'handgripMax')
+  const leftR = getHandgripPercentile(g, age, hgLeft)
+  const rightR = getHandgripPercentile(g, age, hgRight)
+  const maxR = getHandgripPercentile(g, age, hgMax)
+  const ewgsop2Cut = g === 'M' ? '27 kg (homens)' : '16 kg (mulheres)'
+
+  const hgRows: ComparativeRow[] = [
+    {
+      variable: 'Handgrip Esquerdo',
+      value: hgLeft != null ? fmtV(hgLeft, 'kg') : 'Não registrado',
+      reference:
+        leftR.p5Value != null && leftR.ageGroup
+          ? `P5: ${leftR.p5Value} kg (${leftR.ageGroup}, ${sexLabel})`
+          : 'Data de nascimento não cadastrada',
+      percentile: leftR.percentile != null ? `${leftR.percentile}º` : 'N/A',
+      status: leftR.interpretation === 'Força Reduzida' ? 'attention' : 'normal',
+      evolution: hasMultiple ? spark(all, ['muscleStrength', 'handgripLeft']) : [],
+      isFirst: !hasMultiple,
+    },
+    {
+      variable: 'Handgrip Direito',
+      value: hgRight != null ? fmtV(hgRight, 'kg') : 'Não registrado',
+      reference:
+        rightR.p5Value != null && rightR.ageGroup
+          ? `P5: ${rightR.p5Value} kg (${rightR.ageGroup}, ${sexLabel})`
+          : 'Data de nascimento não cadastrada',
+      percentile: rightR.percentile != null ? `${rightR.percentile}º` : 'N/A',
+      status: rightR.interpretation === 'Força Reduzida' ? 'attention' : 'normal',
+      evolution: hasMultiple ? spark(all, ['muscleStrength', 'handgripRight']) : [],
+      isFirst: !hasMultiple,
+    },
+    {
+      variable: 'Rastreio Sarcopenia (EWGSOP2)',
+      value: hgMax != null ? fmtV(hgMax, 'kg') : 'Não registrado',
+      reference: ewgsop2Cut,
+      percentile: 'N/A',
+      status: maxR.ewgsop2Status?.includes('Sugestivo') ? 'attention' : 'normal',
+      evolution: hasMultiple ? spark(all, ['muscleStrength', 'handgripMax']) : [],
+      isFirst: !hasMultiple,
+    },
+  ]
+
+  baseRows.splice(3, 0, ...hgRows)
+  return baseRows
 }
 
 export function computeGlobalStatus(cards: KpiCard[]): GlobalStatus {
@@ -520,6 +583,11 @@ export function computeGlobalStatus(cards: KpiCard[]): GlobalStatus {
     for (const m of card.metrics) {
       if (m.status === 'critical') hasCritical = true
       else if (m.status === 'attention') hasAttention = true
+    }
+    if (card.handgrip) {
+      if (card.handgrip.leftInterp === 'Força Reduzida') hasAttention = true
+      if (card.handgrip.rightInterp === 'Força Reduzida') hasAttention = true
+      if (card.handgrip.ewgsop2HasRisk) hasAttention = true
     }
   }
   if (hasCritical)

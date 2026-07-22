@@ -3,13 +3,15 @@ import { obj, fmt, hasData, interpRange, interpBP } from '@/lib/report-utils'
 import {
   getALMIStatus,
   getPhaseAngleStatus,
-  getHandgripStatus,
   getChairStandStatus,
   getTUGStatus,
   getSPPBStatus,
   getSPPBTotal,
   type ClinicalStatus,
 } from '@/lib/clinical-utils'
+import { getHandgripPercentile } from '@/constants/handgripNorms'
+import { calculateAge } from '@/lib/patient-utils'
+import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 
 interface Props {
@@ -41,8 +43,27 @@ export function ReportSectionsA({ assessment, patient }: Props) {
   const tempI = interpRange(v.temperature, 35, 37.5)
   const almiI = ci(getALMIStatus(bc.almi, gender))
   const paI = ci(getPhaseAngleStatus(bc.phaseAngle, gender))
-  const hgI = ci(getHandgripStatus(ms.handgripMax, gender))
   const csI = ci(getChairStandStatus(ms.chairStandTime))
+
+  const hgAge = patient?.birthDate ? calculateAge(patient.birthDate) : -1
+  const hgLeft = ms.handgripLeft as number | undefined
+  const hgRight = ms.handgripRight as number | undefined
+  const hgMax = ms.handgripMax as number | undefined
+  const leftR = getHandgripPercentile(gender, hgAge, hgLeft)
+  const rightR = getHandgripPercentile(gender, hgAge, hgRight)
+  const maxR = getHandgripPercentile(gender, hgAge, hgMax)
+  const sexLabel = gender === 'M' ? 'homem' : 'mulher'
+  const hasNormative = leftR.p5Value != null && leftR.ageGroup != null
+  const bothNormal = leftR.interpretation === 'Normal' && rightR.interpretation === 'Normal'
+  const anyReduced =
+    leftR.interpretation === 'Força Reduzida' || rightR.interpretation === 'Força Reduzida'
+  const clinicalParagraph = !hasNormative
+    ? 'Data de nascimento não cadastrada. Não foi possível determinar os valores normativos para a faixa etária.'
+    : bothNormal
+      ? `Os valores medidos em ambas as mãos encontram-se acima do ponto de corte normativo (P5 igual a ${leftR.p5Value} kg para ${sexLabel} de ${leftR.ageGroup}), configurando força muscular preservada para a faixa etária e o sexo.`
+      : anyReduced
+        ? `O valor medido encontra-se abaixo do ponto de corte normativo (P5 igual a ${leftR.p5Value} kg para ${sexLabel} de ${leftR.ageGroup}), sugerindo força reduzida para a faixa etária e o sexo.`
+        : null
   const tugI = ci(getTUGStatus(ba.tugSimple), 'Normal', 'Alterada', 'blue')
   const sppbTotal = getSPPBTotal(ba.sppbBalance, ba.sppbGait, ba.sppbChair)
   const sppbI = ci(getSPPBStatus(sppbTotal))
@@ -133,22 +154,108 @@ export function ReportSectionsA({ assessment, patient }: Props) {
       <SectionBlock number={3} title="Força Muscular">
         {hasData(ms) ? (
           <>
-            <SubSection title="Handgrip (Preensão Manual)">
-              <ReportTable
-                rows={[
-                  { label: 'Força Direita', value: fmt(ms.handgripRight, 'kgf') },
-                  { label: 'Força Esquerda', value: fmt(ms.handgripLeft, 'kgf') },
-                  {
-                    label: 'Força Máxima',
-                    value: fmt(ms.handgripMax, 'kgf'),
-                    ref: gender === 'M' ? '≥ 27 kgf' : '≥ 16 kgf',
-                    interp: hgI?.text,
-                    interpClass: hgI?.cls,
-                  },
-                  { label: 'Percentil', value: fmt(ms.handgripPercentile, '%') },
-                ]}
-              />
-            </SubSection>
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-2">
+                <span className="report-subsection-marker shrink-0" />
+                Força de Preensão Manual (Handgrip)
+              </h4>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  1. Valores Medidos
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="border border-border/60 rounded-md p-3 break-inside-avoid">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">Handgrip Esquerdo</span>
+                      <span className="text-sm font-bold tabular-nums">
+                        {hgLeft != null ? `${hgLeft} kg` : 'Não registrado'}
+                      </span>
+                    </div>
+                    {leftR.interpretation && (
+                      <span
+                        className={cn(
+                          'inline-flex items-center px-2.5 py-0.5 text-xs font-bold',
+                          leftR.interpretation === 'Normal'
+                            ? 'clinical-badge-normal'
+                            : 'clinical-badge-moderate',
+                        )}
+                      >
+                        {leftR.interpretation}
+                      </span>
+                    )}
+                  </div>
+                  <div className="border border-border/60 rounded-md p-3 break-inside-avoid">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">Handgrip Direito</span>
+                      <span className="text-sm font-bold tabular-nums">
+                        {hgRight != null ? `${hgRight} kg` : 'Não registrado'}
+                      </span>
+                    </div>
+                    {rightR.interpretation && (
+                      <span
+                        className={cn(
+                          'inline-flex items-center px-2.5 py-0.5 text-xs font-bold',
+                          rightR.interpretation === 'Normal'
+                            ? 'clinical-badge-normal'
+                            : 'clinical-badge-moderate',
+                        )}
+                      >
+                        {rightR.interpretation}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {maxR.percentile != null && (
+                  <p className="text-sm mt-2">
+                    Percentil:{' '}
+                    <span className="font-semibold tabular-nums">{maxR.percentile}º</span>
+                  </p>
+                )}
+                {clinicalParagraph && (
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                    {clinicalParagraph}
+                  </p>
+                )}
+              </div>
+              <div className="pt-4 border-t border-border/40 break-inside-avoid">
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  2. Rastreio de Sarcopenia (EWGSOP2)
+                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <span className="text-sm">
+                    Valor medido:{' '}
+                    <strong className="tabular-nums">
+                      {hgMax != null ? `${hgMax} kg` : 'Não registrado'}
+                    </strong>
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    Limite diagnóstico: {gender === 'M' ? '27 kg (homens)' : '16 kg (mulheres)'}
+                  </span>
+                  {maxR.ewgsop2Status && (
+                    <span
+                      className={cn(
+                        'inline-flex items-center px-2.5 py-0.5 text-xs font-bold',
+                        maxR.ewgsop2Status.includes('Sugestivo')
+                          ? 'clinical-badge-moderate'
+                          : 'clinical-badge-normal',
+                      )}
+                    >
+                      {maxR.ewgsop2Status}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="pt-3 border-t border-border/20 break-inside-avoid">
+                <p className="text-[0.6875rem] text-muted-foreground">
+                  1. Dados normativos baseados em revisão sistemática de 2,4 milhões de adultos de
+                  20 a 100+ anos de 69 países (ScienceDirect, 2024).
+                </p>
+                <p className="text-[0.6875rem] text-muted-foreground">
+                  2. Pontos de corte (27 kg homens, 16 kg mulheres) do consenso EWGSOP2
+                  (Cruz-Jentoft et al., 2019).
+                </p>
+              </div>
+            </div>
             <SubSection title="Levantar da Cadeira (5 repetições)">
               <ReportTable
                 rows={[

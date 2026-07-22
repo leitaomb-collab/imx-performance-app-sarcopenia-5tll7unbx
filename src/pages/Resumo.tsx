@@ -6,7 +6,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Printer, Loader2, FileX, AlertCircle, ArrowLeft } from 'lucide-react'
 import { usePrintStyles } from '@/hooks/use-print-styles'
 import { useResumoData } from '@/hooks/use-resumo-data'
-import { buildKpiCards, buildComparativeRows, computeGlobalStatus } from '@/lib/resumo-utils'
+import {
+  buildKpiCards,
+  buildComparativeRows,
+  computeGlobalStatus,
+  HANDGRIP_FOOTNOTES,
+} from '@/lib/resumo-utils'
 import { ResumoKpiCards } from '@/components/resumo/ResumoKpiCards'
 import { ResumoTable } from '@/components/resumo/ResumoTable'
 import { ResumoSkeleton } from '@/components/resumo/ResumoSkeleton'
@@ -45,6 +50,7 @@ export default function Resumo() {
       (prevAssessment ?? null) as unknown as Record<string, unknown> | null,
       allAssessments as unknown as Record<string, unknown>[],
       patient.gender,
+      patient.birthDate,
     )
   }, [assessment, patient, prevAssessment, allAssessments])
 
@@ -55,6 +61,7 @@ export default function Resumo() {
       allAssessments as unknown as Record<string, unknown>[],
       patient.gender,
       allAssessments.length > 1,
+      patient.birthDate,
     )
   }, [assessment, patient, allAssessments])
 
@@ -176,7 +183,11 @@ export default function Resumo() {
 
         <ResumoKpiCards cards={kpiCards} />
 
-        <ResumoTable rows={tableRows} hasMultiple={allAssessments.length > 1} />
+        <ResumoTable
+          rows={tableRows}
+          hasMultiple={allAssessments.length > 1}
+          footnotes={HANDGRIP_FOOTNOTES}
+        />
 
         <footer className="resumo-footer text-center text-xs text-muted-foreground pt-4 border-t border-border break-inside-avoid">
           <p className="font-semibold">IEMEX Performance</p>
