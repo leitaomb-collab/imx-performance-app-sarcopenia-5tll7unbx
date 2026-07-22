@@ -9,7 +9,7 @@ import {
 } from '@/lib/clinical-utils'
 import { cn } from '@/lib/utils'
 import { calculateAge } from '@/lib/patient-utils'
-import { getHandgripPercentile } from '@/constants/handgripNorms'
+import { getHandgripPercentile, getHandgripNorms } from '@/constants/handgripNorms'
 import type { StepProps, MuscleStrengthData, BalanceAssessmentData } from '@/types/assessment'
 
 function HandgripInterpretation({
@@ -19,46 +19,85 @@ function HandgripInterpretation({
   value?: number
   patient: StepProps['patient']
 }) {
+  const sex = patient?.gender === 'F' ? 'F' : 'M'
+  const sexKnown = patient?.gender === 'M' || patient?.gender === 'F'
+  const sexLabel = sex === 'M' ? 'homem' : 'mulher'
+  const cutoff = sex === 'M' ? 27 : 16
+
+  const citation = (
+    <p className="text-[0.625rem] text-muted-foreground/70">
+      Valores normativos: estudo internacional com 2,4 milhões de adultos de 69 países (2024).
+      Cutoff de sarcopenia: consenso EWGSOP2 (2019).
+    </p>
+  )
+
   if (!patient?.birthDate) {
-    return <p className="text-xs text-muted-foreground">Data de nascimento não cadastrada</p>
-  }
-
-  const age = calculateAge(patient.birthDate)
-
-  if (age < 20) {
     return (
-      <p className="text-xs text-muted-foreground">
-        Dados normativos não disponíveis para esta faixa etária
-      </p>
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground">Data de nascimento não cadastrada</p>
+        {sexKnown && citation}
+      </div>
     )
   }
 
-  const cutoff = patient.gender === 'M' ? 27 : 16
-
-  if (value == null || value < 0) {
-    return <p className="text-xs text-muted-foreground">Referência: maior que {cutoff} kg</p>
-  }
-
-  const result = getHandgripPercentile(patient.gender, age, value)
+  const age = calculateAge(patient.birthDate)
+  const hasValue = value != null && !isNaN(value) && value >= 0
+  const result = hasValue ? getHandgripPercentile(sex, age, value) : null
+  const norms = getHandgripNorms(sex, age)
+  const noNorms = !norms.ageGroup
 
   return (
     <div className="space-y-1">
-      <p className="text-xs text-muted-foreground">Referência: maior que {cutoff} kg</p>
-      {result.interpretation && (
+      {noNorms ? (
+        <p className="text-xs text-muted-foreground">
+          Dados normativos não disponíveis para esta faixa etária
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Referência para {sexLabel} de {norms.ageGroup}: normal acima de {norms.p5Value} kg (P5 da
+          população)
+        </p>
+      )}
+
+      {result?.percentile != null && (
+        <p className="text-xs text-muted-foreground">Percentil: {result.percentile}º</p>
+      )}
+
+      {result?.interpretation && (
         <span
           className={cn(
             'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap',
-            result.interpretation === 'normal'
+            result.interpretation === 'Normal'
               ? 'clinical-badge-normal'
               : 'clinical-badge-moderate',
           )}
         >
-          {result.interpretation === 'normal' ? 'Normal' : 'Baixa Força Muscular'}
+          {result.interpretation === 'Normal' ? 'Normal' : 'Força Reduzida'}
         </span>
       )}
-      {result.percentile != null && (
-        <p className="text-xs text-muted-foreground">Percentil: {result.percentile}º</p>
+
+      {hasValue && result?.ewgsop2Status && (
+        <div className="pt-1.5 mt-1 border-t space-y-0.5">
+          <p className="text-xs font-medium text-muted-foreground">
+            Rastreio de sarcopenia (EWGSOP2)
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Limite: {cutoff} kg para {sex === 'M' ? 'homens' : 'mulheres'}
+          </p>
+          <span
+            className={cn(
+              'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap',
+              result.ewgsop2Status === 'Sem indicativo de sarcopenia'
+                ? 'clinical-badge-normal'
+                : 'clinical-badge-moderate',
+            )}
+          >
+            {result.ewgsop2Status}
+          </span>
+        </div>
       )}
+
+      {sexKnown && citation}
     </div>
   )
 }
