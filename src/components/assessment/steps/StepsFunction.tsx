@@ -101,14 +101,14 @@ function ConsolidatedHandgripInfo({
         </p>
       )}
 
-      {hasMaxValue && result?.ewgsop2Status && (
-        <div className="pt-2 border-t border-border/50 space-y-1">
-          <p className="text-xs font-medium text-muted-foreground">
-            2. Rastreio de sarcopenia (EWGSOP2)
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Limite: {cutoff} kg para {sex === 'M' ? 'homens' : 'mulheres'}
-          </p>
+      <div className="pt-2 border-t border-border/50 space-y-1">
+        <p className="text-xs font-medium text-muted-foreground">
+          2. Rastreio de sarcopenia (EWGSOP2)
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Limite: {cutoff} kg para {sex === 'M' ? 'homens' : 'mulheres'}
+        </p>
+        {hasMaxValue && result?.ewgsop2Status && (
           <span
             className={cn(
               'inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold whitespace-nowrap',
@@ -119,8 +119,8 @@ function ConsolidatedHandgripInfo({
           >
             {result.ewgsop2Status}
           </span>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="pt-2 border-t border-border/50">{citation}</div>
     </div>
