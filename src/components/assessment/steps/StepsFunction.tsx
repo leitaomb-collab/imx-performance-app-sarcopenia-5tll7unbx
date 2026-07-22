@@ -12,57 +12,24 @@ import { calculateAge } from '@/lib/patient-utils'
 import { getHandgripPercentile, getHandgripNorms } from '@/constants/handgripNorms'
 import type { StepProps, MuscleStrengthData, BalanceAssessmentData } from '@/types/assessment'
 
-function HandgripInterpretation({
+function HandgripFieldFeedback({
   value,
   patient,
 }: {
   value?: number
   patient: StepProps['patient']
 }) {
-  const sex = patient?.gender === 'F' ? 'F' : 'M'
-  const sexKnown = patient?.gender === 'M' || patient?.gender === 'F'
-  const sexLabel = sex === 'M' ? 'homem' : 'mulher'
-  const cutoff = sex === 'M' ? 27 : 16
+  if (!patient?.birthDate) return null
 
-  const citation = (
-    <p className="text-[0.625rem] text-muted-foreground/70">
-      Valores normativos: estudo internacional com 2,4 milhões de adultos de 69 países (2024).
-      Cutoff de sarcopenia: consenso EWGSOP2 (2019).
-    </p>
-  )
-
-  if (!patient?.birthDate) {
-    return (
-      <div className="space-y-1">
-        <p className="text-xs text-muted-foreground">Data de nascimento não cadastrada</p>
-        {sexKnown && citation}
-      </div>
-    )
-  }
-
+  const sex = patient.gender === 'F' ? 'F' : 'M'
   const age = calculateAge(patient.birthDate)
   const hasValue = value != null && !isNaN(value) && value >= 0
   const result = hasValue ? getHandgripPercentile(sex, age, value) : null
-  const norms = getHandgripNorms(sex, age)
-  const noNorms = !norms.ageGroup
+
+  if (!result?.interpretation && result?.percentile == null) return null
 
   return (
-    <div className="space-y-1">
-      {noNorms ? (
-        <p className="text-xs text-muted-foreground">
-          Dados normativos não disponíveis para esta faixa etária
-        </p>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          Referência para {sexLabel} de {norms.ageGroup}: normal acima de {norms.p5Value} kg (P5 da
-          população)
-        </p>
-      )}
-
-      {result?.percentile != null && (
-        <p className="text-xs text-muted-foreground">Percentil: {result.percentile}º</p>
-      )}
-
+    <div className="flex items-center gap-2">
       {result?.interpretation && (
         <span
           className={cn(
@@ -75,9 +42,67 @@ function HandgripInterpretation({
           {result.interpretation === 'Normal' ? 'Normal' : 'Força Reduzida'}
         </span>
       )}
+      {result?.percentile != null && (
+        <span className="text-xs text-muted-foreground">Percentil: {result.percentile}º</span>
+      )}
+    </div>
+  )
+}
 
-      {hasValue && result?.ewgsop2Status && (
-        <div className="pt-1.5 mt-1 border-t space-y-0.5">
+function ConsolidatedHandgripInfo({
+  leftValue,
+  rightValue,
+  patient,
+}: {
+  leftValue?: number
+  rightValue?: number
+  patient: StepProps['patient']
+}) {
+  const sex = patient?.gender === 'F' ? 'F' : 'M'
+  const sexLabel = sex === 'M' ? 'homem' : 'mulher'
+  const cutoff = sex === 'M' ? 27 : 16
+
+  const citation = (
+    <p className="text-[0.625rem] text-muted-foreground/70">
+      Valores normativos: estudo internacional com 2,4 milhões de adultos de 69 países (2024).
+      Cutoff de sarcopenia: consenso EWGSOP2 (2019).
+    </p>
+  )
+
+  if (!patient?.birthDate) {
+    return (
+      <div className="rounded-lg bg-muted/30 p-3 space-y-2">
+        <p className="text-xs text-muted-foreground">Data de nascimento não cadastrada</p>
+        <div className="pt-2 border-t border-border/50">{citation}</div>
+      </div>
+    )
+  }
+
+  const age = calculateAge(patient.birthDate)
+  const hasLeft = leftValue != null && !isNaN(leftValue) && leftValue >= 0
+  const hasRight = rightValue != null && !isNaN(rightValue) && rightValue >= 0
+  const hasMaxValue = hasLeft || hasRight
+  const maxValue = Math.max(leftValue ?? 0, rightValue ?? 0)
+
+  const result = hasMaxValue ? getHandgripPercentile(sex, age, maxValue) : null
+  const norms = getHandgripNorms(sex, age)
+  const noNorms = !norms.ageGroup
+
+  return (
+    <div className="rounded-lg bg-muted/30 p-3 space-y-2">
+      {noNorms ? (
+        <p className="text-xs text-muted-foreground">
+          Dados normativos não disponíveis para esta faixa etária
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Referência para {sexLabel} de {norms.ageGroup}: normal acima de {norms.p5Value} kg (P5 da
+          população)
+        </p>
+      )}
+
+      {hasMaxValue && result?.ewgsop2Status && (
+        <div className="pt-2 border-t border-border/50 space-y-1">
           <p className="text-xs font-medium text-muted-foreground">
             Rastreio de sarcopenia (EWGSOP2)
           </p>
@@ -97,7 +122,7 @@ function HandgripInterpretation({
         </div>
       )}
 
-      {sexKnown && citation}
+      <div className="pt-2 border-t border-border/50">{citation}</div>
     </div>
   )
 }
@@ -116,7 +141,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
             onChange={(v) => set({ handgripLeft: v })}
             step="0.1"
           />
-          <HandgripInterpretation value={ms.handgripLeft} patient={patient} />
+          <HandgripFieldFeedback value={ms.handgripLeft} patient={patient} />
         </StepField>
         <StepField label="Handgrip Direito (kg)">
           <NumberInput
@@ -124,8 +149,15 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
             onChange={(v) => set({ handgripRight: v })}
             step="0.1"
           />
-          <HandgripInterpretation value={ms.handgripRight} patient={patient} />
+          <HandgripFieldFeedback value={ms.handgripRight} patient={patient} />
         </StepField>
+      </div>
+      <ConsolidatedHandgripInfo
+        leftValue={ms.handgripLeft}
+        rightValue={ms.handgripRight}
+        patient={patient}
+      />
+      <div className="grid md:grid-cols-2 gap-4">
         <StepField label="Tempo Sentar-Levantar (s)">
           <div className="flex items-center gap-2">
             <NumberInput
