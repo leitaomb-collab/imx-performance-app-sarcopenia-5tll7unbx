@@ -19,23 +19,35 @@ export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
       <SectionTitle title="Bioimpedância" />
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="Massa Magra (kg)">
-          <NumberInput value={bc.leanMass} onChange={(v) => set({ leanMass: v })} step="0.1" />
+          <NumberInput
+            value={bc.leanMass}
+            onChange={(v) => set({ leanMass: v })}
+            step="0.1"
+            inputMode="decimal"
+          />
         </StepField>
         <StepField label="Massa Muscular Esquelética (kg)">
           <NumberInput
             value={bc.skeletalMuscleMass}
             onChange={(v) => set({ skeletalMuscleMass: v })}
             step="0.1"
+            inputMode="decimal"
           />
         </StepField>
         <StepField label="Massa Gorda (kg)">
-          <NumberInput value={bc.fatMass} onChange={(v) => set({ fatMass: v })} step="0.1" />
+          <NumberInput
+            value={bc.fatMass}
+            onChange={(v) => set({ fatMass: v })}
+            step="0.1"
+            inputMode="decimal"
+          />
         </StepField>
         <StepField label="% Gordura">
           <NumberInput
             value={bc.fatPercentage}
             onChange={(v) => set({ fatPercentage: v })}
             step="0.1"
+            inputMode="decimal"
           />
         </StepField>
         <StepField label="Massa Muscular Apendicular (kg)">
@@ -43,11 +55,17 @@ export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
             value={bc.appendicularMuscleMass}
             onChange={(v) => set({ appendicularMuscleMass: v })}
             step="0.1"
+            inputMode="decimal"
           />
         </StepField>
         <StepField label="ALMI (kg/m²)">
           <div className="flex items-center gap-2">
-            <NumberInput value={bc.almi} onChange={(v) => set({ almi: v })} step="0.01" />
+            <NumberInput
+              value={bc.almi}
+              onChange={(v) => set({ almi: v })}
+              step="0.01"
+              inputMode="decimal"
+            />
             <ClinicalBadge status={getALMIStatus(bc.almi, gender)} />
           </div>
         </StepField>
@@ -57,6 +75,7 @@ export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
               value={bc.phaseAngle}
               onChange={(v) => set({ phaseAngle: v })}
               step="0.1"
+              inputMode="decimal"
             />
             <ClinicalBadge status={getPhaseAngleStatus(bc.phaseAngle, gender)} />
           </div>
@@ -66,6 +85,7 @@ export function Step3Bioimpedance({ form, patient, updateField }: StepProps) {
             value={bc.totalBodyWater}
             onChange={(v) => set({ totalBodyWater: v })}
             step="0.1"
+            inputMode="decimal"
           />
         </StepField>
         <StepField label="Taxa Metabólica Basal (kcal)">

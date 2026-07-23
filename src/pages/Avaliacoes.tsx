@@ -65,7 +65,7 @@ export default function Avaliacoes() {
                   <TableCell>{av.expand?.paciente?.name}</TableCell>
                   <TableCell>{av.tipo}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" asChild>
+                    <Button variant="ghost" size="sm" asChild className="min-h-[44px]">
                       <Link to={`/avaliacao/${av.id}`}>
                         Visualizar <ChevronRight className="ml-2 h-4 w-4" />
                       </Link>

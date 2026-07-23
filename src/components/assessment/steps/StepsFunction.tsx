@@ -140,6 +140,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
             value={ms.handgripLeft}
             onChange={(v) => set({ handgripLeft: v })}
             step="0.1"
+            inputMode="decimal"
           />
           <HandgripFieldFeedback value={ms.handgripLeft} patient={patient} />
         </StepField>
@@ -148,6 +149,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
             value={ms.handgripRight}
             onChange={(v) => set({ handgripRight: v })}
             step="0.1"
+            inputMode="decimal"
           />
           <HandgripFieldFeedback value={ms.handgripRight} patient={patient} />
         </StepField>
@@ -164,6 +166,7 @@ export function Step6Strength({ form, patient, updateField }: StepProps) {
               value={ms.chairStandTime}
               onChange={(v) => set({ chairStandTime: v })}
               step="0.1"
+              inputMode="decimal"
             />
             <ClinicalBadge status={getChairStandStatus(ms.chairStandTime)} />
           </div>
@@ -187,7 +190,12 @@ export function Step7Balance({ form, updateField }: StepProps) {
       <div className="grid md:grid-cols-2 gap-4">
         <StepField label="TUG Simples (s)">
           <div className="flex items-center gap-2">
-            <NumberInput value={ba.tugSimple} onChange={(v) => set({ tugSimple: v })} step="0.1" />
+            <NumberInput
+              value={ba.tugSimple}
+              onChange={(v) => set({ tugSimple: v })}
+              step="0.1"
+              inputMode="decimal"
+            />
             <ClinicalBadge status={getTUGStatus(ba.tugSimple)} variant="tug" />
           </div>
         </StepField>
@@ -196,6 +204,7 @@ export function Step7Balance({ form, updateField }: StepProps) {
             value={ba.tugDualTask}
             onChange={(v) => set({ tugDualTask: v })}
             step="0.1"
+            inputMode="decimal"
           />
         </StepField>
       </div>

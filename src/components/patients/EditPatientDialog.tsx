@@ -174,7 +174,7 @@ export function EditPatientDialog({
               </p>
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="edit-weight">Peso (kg)</Label>
               <Input
@@ -183,8 +183,10 @@ export function EditPatientDialog({
                 min={0}
                 max={500}
                 step={0.1}
+                inputMode="decimal"
                 value={form.weight}
                 onChange={(e) => updateForm('weight', e.target.value)}
+                className="h-11"
               />
             </div>
             <div className="space-y-2">
@@ -195,8 +197,10 @@ export function EditPatientDialog({
                 min={0.5}
                 max={2.5}
                 step={0.01}
+                inputMode="decimal"
                 value={form.height}
                 onChange={(e) => updateForm('height', e.target.value)}
+                className="h-11"
               />
             </div>
           </div>
@@ -219,7 +223,7 @@ export function EditPatientDialog({
             />
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="min-h-[44px]">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Salvar Alterações
             </Button>

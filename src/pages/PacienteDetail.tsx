@@ -13,6 +13,7 @@ import { ptBR } from 'date-fns/locale'
 import { useToast } from '@/hooks/use-toast'
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart'
+import { createChartDot } from '@/components/dashboard/chart-dot'
 
 export default function PacienteDetail() {
   const { id } = useParams()
@@ -62,9 +63,7 @@ export default function PacienteDetail() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{paciente.name}</h1>
-          <p className="text-muted-foreground">
-            {paciente.gender} • {paciente.email || 'Sem email'} • {paciente.phone || 'Sem telefone'}
-          </p>
+          <p className="text-muted-foreground">{paciente.gender}</p>{' '}
         </div>
         <Button asChild>
           <Link to={`/avaliacao/nova?pacienteId=${paciente.id}`}>
@@ -130,7 +129,7 @@ export default function PacienteDetail() {
                           dataKey="score"
                           stroke="var(--color-score)"
                           strokeWidth={2}
-                          dot={{ r: 4 }}
+                          dot={createChartDot()}
                           activeDot={{ r: 6 }}
                         />
                       </LineChart>

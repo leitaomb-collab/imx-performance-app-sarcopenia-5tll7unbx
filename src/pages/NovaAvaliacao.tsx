@@ -88,7 +88,7 @@ export default function NovaAvaliacao() {
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Tipo de Teste</Label>
                 <Select
@@ -117,7 +117,7 @@ export default function NovaAvaliacao() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border p-4 rounded-md bg-muted/20">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border p-4 rounded-md bg-muted/20">
               <div className="col-span-2">
                 <Label className="text-base font-semibold">Métricas (Exemplo)</Label>
               </div>
@@ -126,8 +126,10 @@ export default function NovaAvaliacao() {
                 <Input
                   type="number"
                   step="0.1"
+                  inputMode="decimal"
                   value={formData.force}
                   onChange={(e) => setFormData({ ...formData, force: e.target.value })}
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -135,8 +137,10 @@ export default function NovaAvaliacao() {
                 <Input
                   type="number"
                   step="0.1"
+                  inputMode="decimal"
                   value={formData.height}
                   onChange={(e) => setFormData({ ...formData, height: e.target.value })}
+                  className="h-11"
                 />
               </div>
             </div>
@@ -151,10 +155,17 @@ export default function NovaAvaliacao() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" type="button" onClick={() => navigate(-1)}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => navigate(-1)}
+              className="min-h-[44px]"
+            >
               Cancelar
             </Button>
-            <Button type="submit">Salvar Avaliação</Button>
+            <Button type="submit" className="min-h-[44px]">
+              Salvar Avaliação
+            </Button>
           </CardFooter>
         </form>
       </Card>

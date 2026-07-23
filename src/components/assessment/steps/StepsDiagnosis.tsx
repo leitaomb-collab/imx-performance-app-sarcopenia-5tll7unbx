@@ -209,7 +209,7 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
         </p>
       )}
       <RadioGroup value={ea.diagnosis ?? form.finalDiagnosis} onValueChange={setDiagnosis}>
-        <div className="grid md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {DIAG_OPTS.map((opt) => {
             const isSelected = (ea.diagnosis ?? form.finalDiagnosis) === opt.value
             const isGrave = opt.value === 'sarcopenia_grave'
