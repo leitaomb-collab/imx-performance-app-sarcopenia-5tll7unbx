@@ -42,7 +42,7 @@ export default function Layout() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const routeKey = location.pathname.split('/')[1] || 'dashboard'
-  usePageTitle(ROUTE_TITLES[routeKey] || 'IMX Performance')
+  usePageTitle(ROUTE_TITLES[routeKey] || 'IEMEX Performance')
 
   useEffect(() => {
     setSupportsVT('startViewTransition' in document)
@@ -96,7 +96,7 @@ export default function Layout() {
       <aside className="layout-sidebar app-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
         <div className="p-6 pb-2">
           <div className="text-2xl font-bold text-primary tracking-tight" role="banner">
-            IMX<span className="text-foreground font-semibold">Performance</span>
+            IEMEX<span className="text-foreground font-semibold">Performance</span>
           </div>
         </div>
         <div className="flex-1 px-4">
@@ -130,7 +130,7 @@ export default function Layout() {
               >
                 <div className="p-6 pb-2">
                   <div className="text-2xl font-bold text-primary tracking-tight" role="banner">
-                    IMX<span className="text-foreground font-semibold">Perf</span>
+                    IEMEX<span className="text-foreground font-semibold">Perf</span>
                   </div>
                 </div>
                 <div className="px-4">
@@ -209,7 +209,7 @@ export default function Layout() {
           className="border-t px-4 md:px-8 py-3 text-center text-xs text-muted-foreground"
           style={{ paddingBottom: 'max(0.75rem, var(--sab))' }}
         >
-          © {new Date().getFullYear()} IMX Performance
+          © {new Date().getFullYear()} IEMEX Performance
         </footer>
       </div>
       <SrAnnouncer />

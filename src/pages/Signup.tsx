@@ -57,7 +57,7 @@ export default function Signup() {
     <div className="flex h-screen items-center justify-center bg-secondary/30 p-4">
       <Card className="w-full max-w-md shadow-elevation border-0">
         <CardHeader className="space-y-1 text-center">
-          <h1 className="text-3xl font-bold text-primary mb-2">IMX Performance</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">IEMEX Performance</h1>
           <CardTitle className="text-2xl">Criar Nova Conta</CardTitle>
           <CardDescription>Cadastre-se para gerenciar seus pacientes</CardDescription>
         </CardHeader>
