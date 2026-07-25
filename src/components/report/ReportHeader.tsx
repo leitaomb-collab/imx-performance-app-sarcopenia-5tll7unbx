@@ -31,12 +31,12 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
   return (
     <header className="report-header break-inside-avoid mb-6">
       <div className="report-institution-header p-6 rounded-t-lg">
-        <h1 className="report-institution-name">IMX Performance</h1>
+        <h1 className="report-institution-name">IEMEX Performance</h1>
         <p className="report-institution-subtitle">
-          Relatório de Avaliação Funcional e Nutricional Geriátrica
+          Relatório de Avaliação Funcional - Protocolo de Monitoramento de Sarcopenia
         </p>
         <p className="report-institution-protocol">
-          Protocolo de Monitoramento de Sarcopenia e Risco de Quedas
+          Avaliação funcional e monitoramento de sarcopenia
         </p>
       </div>
       <div className="border border-t-0 border-border rounded-b-lg p-6 space-y-4">

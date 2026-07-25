@@ -202,7 +202,7 @@ export default function Report() {
           <footer className="mt-8 pt-6 border-t border-border/60 text-center text-xs text-muted-foreground break-inside-avoid">
             <p>{formatDateCuritibaBR(new Date().toISOString())}</p>
             <p className="mt-1">
-              IMX Performance — Protocolo de Monitoramento de Sarcopenia e Risco de Quedas
+              IEMEX Performance — Avaliação funcional e monitoramento de sarcopenia
             </p>
             {evaluator && <p className="mt-1">Avaliador: {evaluator.name}</p>}
             <div className="report-footer-signature">
