@@ -28,7 +28,7 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
   return (
     <>
       <header className="text-center mb-3 break-inside-avoid">
-        <h1 className="summary-header-title text-xl font-bold text-primary">IMX Performance</h1>
+        <h1 className="summary-header-title text-xl font-bold text-primary">IEMEX Performance</h1>
         <p className="summary-header-subtitle text-sm font-semibold text-muted-foreground">
           Sumário Executivo da Avaliação Funcional
         </p>
