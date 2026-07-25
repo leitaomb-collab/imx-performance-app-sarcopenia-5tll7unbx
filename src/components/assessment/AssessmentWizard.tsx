@@ -106,7 +106,9 @@ export function AssessmentWizard({ formHook }: { formHook: ReturnType<typeof use
       </div>
 
       <div className="flex gap-6">
-        <WizardSidebar currentStep={step} onStepClick={goToStep} />
+        <div className="hidden md:block">
+          <WizardSidebar currentStep={step} onStepClick={goToStep} />
+        </div>
         <div className="flex-1 min-w-0">
           <Card className="border-0 shadow-subtle">
             <CardContent className="pt-6">

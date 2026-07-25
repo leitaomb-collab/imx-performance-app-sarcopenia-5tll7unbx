@@ -1798,6 +1798,56 @@ button.tactile:active {
   overflow-x: hidden;
 }
 
+/* ===== Mobile Touch Target Enforcement ===== */
+@media (max-width: 767px) {
+  input[type='text'],
+  input[type='email'],
+  input[type='number'],
+  input[type='tel'],
+  input[type='password'],
+  input[type='date'],
+  input[type='search'],
+  input[type='time'],
+  textarea,
+  select:not([multiple]) {
+    min-height: 44px;
+  }
+
+  .table-action-btn,
+  table button[class*='h-8'],
+  table button[class*='h-9'],
+  table button[class*='h-10'] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ===== EWGSOP2 Responsive Grid ===== */
+@media (max-width: 639px) {
+  .ewgsop2-diagnosis-grid,
+  [data-ewgsop2-grid] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ===== Two-Column Responsive Collapse ===== */
+@media (max-width: 639px) {
+  .responsive-two-col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ===== Chart Mobile Hit Area Enhancement ===== */
+@media (max-width: 767px) {
+  .recharts-wrapper {
+    padding: 6px;
+    margin: -6px;
+  }
+  .recharts-surface {
+    overflow: visible;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

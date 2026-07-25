@@ -115,7 +115,7 @@ export default function Layout() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="md:hidden mr-2 tactile"
+                  className="md:hidden mr-2 tactile min-h-[44px] min-w-[44px]"
                   aria-expanded={mobileNavOpen}
                   aria-controls="mobile-nav-sheet"
                   aria-label="Abrir menu de navegação"
@@ -148,7 +148,7 @@ export default function Layout() {
             <Button
               variant="ghost"
               size="icon"
-              className="tactile"
+              className="tactile min-h-[44px] min-w-[44px]"
               aria-label="Alternar tema escuro"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
@@ -163,7 +163,7 @@ export default function Layout() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-10 w-10 rounded-full tactile"
+                  className="relative h-10 w-10 min-h-[44px] min-w-[44px] rounded-full tactile"
                   aria-label="Menu do usuário"
                 >
                   <Avatar>
