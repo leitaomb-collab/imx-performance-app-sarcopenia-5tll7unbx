@@ -94,9 +94,16 @@ export default function Layout() {
     <div className="flex min-h-screen bg-background text-foreground animate-fade-in">
       <SkipLink />
       <aside className="layout-sidebar app-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
-        <div className="p-6 pb-2">
-          <div className="text-2xl font-bold text-primary tracking-tight" role="banner">
-            IEMEX<span className="text-foreground font-semibold">Performance</span>
+        <div className="p-6 pb-2 flex justify-center items-center">
+          <div
+            className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1"
+            role="banner"
+          >
+            <img
+              src="/logo-iemex.png"
+              alt="IEMEX Performance"
+              className="max-h-[48px] max-w-[140px] object-contain"
+            />
           </div>
         </div>
         <div className="flex-1 px-4">
@@ -128,9 +135,16 @@ export default function Layout() {
                 className="w-64 p-0 app-sheet-content"
                 id="mobile-nav-sheet"
               >
-                <div className="p-6 pb-2">
-                  <div className="text-2xl font-bold text-primary tracking-tight" role="banner">
-                    IEMEX<span className="text-foreground font-semibold">Perf</span>
+                <div className="p-6 pb-2 flex justify-center items-center">
+                  <div
+                    className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1"
+                    role="banner"
+                  >
+                    <img
+                      src="/logo-iemex.png"
+                      alt="IEMEX Performance"
+                      className="max-h-[40px] max-w-[120px] object-contain"
+                    />
                   </div>
                 </div>
                 <div className="px-4">

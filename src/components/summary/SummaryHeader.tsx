@@ -27,8 +27,17 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
 
   return (
     <>
-      <header className="text-center mb-3 break-inside-avoid">
-        <h1 className="summary-header-title text-xl font-bold text-primary">IEMEX Performance</h1>
+      <header className="text-center mb-3 break-inside-avoid flex flex-col items-center">
+        <div className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1 mb-2">
+          <img
+            src="/logo-iemex.png"
+            alt="IEMEX Performance"
+            className="max-h-[48px] max-w-[140px] object-contain"
+          />
+        </div>
+        <h1 className="summary-header-title text-xl font-bold text-primary sr-only">
+          IEMEX Performance
+        </h1>
         <p className="summary-header-subtitle text-sm font-semibold text-muted-foreground">
           Sumário Executivo da Avaliação Funcional
         </p>

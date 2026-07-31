@@ -30,14 +30,24 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
 
   return (
     <header className="report-header break-inside-avoid mb-6">
-      <div className="report-institution-header p-6 rounded-t-lg">
-        <h1 className="report-institution-name">IEMEX Performance</h1>
-        <p className="report-institution-subtitle">
-          Relatório de Avaliação Funcional - Protocolo de Monitoramento de Sarcopenia
-        </p>
-        <p className="report-institution-protocol">
-          Avaliação funcional e monitoramento de sarcopenia
-        </p>
+      <div className="report-institution-header p-6 rounded-t-lg flex flex-col md:flex-row items-center md:items-start gap-4">
+        <div className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1 shrink-0">
+          <img
+            src="/logo-iemex.png"
+            alt="IEMEX Performance"
+            className="max-h-[56px] max-w-[160px] object-contain print:max-h-[56px]"
+            style={{ printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }}
+          />
+        </div>
+        <div className="text-center md:text-left">
+          <h1 className="report-institution-name">IEMEX Performance</h1>
+          <p className="report-institution-subtitle">
+            Relatório de Avaliação Funcional - Protocolo de Monitoramento de Sarcopenia
+          </p>
+          <p className="report-institution-protocol">
+            Avaliação funcional e monitoramento de sarcopenia
+          </p>
+        </div>
       </div>
       <div className="border border-t-0 border-border rounded-b-lg p-6 space-y-4">
         <div className="report-patient-id grid grid-cols-1 md:grid-cols-2 gap-4 p-4 text-sm">

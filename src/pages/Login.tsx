@@ -47,8 +47,17 @@ export default function Login() {
   return (
     <div className="flex h-screen items-center justify-center bg-secondary/30 p-4">
       <Card className="w-full max-w-md shadow-elevation border-0">
-        <CardHeader className="space-y-1 text-center">
-          <h1 className="text-3xl font-bold text-primary mb-2">IEMEX Performance</h1>
+        <CardHeader className="space-y-1 text-center flex flex-col items-center">
+          <div className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1 mb-1">
+            <img
+              src="/logo-iemex.png"
+              alt="IEMEX Performance"
+              className="max-h-[64px] max-w-[180px] object-contain"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-2">
+            Avaliação Funcional
+          </p>
           <CardTitle className="text-2xl">Bem-vindo de volta</CardTitle>
           <CardDescription>Entre na sua conta para continuar</CardDescription>
         </CardHeader>

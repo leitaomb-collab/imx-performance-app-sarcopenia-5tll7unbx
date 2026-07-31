@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 160" width="500" height="160">
+  <g fill="#3f4d7a">
+    <text x="15" y="92" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="84" letter-spacing="-2">IEME</text>
+    <g transform="translate(325, 12)">
+      <circle cx="42" cy="18" r="8.5" fill="#3f4d7a" />
+      <path d="M 12,28 L 68,92" stroke="#3f4d7a" stroke-width="16" stroke-linecap="round" />
+      <path d="M 68,28 L 12,92" stroke="#3f4d7a" stroke-width="16" stroke-linecap="round" />
+    </g>
+  </g>
+  <text x="250" y="140" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="28" letter-spacing="14" text-anchor="middle" fill="#3f4d7a">PERFORMANCE</text>
+</svg>
