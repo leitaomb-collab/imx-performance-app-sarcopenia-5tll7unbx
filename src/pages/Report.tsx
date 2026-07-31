@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import pb from '@/lib/pocketbase/client'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -16,18 +17,24 @@ import {
 } from 'lucide-react'
 import { BackButton } from '@/components/BackButton'
 import { ReportHeader } from '@/components/report/ReportHeader'
-import { ReportSectionsA } from '@/components/report/ReportSectionsA'
-import { ReportSectionsB } from '@/components/report/ReportSectionsB'
 import { ReportSkeleton } from '@/components/report/ReportSkeleton'
+import { Section1PatientSummary } from '@/components/report/Section1PatientSummary'
+import { Section2MuscleStrength } from '@/components/report/Section2MuscleStrength'
+import { Section3MuscleMass } from '@/components/report/Section3MuscleMass'
+import { Section4PhysicalPerformance } from '@/components/report/Section4PhysicalPerformance'
+import { Section5Diagnosis } from '@/components/report/Section5Diagnosis'
+import { Section6Recommendations } from '@/components/report/Section6Recommendations'
+import { Section7Trends } from '@/components/report/Section7Trends'
 import { FinalizeDialog } from '@/components/assessment/detail/FinalizeDialog'
 import { formatDateCuritibaBR } from '@/lib/report-utils'
 import { usePrintStyles } from '@/hooks/use-print-styles'
-import type { Patient, User } from '@/types'
+import type { Patient, User, Assessment } from '@/types'
 
 export default function Report() {
   const { id } = useParams()
   const { handlePrint } = usePrintStyles()
-  const [data, setData] = useState<Record<string, any> | null>(null)
+  const [data, setData] = useState<Record<string, unknown> | null>(null)
+  const [historical, setHistorical] = useState<Assessment[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [notFound, setNotFound] = useState(false)
@@ -42,10 +49,25 @@ export default function Report() {
       const record = await pb
         .collection('assessments')
         .getOne(id, { expand: 'patientId,evaluatorId' })
-      setData(record as Record<string, any>)
-    } catch (err: any) {
-      if (err?.status === 404) setNotFound(true)
-      else setError(true)
+      setData(record as Record<string, unknown>)
+
+      const patientId = (record as Record<string, unknown>).patientId as string
+      try {
+        const history = await pb.collection('assessments').getFullList({
+          filter: `patientId = "${patientId}"`,
+          sort: 'assessmentDate',
+        })
+        setHistorical(history as unknown as Assessment[])
+      } catch {
+        setHistorical(null)
+      }
+    } catch (err: unknown) {
+      const statusErr = err as { status?: number }
+      if (statusErr?.status === 404) setNotFound(true)
+      else {
+        setError(true)
+        toast.error('Não foi possível carregar o relatório')
+      }
     } finally {
       setLoading(false)
     }
@@ -69,9 +91,7 @@ export default function Report() {
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <FileX className="h-12 w-12 text-muted-foreground" />
         <p className="text-lg font-semibold">Avaliação não encontrada</p>
-        <Button asChild>
-          <Link to="/pacientes">Voltar para Pacientes</Link>
-        </Button>
+        <BackButton fallback="/dashboard" />
       </div>
     )
   }
@@ -89,8 +109,8 @@ export default function Report() {
     )
   }
 
-  const patient = data.expand?.patientId as Patient | null
-  const evaluator = data.expand?.evaluatorId as User | null
+  const patient = (data.expand as Record<string, unknown> | undefined)?.patientId as Patient | null
+  const evaluator = (data.expand as Record<string, unknown> | undefined)?.evaluatorId as User | null
   const isDraft = data.status === 'rascunho'
 
   if (!patient) {
@@ -188,8 +208,8 @@ export default function Report() {
       <FinalizeDialog
         open={finalizeOpen}
         onOpenChange={setFinalizeOpen}
-        assessmentId={data.id}
-        currentDiagnosis={data.finalDiagnosis || 'nao_avaliado'}
+        assessmentId={data.id as string}
+        currentDiagnosis={(data.finalDiagnosis as string) || 'nao_avaliado'}
         onSuccess={loadData}
       />
 
@@ -197,8 +217,13 @@ export default function Report() {
         <div className="report-accent-bar" />
         <div className="p-5 md:p-10 report-body">
           <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
-          <ReportSectionsA assessment={data} patient={patient} />
-          <ReportSectionsB assessment={data} patient={patient} />
+          <Section1PatientSummary assessment={data} patient={patient} />
+          <Section2MuscleStrength assessment={data} patient={patient} />
+          <Section3MuscleMass assessment={data} patient={patient} />
+          <Section4PhysicalPerformance assessment={data} />
+          <Section5Diagnosis assessment={data} patient={patient} />
+          <Section6Recommendations assessment={data} />
+          <Section7Trends historicalAssessments={historical} patient={patient} />
           <footer className="mt-8 pt-6 border-t border-border/60 text-center text-xs text-muted-foreground break-inside-avoid">
             <p>{formatDateCuritibaBR(new Date().toISOString())}</p>
             <p className="mt-1">
