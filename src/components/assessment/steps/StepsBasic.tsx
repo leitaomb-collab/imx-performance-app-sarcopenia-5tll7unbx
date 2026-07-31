@@ -13,7 +13,8 @@ import {
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { calculateAge, formatGender, calculateIMC, getIMCCategory } from '@/lib/patient-utils'
-import { Users } from 'lucide-react'
+import { Users, CalendarClock, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import type { StepProps } from '@/types/assessment'
 
 export function Step1Identification({
@@ -134,7 +135,17 @@ export function Step2Vitals({ form, updateField }: StepProps) {
   )
 }
 
-export function Step12Conclusion({ form, updateField }: StepProps) {
+export function Step12Conclusion({ form, updateField, saving }: StepProps) {
+  const calculateReassessmentDate = () => {
+    if (!form.reassessmentMonths || form.reassessmentMonths <= 0) return
+    const baseDate = new Date(form.assessmentDate + 'T00:00:00')
+    baseDate.setMonth(baseDate.getMonth() + form.reassessmentMonths)
+    const year = baseDate.getFullYear()
+    const month = String(baseDate.getMonth() + 1).padStart(2, '0')
+    const day = String(baseDate.getDate()).padStart(2, '0')
+    updateField('reassessmentDate', `${year}-${month}-${day}`)
+  }
+
   return (
     <div className="space-y-6">
       <StepSection title="Conclusão">
@@ -157,6 +168,64 @@ export function Step12Conclusion({ form, updateField }: StepProps) {
             inputMode="numeric"
           />
         </StepField>
+        <div className="space-y-2 md:col-span-2">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-medium">Recomendações de Exercício</Label>
+            {saving && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+          </div>
+          <BlurTextarea
+            aria-label="Recomendações de Exercício"
+            rows={5}
+            className="min-h-[8rem] rounded-lg text-sm"
+            value={form.exerciseRecommendations}
+            onCommit={(v) => updateField('exerciseRecommendations', v)}
+            placeholder="Sem recomendações registradas"
+            disabled={saving}
+          />
+          <p className="text-xs text-muted-foreground">
+            Orientações de treinamento de força, equilíbrio e aeróbico baseadas nos resultados
+          </p>
+        </div>
+        <div className="space-y-2 md:col-span-2">
+          <Label className="text-sm font-medium">Recomendações Nutricionais</Label>
+          <BlurTextarea
+            aria-label="Recomendações Nutricionais"
+            rows={5}
+            className="min-h-[8rem] rounded-lg text-sm"
+            value={form.nutritionRecommendations}
+            onCommit={(v) => updateField('nutritionRecommendations', v)}
+            placeholder="Sem recomendações registradas"
+            disabled={saving}
+          />
+          <p className="text-xs text-muted-foreground">
+            Sugestões de ingestão proteica e nutrientes importantes
+          </p>
+        </div>
+        <StepField
+          label="Data de Reavaliação Sugerida"
+          hint="Data sugerida para a próxima avaliação"
+        >
+          <Input
+            type="date"
+            aria-label="Data de Reavaliação Sugerida"
+            value={form.reassessmentDate ?? ''}
+            onChange={(e) => updateField('reassessmentDate', e.target.value || null)}
+            disabled={saving}
+            className="h-11 min-h-[44px] rounded-lg text-sm"
+          />
+        </StepField>
+        <div className="md:col-span-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={calculateReassessmentDate}
+            disabled={!form.reassessmentMonths || form.reassessmentMonths <= 0 || saving}
+            className="h-11 min-h-[44px]"
+          >
+            <CalendarClock className="mr-2 h-4 w-4" />
+            Calcular a partir de meses
+          </Button>
+        </div>
       </StepSection>
     </div>
   )

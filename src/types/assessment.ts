@@ -122,6 +122,9 @@ export interface AssessmentFormData {
   spirometry: SpirometryData
   sarcopeniaScreening: SarcopeniaScreeningData
   ewgsop2Analysis: EWGSOP2AnalysisData
+  exerciseRecommendations: string
+  nutritionRecommendations: string
+  reassessmentDate: string | null
 }
 
 export interface StepProps {
@@ -130,6 +133,7 @@ export interface StepProps {
   updateField: <K extends keyof AssessmentFormData>(key: K, value: AssessmentFormData[K]) => void
   patients?: Patient[]
   selectPatient?: (id: string) => void
+  saving?: boolean
 }
 
 export const DIAGNOSIS_OPTIONS = [

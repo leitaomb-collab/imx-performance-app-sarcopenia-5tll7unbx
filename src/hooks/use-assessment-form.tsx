@@ -26,6 +26,9 @@ const emptyForm: FormData = {
   spirometry: {},
   sarcopeniaScreening: {},
   ewgsop2Analysis: {},
+  exerciseRecommendations: '',
+  nutritionRecommendations: '',
+  reassessmentDate: null,
 }
 
 const DEBOUNCE_MS = 5_000
@@ -122,6 +125,9 @@ export function useAssessmentForm(patientIdParam: string | null) {
     }
 
     const data: Record<string, unknown> = { ...rest, muscleStrength: computedMs, status }
+    if (data.reassessmentDate === null || data.reassessmentDate === undefined) {
+      data.reassessmentDate = ''
+    }
     delete data.evaluatorId
     delete data.id
     if (idRef.current) {
@@ -149,6 +155,10 @@ export function useAssessmentForm(patientIdParam: string | null) {
         lastSavedRef.current = savedTime
       } catch (err) {
         console.error('Auto-save error:', err)
+        toast({
+          title: 'Não foi possível salvar as recomendações',
+          variant: 'destructive',
+        })
         setDirty(true)
       }
     }, delay)
