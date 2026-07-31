@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-25T03:47:58.111Z",
+  "generatedAt": "2026-07-31T01:57:07.826Z",
   "collections": [
     {
       "name": "users",
@@ -271,6 +271,24 @@
         {
           "name": "posturalPhotos",
           "type": "file",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "exerciseRecommendations",
+          "type": "editor",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "nutritionRecommendations",
+          "type": "editor",
+          "required": false,
+          "system": false
+        },
+        {
+          "name": "reassessmentDate",
+          "type": "date",
           "required": false,
           "system": false
         }
