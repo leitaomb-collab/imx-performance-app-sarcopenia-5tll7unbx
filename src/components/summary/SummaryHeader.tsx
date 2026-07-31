@@ -28,11 +28,11 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
   return (
     <>
       <header className="text-center mb-3 break-inside-avoid flex flex-col items-center">
-        <div className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1 mb-2">
+        <div className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1 mb-2">
           <img
             src="/logo-iemex.png"
             alt="IEMEX Performance"
-            className="max-h-[48px] max-w-[140px] object-contain"
+            className="h-10 w-auto object-contain"
           />
         </div>
         <h1 className="summary-header-title text-xl font-bold text-primary sr-only">

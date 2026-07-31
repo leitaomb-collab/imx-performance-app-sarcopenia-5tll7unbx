@@ -31,11 +31,11 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
   return (
     <header className="report-header break-inside-avoid mb-6">
       <div className="report-institution-header p-6 rounded-t-lg flex flex-col md:flex-row items-center md:items-start gap-4">
-        <div className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1 shrink-0">
+        <div className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1 shrink-0">
           <img
             src="/logo-iemex.png"
             alt="IEMEX Performance"
-            className="max-h-[56px] max-w-[160px] object-contain print:max-h-[56px]"
+            className="h-12 w-auto object-contain"
             style={{ printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }}
           />
         </div>

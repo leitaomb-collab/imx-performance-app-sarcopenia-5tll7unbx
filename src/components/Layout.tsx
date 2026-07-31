@@ -94,15 +94,15 @@ export default function Layout() {
     <div className="flex min-h-screen bg-background text-foreground animate-fade-in">
       <SkipLink />
       <aside className="layout-sidebar app-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
-        <div className="p-6 pb-2 flex justify-center items-center">
+        <div className="flex items-center justify-center py-2">
           <div
-            className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1"
+            className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1"
             role="banner"
           >
             <img
               src="/logo-iemex.png"
               alt="IEMEX Performance"
-              className="max-h-[48px] max-w-[140px] object-contain"
+              className="h-10 w-auto object-contain"
             />
           </div>
         </div>
@@ -135,15 +135,15 @@ export default function Layout() {
                 className="w-64 p-0 app-sheet-content"
                 id="mobile-nav-sheet"
               >
-                <div className="p-6 pb-2 flex justify-center items-center">
+                <div className="flex items-center justify-center py-2">
                   <div
-                    className="inline-flex items-center justify-center dark:bg-white dark:rounded-md dark:p-1"
+                    className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1"
                     role="banner"
                   >
                     <img
                       src="/logo-iemex.png"
                       alt="IEMEX Performance"
-                      className="max-h-[40px] max-w-[120px] object-contain"
+                      className="h-9 w-auto object-contain"
                     />
                   </div>
                 </div>
