@@ -213,9 +213,9 @@ export default function Report() {
         onSuccess={loadData}
       />
 
-      <div className="report-document bg-card border border-border rounded-none md:rounded-lg md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden md:my-8">
+      <div className="report-document bg-card border border-border rounded-none md:rounded-lg md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden md:my-8 animate-fade-in">
         <div className="report-accent-bar" />
-        <div className="p-5 md:p-10 report-body">
+        <div className="p-5 md:p-10 report-body space-y-8">
           <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
           <Section1PatientSummary assessment={data} patient={patient} />
           <Section2MuscleStrength assessment={data} patient={patient} />

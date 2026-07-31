@@ -2,6 +2,7 @@ import { ReportTable, SectionBlock, type ReportRow } from './ReportTable'
 import { obj, fmt, hasData, interpRange, interpBP } from '@/lib/report-utils'
 import { getSarcFTotal, getSarcCalFTotal, getSarcopeniaRisk } from '@/lib/clinical-utils'
 import { calculateAge, formatGender, formatDateBR, getDiagnosisInfo } from '@/lib/patient-utils'
+import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 
 interface Props {
@@ -82,9 +83,12 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
     if (!r) return null
     return r === 'baixo' ? 'Baixo risco' : 'Risco elevado'
   }
-  const riskCls = (r: string | null) => {
-    if (!r) return null
-    return r === 'baixo' ? 'normal' : 'moderate'
+
+  const riskPillCls = (r: string | null) => {
+    if (!r) return ''
+    return r === 'baixo'
+      ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400'
+      : 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'
   }
 
   const execSummary = diagInfo
@@ -98,29 +102,23 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
   return (
     <div aria-label="1. Resumo do Paciente" className="animate-fade-in">
       <SectionBlock number={1} title="Resumo do Paciente">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 border border-border/60 rounded-lg mb-4 break-inside-avoid">
-          <div>
-            <dt className="text-xs text-muted-foreground uppercase font-medium">Nome</dt>
-            <dd className="text-sm font-semibold">{patient?.name ?? '-'}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground uppercase font-medium">Idade</dt>
-            <dd className="text-sm font-semibold">{age != null ? `${age} anos` : '-'}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground uppercase font-medium">Sexo</dt>
-            <dd className="text-sm font-semibold">
-              {patient ? formatGender(patient.gender) : '-'}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-muted-foreground uppercase font-medium">
-              Data da Avaliação
-            </dt>
-            <dd className="text-sm font-semibold">
-              {formatDateBR(assessment.assessmentDate as string)}
-            </dd>
-          </div>
+        <div className="flex flex-wrap gap-3 mb-4 break-inside-avoid">
+          <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
+            {patient?.name ?? '-'}
+          </span>
+          {age != null && (
+            <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
+              {age} anos
+            </span>
+          )}
+          {patient && (
+            <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
+              {formatGender(patient.gender)}
+            </span>
+          )}
+          <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
+            {formatDateBR(assessment.assessmentDate as string)}
+          </span>
         </div>
 
         {hasScreening ? (
@@ -130,7 +128,10 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
               <p className="text-2xl font-bold tabular-nums">{fmt(sarcFTotal)}</p>
               {fRisk && (
                 <span
-                  className={`mt-2 inline-flex items-center px-2.5 py-0.5 text-xs font-bold clinical-badge-${riskCls(fRisk)}`}
+                  className={cn(
+                    'mt-2 inline-flex items-center px-3 py-1 text-xs font-bold rounded-full',
+                    riskPillCls(fRisk),
+                  )}
                 >
                   {riskLabel(fRisk)}
                 </span>
@@ -143,7 +144,10 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
               <p className="text-2xl font-bold tabular-nums">{fmt(sarcCalFTotal)}</p>
               {cfRisk && (
                 <span
-                  className={`mt-2 inline-flex items-center px-2.5 py-0.5 text-xs font-bold clinical-badge-${riskCls(cfRisk)}`}
+                  className={cn(
+                    'mt-2 inline-flex items-center px-3 py-1 text-xs font-bold rounded-full',
+                    riskPillCls(cfRisk),
+                  )}
                 >
                   {riskLabel(cfRisk)}
                 </span>
@@ -156,11 +160,11 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
 
         {hasVitals ? <ReportTable rows={vitalsRows} /> : <PlaceholderText />}
 
-        <div className="mt-4 p-4 bg-secondary/30 rounded-lg break-inside-avoid">
+        <div className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4 text-sm leading-relaxed break-inside-avoid">
           <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
             Resumo Executivo
           </p>
-          <p className="text-sm leading-relaxed">{execSummary}</p>
+          <p>{execSummary}</p>
         </div>
       </SectionBlock>
     </div>
@@ -169,6 +173,10 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
 
 function PlaceholderText() {
   return (
-    <p className="text-sm text-muted-foreground py-3 italic">Dados não coletados nesta avaliação</p>
+    <div className="bg-muted/30 rounded">
+      <p className="text-muted-foreground text-sm italic py-4 text-center">
+        Dados não coletados nesta avaliação
+      </p>
+    </div>
   )
 }

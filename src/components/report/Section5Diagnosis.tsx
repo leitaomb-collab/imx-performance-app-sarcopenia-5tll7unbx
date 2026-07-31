@@ -85,26 +85,41 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
   ]
 
   let diagnosisText = 'Sem sarcopenia'
-  let diagnosisCls = 'clinical-badge-normal'
+  let diagBoxCls =
+    'diag-box-none bg-green-50 border-2 border-green-300 text-green-800 dark:bg-green-950/20 dark:border-green-800 dark:text-green-400'
   if (strengthReduced && massReduced && perfReduced) {
     diagnosisText = 'Sarcopenia severa'
-    diagnosisCls = 'clinical-badge-reduced'
+    diagBoxCls =
+      'diag-box-severe bg-red-50 border-2 border-red-300 text-red-800 dark:bg-red-950/20 dark:border-red-800 dark:text-red-400'
   } else if (strengthReduced && massReduced) {
     diagnosisText = 'Sarcopenia confirmada'
-    diagnosisCls = 'clinical-badge-reduced'
+    diagBoxCls =
+      'diag-box-confirmed bg-amber-50 border-2 border-amber-300 text-amber-800 dark:bg-amber-950/20 dark:border-amber-800 dark:text-amber-400'
   } else if (strengthReduced) {
     diagnosisText = 'Sarcopenia provável'
-    diagnosisCls = 'clinical-badge-moderate'
+    diagBoxCls =
+      'diag-box-probable bg-yellow-50 border-2 border-yellow-300 text-yellow-800 dark:bg-yellow-950/20 dark:border-yellow-800 dark:text-yellow-400'
   }
 
   const tugVal = ba.tugSimple as number | undefined
   let fallRisk = 'Não avaliado'
+  let fallRiskCls = 'bg-muted text-muted-foreground'
   if (tugVal != null) {
-    if (tugVal > 12) fallRisk = 'Alto risco de quedas'
-    else if (tugVal >= 8) fallRisk = 'Risco moderado de quedas'
-    else fallRisk = 'Baixo risco de quedas'
+    if (tugVal > 12) {
+      fallRisk = 'Alto risco de quedas'
+      fallRiskCls = 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+    } else if (tugVal >= 8) {
+      fallRisk = 'Risco moderado de quedas'
+      fallRiskCls = 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'
+    } else {
+      fallRisk = 'Baixo risco de quedas'
+      fallRiskCls = 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400'
+    }
   }
-  if (sppbTotal != null && sppbTotal < 7) fallRisk = 'Alto risco de quedas'
+  if (sppbTotal != null && sppbTotal < 7) {
+    fallRisk = 'Alto risco de quedas'
+    fallRiskCls = 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+  }
 
   const hasSpirometry = hasData(sp)
 
@@ -114,35 +129,34 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
         {hasDiagData ? (
           <>
             <div className="mb-6 break-inside-avoid">
-              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
                 Algoritmo Diagnóstico EWGSOP2
               </h4>
-              <div className="flex flex-col md:flex-row md:items-stretch gap-2">
+              <div className="ewgsop2-flow flex flex-col lg:flex-row lg:items-stretch gap-2">
                 {steps.map((step, i) => (
-                  <div key={i} className="flex flex-col md:flex-row md:items-center gap-2 flex-1">
-                    <div
-                      className={cn(
-                        'flex items-center gap-2 p-3 rounded-lg border flex-1 min-w-0',
-                        step.pass
-                          ? 'border-green-300 bg-green-50 dark:bg-green-950/20'
-                          : 'border-amber-300 bg-amber-50 dark:bg-amber-950/20',
-                      )}
-                    >
-                      {step.pass ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-muted-foreground">Etapa {i + 1}</p>
-                        <p className="text-sm font-medium truncate">{step.label}</p>
-                        <p className="text-xs text-muted-foreground">{step.value}</p>
+                  <div key={i} className="flex flex-col lg:flex-row lg:items-center gap-2 flex-1">
+                    <div className="rounded-lg border p-4 flex flex-col items-center gap-2 min-w-0 flex-1">
+                      <div
+                        className={cn(
+                          'w-6 h-6 rounded-full flex items-center justify-center shrink-0',
+                          step.pass ? 'bg-green-500 text-white' : 'bg-amber-500 text-white',
+                        )}
+                      >
+                        {step.pass ? (
+                          <CheckCircle2 className="h-4 w-4" />
+                        ) : (
+                          <XCircle className="h-4 w-4" />
+                        )}
                       </div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide text-center">
+                        {step.label}
+                      </p>
+                      <p className="text-lg font-bold text-center">{step.value}</p>
                     </div>
                     {i < steps.length - 1 && (
                       <>
-                        <ChevronRight className="hidden md:block h-5 w-5 text-muted-foreground shrink-0" />
-                        <ChevronDown className="md:hidden h-5 w-5 text-muted-foreground shrink-0 self-center" />
+                        <ChevronRight className="hidden lg:block print:block h-5 w-5 text-muted-foreground shrink-0" />
+                        <ChevronDown className="lg:hidden print:hidden h-5 w-5 text-muted-foreground shrink-0 self-center" />
                       </>
                     )}
                   </div>
@@ -150,15 +164,15 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
               </div>
             </div>
 
-            <div className="mb-6 p-4 border-2 border-primary/30 bg-primary/5 rounded-lg break-inside-avoid">
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
+            <div className={cn('mb-6 rounded-lg p-4 text-center break-inside-avoid', diagBoxCls)}>
+              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
                 Diagnóstico Final
               </p>
-              <p className="text-lg font-bold">{diagnosisText}</p>
+              <p className="font-bold text-lg">{diagnosisText}</p>
             </div>
 
-            <div className="mb-6 break-inside-avoid">
-              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            <div className="border-t pt-4 mt-4 break-inside-avoid">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
                 Conclusão Clínica
               </h4>
               <div className="p-4 border border-border/60 rounded-lg bg-secondary/20">
@@ -169,16 +183,23 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
               </div>
             </div>
 
-            <div className="mb-6 break-inside-avoid">
-              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            <div className="mt-4 break-inside-avoid">
+              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
                 Risco de Quedas
               </h4>
-              <p className="text-sm">{fallRisk}</p>
+              <span
+                className={cn(
+                  'inline-flex items-center px-3 py-1 text-sm font-medium rounded-full',
+                  fallRiskCls,
+                )}
+              >
+                {fallRisk}
+              </span>
             </div>
 
             {hasSpirometry && (
-              <div className="break-inside-avoid">
-                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+              <div className="mt-4 break-inside-avoid">
+                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
                   Função Respiratória (Espirometria)
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -212,6 +233,10 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
 
 function PlaceholderText() {
   return (
-    <p className="text-sm text-muted-foreground py-3 italic">Dados não coletados nesta avaliação</p>
+    <div className="bg-muted/30 rounded">
+      <p className="text-muted-foreground text-sm italic py-4 text-center">
+        Dados não coletados nesta avaliação
+      </p>
+    </div>
   )
 }

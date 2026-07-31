@@ -519,15 +519,7 @@
   }
 
   .report-section-title {
-    font-size: 0.9375rem;
-    text-transform: uppercase;
-    font-weight: 700;
-    border-bottom: 1px solid hsl(215 20% 90%);
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-  .dark .report-section-title {
-    border-bottom-color: hsl(215 20% 25%);
+    /* Screen styling via Tailwind utilities; class retained as print hook */
   }
 
   .report-table {
@@ -1622,6 +1614,47 @@ button.tactile:active {
     page-break-inside: avoid;
   }
 
+  .ewgsop2-flow {
+    flex-direction: row !important;
+    align-items: stretch !important;
+  }
+  .diag-box-severe,
+  .diag-box-confirmed,
+  .diag-box-probable,
+  .diag-box-none {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .report-document .diag-box-severe {
+    background-color: hsl(0 84% 97%) !important;
+    border-color: hsl(0 84% 70%) !important;
+    color: hsl(0 84% 30%) !important;
+  }
+  .report-document .diag-box-confirmed {
+    background-color: hsl(38 92% 97%) !important;
+    border-color: hsl(38 92% 70%) !important;
+    color: hsl(38 92% 30%) !important;
+  }
+  .report-document .diag-box-probable {
+    background-color: hsl(53 96% 96%) !important;
+    border-color: hsl(53 96% 70%) !important;
+    color: hsl(53 96% 30%) !important;
+  }
+  .report-document .diag-box-none {
+    background-color: hsl(142 71% 96%) !important;
+    border-color: hsl(142 71% 70%) !important;
+    color: hsl(142 71% 30%) !important;
+  }
+  .reco-block {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .trends-container {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
   .report-section-title {
     page-break-after: avoid;
   }

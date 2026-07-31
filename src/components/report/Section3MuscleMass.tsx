@@ -94,7 +94,7 @@ export function Section3MuscleMass({ assessment, patient }: Props) {
 
             {hasAnth && (
               <div className="mt-4">
-                <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
                   Antropometria
                 </h4>
                 <ReportTable rows={anthRows} />
@@ -103,18 +103,13 @@ export function Section3MuscleMass({ assessment, patient }: Props) {
 
             <div
               className={cn(
-                'mt-4 p-4 rounded-lg break-inside-avoid',
-                isReduced ? 'bg-amber-50 dark:bg-amber-950/20' : 'bg-green-50 dark:bg-green-950/20',
+                'mt-4 border-l-4 rounded-r-lg p-4 text-sm font-medium break-inside-avoid',
+                isReduced
+                  ? 'bg-amber-50 border-amber-400 text-amber-800 dark:bg-amber-950/20 dark:border-amber-700 dark:text-amber-400'
+                  : 'bg-green-50 border-green-400 text-green-800 dark:bg-green-950/20 dark:border-green-700 dark:text-green-400',
               )}
             >
-              <p
-                className={cn(
-                  'text-sm font-semibold',
-                  isReduced
-                    ? 'text-amber-700 dark:text-amber-400'
-                    : 'text-green-700 dark:text-green-400',
-                )}
-              >
+              <p className="font-medium">
                 {isReduced
                   ? 'Massa muscular reduzida segundo critérios EWGSOP2'
                   : 'Massa muscular preservada'}
@@ -131,6 +126,10 @@ export function Section3MuscleMass({ assessment, patient }: Props) {
 
 function PlaceholderText() {
   return (
-    <p className="text-sm text-muted-foreground py-3 italic">Dados não coletados nesta avaliação</p>
+    <div className="bg-muted/30 rounded">
+      <p className="text-muted-foreground text-sm italic py-4 text-center">
+        Dados não coletados nesta avaliação
+      </p>
+    </div>
   )
 }
