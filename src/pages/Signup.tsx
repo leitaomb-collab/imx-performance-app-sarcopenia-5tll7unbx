@@ -14,6 +14,7 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
+import logoIemex from '@/assets/logo-iemex.png'
 
 export default function Signup() {
   const [name, setName] = useState('')
@@ -59,7 +60,7 @@ export default function Signup() {
         <CardHeader className="space-y-1 text-center flex flex-col items-center">
           <div className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1 mb-1 mx-auto">
             <img
-              src="/logo-iemex.png"
+              src={logoIemex}
               alt="IEMEX Performance"
               className="h-16 w-auto object-contain mx-auto"
             />

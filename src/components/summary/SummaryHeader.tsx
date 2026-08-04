@@ -2,6 +2,7 @@ import { calculateAge, calculateIMC, formatGender, formatDateBR } from '@/lib/pa
 import { getDiagnosisBanner, type EWGSOP2CriteriaData } from '@/lib/summary-utils'
 import { cn } from '@/lib/utils'
 import type { Patient, User } from '@/types'
+import logoIemex from '@/assets/logo-iemex.png'
 
 interface SummaryHeaderProps {
   patient: Patient
@@ -35,11 +36,7 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
     <>
       <header className="text-center mb-3 break-inside-avoid flex flex-col items-center">
         <div className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1 mb-2">
-          <img
-            src="/logo-iemex.png"
-            alt="IEMEX Performance"
-            className="h-10 w-auto object-contain"
-          />
+          <img src={logoIemex} alt="IEMEX Performance" className="h-10 w-auto object-contain" />
         </div>
         <h1 className="summary-header-title text-xl font-bold text-primary sr-only">
           IEMEX Performance

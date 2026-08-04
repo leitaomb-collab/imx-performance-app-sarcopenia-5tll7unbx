@@ -18,6 +18,7 @@ import { NotificationBell } from '@/components/NotificationBell'
 import { SkipLink } from '@/components/SkipLink'
 import { SrAnnouncer } from '@/components/SrAnnouncer'
 import { cn } from '@/lib/utils'
+import logoIemex from '@/assets/logo-iemex.png'
 
 const navLinks = [
   { name: 'Dashboard', path: '/dashboard', icon: Home },
@@ -99,11 +100,7 @@ export default function Layout() {
             className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1"
             role="banner"
           >
-            <img
-              src="/logo-iemex.png"
-              alt="IEMEX Performance"
-              className="h-10 w-auto object-contain"
-            />
+            <img src={logoIemex} alt="IEMEX Performance" className="h-10 w-auto object-contain" />
           </div>
         </div>
         <div className="flex-1 px-4">
@@ -141,7 +138,7 @@ export default function Layout() {
                     role="banner"
                   >
                     <img
-                      src="/logo-iemex.png"
+                      src={logoIemex}
                       alt="IEMEX Performance"
                       className="h-9 w-auto object-contain"
                     />
