@@ -19,6 +19,8 @@ import { calculateIMC } from '@/lib/patient-utils'
 
 const normal = { label: 'Normal', dotClass: 'bg-green-500' }
 const altered = { label: 'Alterado', dotClass: 'bg-red-500' }
+const preservada = { label: 'Preservada', dotClass: 'bg-green-500' }
+const diminuida = { label: 'Diminuída', dotClass: 'bg-red-500' }
 
 function checkRange(v: number, min: number, max: number) {
   return v >= min && v <= max ? normal : altered
@@ -97,6 +99,7 @@ export function buildSummaryCards(
   const g = patient.gender
   const hgCutoff = getEWGSOP2HandgripCutoff(g)
   const almiCutoff = getEWGSOP2ALMICutoff(g)
+  const ewgsop2AlmiCutoff = g === 'M' ? 7.0 : 5.4
   const paCutoff = getPhaseAngleCutoff(g)
   const waistMax = g === 'M' ? 94 : 80
 
@@ -285,6 +288,46 @@ export function buildSummaryCards(
         ),
         r('SARC-CalF', ['sarcopeniaScreening', 'sarcCalFTotal'], '<11', 'lower-better', '', (v) =>
           checkMax(v, 10),
+        ),
+        r(
+          'Força de Preensão Manual (EWGSOP2)',
+          ['muscleStrength', 'handgripMax'],
+          '< 27 kg (H) / < 16 kg (M)',
+          'higher-better',
+          'kg',
+          (v) => (v < hgCutoff ? diminuida : preservada),
+        ),
+        r(
+          'Massa Muscular Apendicular (EWGSOP2)',
+          ['bodyComposition', 'almi'],
+          '< 7.0 kg/m² (H) / < 5.4 kg/m² (M)',
+          'higher-better',
+          '',
+          (v) => (v < ewgsop2AlmiCutoff ? diminuida : preservada),
+        ),
+        r(
+          'Performance Física - SPPB (EWGSOP2)',
+          ['balanceAssessment', 'sppbTotal'],
+          '≤ 7 pontos',
+          'higher-better',
+          '',
+          (v) => (v <= 7 ? diminuida : preservada),
+        ),
+        r(
+          'Velocidade da Marcha (EWGSOP2)',
+          ['balanceAssessment', 'gaitSpeed'],
+          '≤ 0.8 m/s',
+          'higher-better',
+          'm/s',
+          (v) => (v <= 0.8 ? diminuida : preservada),
+        ),
+        r(
+          'Teste Sentar-Levantar (EWGSOP2)',
+          ['muscleStrength', 'chairStandTime'],
+          '> 15 segundos',
+          'lower-better',
+          's',
+          (v) => (v > 15 ? diminuida : preservada),
         ),
         makeRow(
           'Padrão Espirométrico',

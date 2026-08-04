@@ -1,5 +1,5 @@
 import { calculateAge, calculateIMC, formatGender, formatDateBR } from '@/lib/patient-utils'
-import { getDiagnosisBanner } from '@/lib/summary-utils'
+import { getDiagnosisBanner, type EWGSOP2CriteriaData } from '@/lib/summary-utils'
 import { cn } from '@/lib/utils'
 import type { Patient, User } from '@/types'
 
@@ -13,7 +13,13 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
   const age = calculateAge(patient.birthDate)
   const heightM = (patient.height ?? 0) > 3 ? (patient.height ?? 0) / 100 : (patient.height ?? 0)
   const imc = calculateIMC(patient.weight ?? 0, heightM)
-  const banner = getDiagnosisBanner(assessment.finalDiagnosis ?? '')
+  const ewgsop2Criteria: EWGSOP2CriteriaData = {
+    handgripMax: assessment.muscleStrength?.handgripMax as number | undefined,
+    almi: assessment.bodyComposition?.almi as number | undefined,
+    sppbTotal: assessment.balanceAssessment?.sppbTotal as number | undefined,
+    gender: patient.gender,
+  }
+  const banner = getDiagnosisBanner(assessment.finalDiagnosis ?? '', ewgsop2Criteria)
 
   const idItems = [
     { text: patient.name, bold: true },
@@ -63,6 +69,9 @@ export function SummaryHeader({ patient, assessment }: SummaryHeaderProps) {
         )}
       >
         <span className="font-semibold text-sm">Diagnóstico: {banner.label}</span>
+        {banner.criteriaSummary && (
+          <p className="text-xs opacity-70 mt-1">{banner.criteriaSummary}</p>
+        )}
       </div>
     </>
   )
