@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-04T16:43:10.026Z",
+  "generatedAt": "2026-08-04T16:55:50.655Z",
   "collections": [
     {
       "name": "users",
@@ -176,13 +176,6 @@
           "selectValues": ["rascunho", "concluida"]
         },
         {
-          "name": "finalDiagnosis",
-          "type": "select",
-          "required": false,
-          "system": false,
-          "selectValues": ["sem_sarcopenia", "sarcopenia", "sarcopenia_grave", "nao_avaliado"]
-        },
-        {
           "name": "reassessmentMonths",
           "type": "number",
           "required": false,
@@ -291,6 +284,13 @@
           "type": "date",
           "required": false,
           "system": false
+        },
+        {
+          "name": "finalDiagnosis",
+          "type": "select",
+          "required": false,
+          "system": false,
+          "selectValues": ["normal", "risco_sarcopenia", "sarcopenia", "sarcopenia_grave"]
         }
       ],
       "indexes": [
