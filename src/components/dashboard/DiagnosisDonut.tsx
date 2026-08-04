@@ -9,10 +9,10 @@ import { cn } from '@/lib/utils'
 import type { DashboardAssessment } from '@/lib/chart-utils'
 
 const DIAGNOSIS_CONFIG = [
-  { key: 'sem_sarcopenia', label: 'Sem sarcopenia', color: 'hsl(215 16% 47% / 0.4)' },
-  { key: 'sarcopenia', label: 'Sarcopenia provável', color: 'hsl(217 91% 60%)' },
+  { key: 'normal', label: 'Normal', color: 'hsl(142 76% 47% / 0.4)' },
+  { key: 'risco_sarcopenia', label: 'Risco de sarcopenia', color: 'hsl(48 96% 60%)' },
+  { key: 'sarcopenia', label: 'Sarcopenia', color: 'hsl(38 92% 55%)' },
   { key: 'sarcopenia_grave', label: 'Sarcopenia grave', color: 'hsl(0 84% 60%)' },
-  { key: 'nao_avaliado', label: 'Sem diagnóstico', color: 'hsl(215 16% 80%)' },
 ] as const
 
 interface DiagnosisDonutProps {

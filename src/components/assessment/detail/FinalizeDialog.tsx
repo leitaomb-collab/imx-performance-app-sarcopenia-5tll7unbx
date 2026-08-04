@@ -40,7 +40,8 @@ export function FinalizeDialog({
 
   useEffect(() => {
     if (open) {
-      setDiagnosis(currentDiagnosis)
+      const isValidDiagnosis = DIAGNOSIS_OPTIONS.some((o) => o.value === currentDiagnosis)
+      setDiagnosis(isValidDiagnosis ? currentDiagnosis : 'normal')
       setFieldErrors({})
       setErrorMessage(null)
     }

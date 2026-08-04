@@ -89,9 +89,9 @@ export function suggestEWGSOP2Diagnosis(
   handgripLow: boolean,
   almiLow: boolean,
   sppbLow: boolean,
-): 'sem_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave' {
-  if (!handgripLow) return 'sem_sarcopenia'
-  if (!almiLow) return 'sarcopenia'
+): 'normal' | 'risco_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave' {
+  if (!handgripLow) return 'normal'
+  if (!almiLow) return 'risco_sarcopenia'
   if (sppbLow) return 'sarcopenia_grave'
   return 'sarcopenia'
 }

@@ -84,19 +84,28 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
     },
   ]
 
-  let diagnosisText = 'Sem sarcopenia'
+  const sarcFTotal = ss.sarcFTotal as number | undefined
+  const sarcCalFTotal = ss.sarcCalFTotal as number | undefined
+  const sarcFPositive = sarcFTotal != null && sarcFTotal >= 4
+  const sarcCalFPositive = sarcCalFTotal != null && sarcCalFTotal >= 11
+
+  let diagnosisText = 'Normal'
   let diagBoxCls =
     'diag-box-none bg-green-50 border-2 border-green-300 text-green-800 dark:bg-green-950/20 dark:border-green-800 dark:text-green-400'
   if (strengthReduced && massReduced && perfReduced) {
-    diagnosisText = 'Sarcopenia severa'
+    diagnosisText = 'Sarcopenia grave'
     diagBoxCls =
       'diag-box-severe bg-red-50 border-2 border-red-300 text-red-800 dark:bg-red-950/20 dark:border-red-800 dark:text-red-400'
   } else if (strengthReduced && massReduced) {
-    diagnosisText = 'Sarcopenia confirmada'
+    diagnosisText = 'Sarcopenia'
     diagBoxCls =
       'diag-box-confirmed bg-amber-50 border-2 border-amber-300 text-amber-800 dark:bg-amber-950/20 dark:border-amber-800 dark:text-amber-400'
-  } else if (strengthReduced) {
-    diagnosisText = 'Sarcopenia provável'
+  } else if (strengthReduced && !massReduced) {
+    diagnosisText = 'Risco de sarcopenia'
+    diagBoxCls =
+      'diag-box-probable bg-yellow-50 border-2 border-yellow-300 text-yellow-800 dark:bg-yellow-950/20 dark:border-yellow-800 dark:text-yellow-400'
+  } else if (sarcFPositive || sarcCalFPositive) {
+    diagnosisText = 'Risco de sarcopenia'
     diagBoxCls =
       'diag-box-probable bg-yellow-50 border-2 border-yellow-300 text-yellow-800 dark:bg-yellow-950/20 dark:border-yellow-800 dark:text-yellow-400'
   }

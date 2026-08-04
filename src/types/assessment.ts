@@ -99,7 +99,7 @@ export interface EWGSOP2AnalysisData {
   muscleMassLow?: boolean
   muscleStrengthLow?: boolean
   physicalPerformanceLow?: boolean
-  diagnosis?: 'sem_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave' | 'nao_avaliado'
+  diagnosis?: 'normal' | 'risco_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave'
   notes?: string
 }
 
@@ -109,7 +109,7 @@ export interface AssessmentFormData {
   patientId: string
   assessmentDate: string
   status: 'rascunho' | 'concluida'
-  finalDiagnosis: 'sem_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave' | 'nao_avaliado'
+  finalDiagnosis: 'normal' | 'risco_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave'
   reassessmentMonths: number
   clinicalSummary: string
   vitals: VitalsData
@@ -137,8 +137,8 @@ export interface StepProps {
 }
 
 export const DIAGNOSIS_OPTIONS = [
-  { value: 'sem_sarcopenia', label: 'Sem sarcopenia' },
-  { value: 'sarcopenia', label: 'Sarcopenia provável' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'risco_sarcopenia', label: 'Risco de sarcopenia' },
+  { value: 'sarcopenia', label: 'Sarcopenia' },
   { value: 'sarcopenia_grave', label: 'Sarcopenia grave' },
-  { value: 'nao_avaliado', label: 'Não avaliado' },
 ] as const

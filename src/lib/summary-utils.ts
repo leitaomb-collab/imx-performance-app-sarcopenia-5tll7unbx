@@ -76,23 +76,30 @@ export function getDiagnosisBanner(
 } {
   const criteriaSummary = criteria ? buildCriteriaSummary(criteria) : ''
   switch (diagnosis) {
-    case 'sem_sarcopenia':
+    case 'normal':
       return {
-        label: 'Sem Sarcopenia',
+        label: 'Normal',
         bgClass: 'bg-[hsl(142,76%,90%)] dark:bg-[hsl(142,76%,20%)]',
         textClass: 'text-[hsl(142,76%,36%)] dark:text-[hsl(142,76%,70%)]',
         criteriaSummary,
       }
+    case 'risco_sarcopenia':
+      return {
+        label: 'Risco de sarcopenia',
+        bgClass: 'bg-[hsl(48,96%,90%)] dark:bg-[hsl(48,96%,20%)]',
+        textClass: 'text-[hsl(48,96%,36%)] dark:text-[hsl(48,96%,70%)]',
+        criteriaSummary,
+      }
     case 'sarcopenia':
       return {
-        label: 'Sarcopenia Provável',
-        bgClass: 'bg-[hsl(199,89%,90%)] dark:bg-[hsl(199,89%,20%)]',
-        textClass: 'text-[hsl(199,89%,40%)] dark:text-[hsl(199,89%,70%)]',
+        label: 'Sarcopenia',
+        bgClass: 'bg-[hsl(38,92%,90%)] dark:bg-[hsl(38,92%,20%)]',
+        textClass: 'text-[hsl(38,92%,40%)] dark:text-[hsl(38,92%,70%)]',
         criteriaSummary,
       }
     case 'sarcopenia_grave':
       return {
-        label: 'Sarcopenia Grave',
+        label: 'Sarcopenia grave',
         bgClass: 'bg-[hsl(0,84%,90%)] dark:bg-[hsl(0,84%,20%)]',
         textClass: 'text-[hsl(0,84%,40%)] dark:text-[hsl(0,84%,70%)]',
         criteriaSummary,
@@ -105,6 +112,69 @@ export function getDiagnosisBanner(
         criteriaSummary,
       }
   }
+}
+
+export type DiagnosisValue = 'normal' | 'risco_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave'
+
+export interface ClassificationData {
+  sarcFTotal?: number | null
+  sarcCalFTotal?: number | null
+  handgripMax?: number | null
+  almi?: number | null
+  sppbTotal?: number | null
+  gaitSpeed?: number | null
+  gender: 'M' | 'F'
+}
+
+export function classifyDiagnosis(data: ClassificationData): DiagnosisValue {
+  const hgCutoff = data.gender === 'M' ? 27 : 16
+  const almiCutoff = data.gender === 'M' ? 7.0 : 5.4
+
+  const hasHandgrip = data.handgripMax != null
+  const hasAlmi = data.almi != null
+  const hasSppb = data.sppbTotal != null
+  const hasGaitSpeed = data.gaitSpeed != null
+
+  const handgripReduced = hasHandgrip && data.handgripMax! < hgCutoff
+  const almiReduced = hasAlmi && data.almi! < almiCutoff
+  const performanceReduced =
+    (hasSppb && data.sppbTotal! <= 7) || (hasGaitSpeed && data.gaitSpeed! <= 0.8)
+
+  if (handgripReduced && almiReduced && performanceReduced) {
+    return 'sarcopenia_grave'
+  }
+
+  if (handgripReduced && almiReduced) {
+    return 'sarcopenia'
+  }
+
+  if (handgripReduced && !almiReduced) {
+    return 'risco_sarcopenia'
+  }
+
+  const sarcFPositive = data.sarcFTotal != null && data.sarcFTotal >= 4
+  const sarcCalFPositive = data.sarcCalFTotal != null && data.sarcCalFTotal >= 11
+
+  if (sarcFPositive || sarcCalFPositive) {
+    return 'risco_sarcopenia'
+  }
+
+  if (
+    data.sarcFTotal != null &&
+    data.sarcCalFTotal != null &&
+    hasHandgrip &&
+    hasAlmi &&
+    hasSppb &&
+    !sarcFPositive &&
+    !sarcCalFPositive &&
+    !handgripReduced &&
+    !almiReduced &&
+    !performanceReduced
+  ) {
+    return 'normal'
+  }
+
+  return 'risco_sarcopenia'
 }
 
 export const CARD_INDICATOR_COLORS: Record<string, string> = {

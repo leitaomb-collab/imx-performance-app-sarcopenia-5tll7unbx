@@ -90,13 +90,17 @@ onRecordAfterUpdateSuccess((e) => {
     }
 
     var mappedDiagnosis = null
-    if (detailedDiagnosis.indexOf('sem sarcopenia') !== -1) {
-      mappedDiagnosis = 'sem_sarcopenia'
+    if (
+      detailedDiagnosis.indexOf('sem sarcopenia') !== -1 ||
+      detailedDiagnosis.indexOf('normal') !== -1
+    ) {
+      mappedDiagnosis = 'normal'
     } else if (
+      detailedDiagnosis.indexOf('risco') !== -1 ||
       detailedDiagnosis.indexOf('provavel') !== -1 ||
       detailedDiagnosis.indexOf('provável') !== -1
     ) {
-      mappedDiagnosis = 'sarcopenia'
+      mappedDiagnosis = 'risco_sarcopenia'
     } else if (detailedDiagnosis.indexOf('confirmada') !== -1) {
       mappedDiagnosis = 'sarcopenia'
     } else if (detailedDiagnosis.indexOf('grave') !== -1) {
