@@ -37,7 +37,7 @@ const PRINT_CSS = `
     margin: 0 !important;
     border-radius: 0 !important;
     max-width: 100% !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
   .summary-document > div { padding: 0.5rem !important; }
 
@@ -47,11 +47,45 @@ const PRINT_CSS = `
     padding: 0.5rem !important;
   }
 
-  .summary-table { font-size: 0.5rem !important; }
+  .summary-table {
+    font-size: 0.7rem !important;
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
   .summary-table th,
   .summary-table td {
-    font-size: 0.5rem !important;
-    padding: 0.1rem 0.2rem !important;
+    font-size: 0.7rem !important;
+    padding: 4px 6px !important;
+    min-width: auto !important;
+    max-width: none !important;
+  }
+  .summary-table th {
+    background-color: hsl(215 20% 95%) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .summary-table th.hidden,
+  .summary-table td.hidden {
+    display: table-cell !important;
+  }
+  .summary-table .lg:hidden {
+    display: none !important;
+  }
+  .summary-table .truncate {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+  }
+  .summary-table .max-w-32 {
+    max-width: none !important;
+  }
+  .summary-table th:nth-child(6),
+  .summary-table td:nth-child(6) {
+    white-space: normal !important;
+  }
+  .summary-cards-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
   }
 
   .text-muted-foreground { color: hsl(var(--foreground) / 0.7) !important; }

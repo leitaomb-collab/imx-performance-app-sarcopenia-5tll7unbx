@@ -48,7 +48,7 @@ export function SummaryCards({ cards }: SummaryCardsProps) {
   return (
     <>
       {/* Desktop / tablet table layout */}
-      <div className="hidden md:grid md:grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="hidden md:grid md:grid-cols-1 lg:grid-cols-2 gap-3 print:grid print:grid-cols-1 summary-cards-grid">
         {cards.map((card, index) => (
           <div
             key={`dt-${card.title}`}
@@ -64,7 +64,7 @@ export function SummaryCards({ cards }: SummaryCardsProps) {
               />
               <h2 className="text-sm font-semibold text-primary">{card.title}</h2>
             </div>
-            <div className="overflow-x-auto max-w-full">
+            <div className="overflow-x-auto max-w-full print:overflow-visible print:max-w-none">
               <table className="summary-table w-full">
                 <thead>
                   <tr className="text-muted-foreground border-b border-border">
@@ -166,7 +166,7 @@ export function SummaryCards({ cards }: SummaryCardsProps) {
       </div>
 
       {/* Mobile mini-card layout */}
-      <div className="md:hidden grid grid-cols-1 gap-2">
+      <div className="md:hidden grid grid-cols-1 gap-2 print:hidden">
         {cards.map((card, index) => (
           <div
             key={`mb-${card.title}`}
