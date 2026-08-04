@@ -9,7 +9,7 @@ import {
 } from '@/lib/patient-utils'
 import { stripHtml } from '@/lib/report-utils'
 import type { Patient, User } from '@/types'
-import logoIemex from '@/assets/logo-iemex.png'
+const logoIemex = '/logo-iemex.png'
 
 interface ReportHeaderProps {
   patient: Patient

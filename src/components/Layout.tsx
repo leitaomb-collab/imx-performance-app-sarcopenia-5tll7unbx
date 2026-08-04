@@ -18,7 +18,7 @@ import { NotificationBell } from '@/components/NotificationBell'
 import { SkipLink } from '@/components/SkipLink'
 import { SrAnnouncer } from '@/components/SrAnnouncer'
 import { cn } from '@/lib/utils'
-import logoIemex from '@/assets/logo-iemex.png'
+const logoIemex = '/logo-iemex.png'
 
 const navLinks = [
   { name: 'Dashboard', path: '/dashboard', icon: Home },

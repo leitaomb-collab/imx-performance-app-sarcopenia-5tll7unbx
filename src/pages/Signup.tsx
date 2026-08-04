@@ -14,7 +14,7 @@ import {
   CardFooter,
 } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
-import logoIemex from '@/assets/logo-iemex.png'
+const logoIemex = '/logo-iemex.png'
 
 export default function Signup() {
   const [name, setName] = useState('')

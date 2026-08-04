@@ -2,7 +2,7 @@ import { calculateAge, calculateIMC, formatGender, formatDateBR } from '@/lib/pa
 import { getDiagnosisBanner, type EWGSOP2CriteriaData } from '@/lib/summary-utils'
 import { cn } from '@/lib/utils'
 import type { Patient, User } from '@/types'
-import logoIemex from '@/assets/logo-iemex.png'
+const logoIemex = '/logo-iemex.png'
 
 interface SummaryHeaderProps {
   patient: Patient
