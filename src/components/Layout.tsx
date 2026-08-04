@@ -18,7 +18,7 @@ import { NotificationBell } from '@/components/NotificationBell'
 import { SkipLink } from '@/components/SkipLink'
 import { SrAnnouncer } from '@/components/SrAnnouncer'
 import { cn } from '@/lib/utils'
-const logoIemex = '/logo-iemex.png'
+import { Logo } from '@/components/Logo'
 
 const navLinks = [
   { name: 'Dashboard', path: '/dashboard', icon: Home },
@@ -96,12 +96,7 @@ export default function Layout() {
       <SkipLink />
       <aside className="layout-sidebar app-sidebar hidden md:flex w-64 flex-col border-r bg-card shadow-sm fixed inset-y-0 z-10">
         <div className="flex items-center justify-center py-2">
-          <div
-            className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1"
-            role="banner"
-          >
-            <img src={logoIemex} alt="IEMEX Performance" className="h-10 w-auto object-contain" />
-          </div>
+          <Logo size="sm" />
         </div>
         <div className="flex-1 px-4">
           <NavItems />
@@ -133,16 +128,7 @@ export default function Layout() {
                 id="mobile-nav-sheet"
               >
                 <div className="flex items-center justify-center py-2">
-                  <div
-                    className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1"
-                    role="banner"
-                  >
-                    <img
-                      src={logoIemex}
-                      alt="IEMEX Performance"
-                      className="h-9 w-auto object-contain"
-                    />
-                  </div>
+                  <Logo size="sm" />
                 </div>
                 <div className="px-4">
                   <NavItems onNavigate={() => setMobileNavOpen(false)} />

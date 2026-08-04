@@ -9,7 +9,7 @@ import {
 } from '@/lib/patient-utils'
 import { stripHtml } from '@/lib/report-utils'
 import type { Patient, User } from '@/types'
-const logoIemex = '/logo-iemex.png'
+import { Logo } from '@/components/Logo'
 
 interface ReportHeaderProps {
   patient: Patient
@@ -32,13 +32,8 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
   return (
     <header className="report-header break-inside-avoid mb-6">
       <div className="report-institution-header p-6 rounded-t-lg flex flex-col md:flex-row items-center md:items-start gap-4">
-        <div className="bg-transparent dark:bg-white rounded-md dark:px-2 dark:py-1 shrink-0">
-          <img
-            src={logoIemex}
-            alt="IEMEX Performance"
-            className="h-12 w-auto object-contain"
-            style={{ printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }}
-          />
+        <div className="shrink-0">
+          <Logo size="md" />
         </div>
         <div className="text-center md:text-left">
           <h1 className="report-institution-name">IEMEX Performance</h1>
