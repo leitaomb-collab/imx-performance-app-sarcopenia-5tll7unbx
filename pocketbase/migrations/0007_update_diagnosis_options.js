@@ -4,7 +4,7 @@ migrate(
 
     var oldField = col.fields.getByName('finalDiagnosis')
     if (oldField) {
-      col.fields.removeAt(col.fields.indexOf(oldField))
+      col.fields.remove(oldField)
     }
     col.fields.add(
       new SelectField({
@@ -29,7 +29,7 @@ migrate(
 
     var oldField = col.fields.getByName('finalDiagnosis')
     if (oldField) {
-      col.fields.removeAt(col.fields.indexOf(oldField))
+      col.fields.remove(oldField)
     }
     col.fields.add(
       new SelectField({
