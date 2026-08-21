@@ -118,6 +118,70 @@ const PRINT_CSS = `
   .summary-clinical-summary { max-height: 4rem !important; }
   .summary-footer-line { width: 8rem !important; }
 
+  /* Report Document Print Rules */
+  .report-document {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .report-document * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .report-body {
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+
+  .report-body > * + * {
+    margin-top: 1rem !important;
+  }
+
+  .report-body > div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-header {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .report-document table {
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
+
+  .report-document tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .report-document th,
+  .report-document td {
+    font-size: 0.7rem !important;
+    padding: 4px 6px !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+  }
+
   body { background: white !important; }
   html, body { overflow: hidden !important; max-width: 100% !important; }
 
