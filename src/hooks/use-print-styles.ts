@@ -5,6 +5,7 @@ const PRINT_CSS = `
 @media print {
   @page { size: A4; margin: 1.5cm; }
   .no-print, .report-action-bar, .report-draft-warning, .summary-action-bar, .resumo-action-bar { display: none !important; }
+  .screen-only { display: none !important; }
 
   .resumo-print-header { display: block !important; position: fixed; top: 0; left: 0; right: 0; padding: 0.5cm 0; z-index: 100; background: white !important; }
   .resumo-content { padding-top: 3cm; }

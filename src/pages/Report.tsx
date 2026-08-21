@@ -25,6 +25,7 @@ import { Section4PhysicalPerformance } from '@/components/report/Section4Physica
 import { Section5Diagnosis } from '@/components/report/Section5Diagnosis'
 import { Section6Recommendations } from '@/components/report/Section6Recommendations'
 import { Section7Trends } from '@/components/report/Section7Trends'
+import { ReportPrint } from '@/components/report/ReportPrint'
 import { FinalizeDialog } from '@/components/assessment/detail/FinalizeDialog'
 import { formatDateCuritibaBR } from '@/lib/report-utils'
 import { usePrintStyles } from '@/hooks/use-print-styles'
@@ -216,14 +217,17 @@ export default function Report() {
       <div className="report-document bg-card border border-border rounded-none md:rounded-lg md:shadow-[0_1px_3px_rgba(0,0,0,0.05),0_4px_20px_rgba(0,0,0,0.05)] overflow-hidden md:my-8 animate-fade-in">
         <div className="report-accent-bar" />
         <div className="p-5 md:p-10 report-body space-y-8">
-          <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
-          <Section1PatientSummary assessment={data} patient={patient} />
-          <Section2MuscleStrength assessment={data} patient={patient} />
-          <Section3MuscleMass assessment={data} patient={patient} />
-          <Section4PhysicalPerformance assessment={data} />
-          <Section5Diagnosis assessment={data} patient={patient} />
-          <Section6Recommendations assessment={data} />
-          <Section7Trends historicalAssessments={historical} patient={patient} />
+          <div className="screen-only">
+            <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
+            <Section1PatientSummary assessment={data} patient={patient} />
+            <Section2MuscleStrength assessment={data} patient={patient} />
+            <Section3MuscleMass assessment={data} patient={patient} />
+            <Section4PhysicalPerformance assessment={data} />
+            <Section5Diagnosis assessment={data} patient={patient} />
+            <Section6Recommendations assessment={data} />
+            <Section7Trends historicalAssessments={historical} patient={patient} />
+          </div>
+          <ReportPrint assessment={data} patient={patient} evaluator={evaluator} />
           <footer className="mt-8 pt-6 border-t border-border/60 text-center text-xs text-muted-foreground break-inside-avoid">
             <p>{formatDateCuritibaBR(new Date().toISOString())}</p>
             <p className="mt-1">
