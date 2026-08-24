@@ -4,10 +4,12 @@ import { getSarcFTotal, getSarcCalFTotal, getSarcopeniaRisk } from '@/lib/clinic
 import { calculateAge, formatGender, formatDateBR, getDiagnosisInfo } from '@/lib/patient-utils'
 import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
+import { RadarProfile } from '@/components/report/RadarProfile'
 
 interface Props {
   assessment: Record<string, unknown>
   patient: Patient | null
+  allAssessments?: Record<string, unknown>[]
 }
 
 export function Section1PatientSummary({ assessment, patient }: Props) {
@@ -202,6 +204,8 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
         ) : (
           <PlaceholderText />
         )}
+
+        <RadarProfile assessment={assessment} patient={patient} />
 
         {hasVitals ? <ReportTable rows={vitalsRows} /> : <PlaceholderText />}
 

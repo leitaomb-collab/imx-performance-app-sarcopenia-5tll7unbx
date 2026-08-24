@@ -219,7 +219,11 @@ export default function Report() {
         <div className="p-5 md:p-10 report-body space-y-8">
           <div className="screen-only">
             <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
-            <Section1PatientSummary assessment={data} patient={patient} />
+            <Section1PatientSummary
+              assessment={data}
+              patient={patient}
+              allAssessments={(historical as unknown as Record<string, unknown>[]) ?? undefined}
+            />
             <Section2MuscleStrength
               assessment={data}
               patient={patient}

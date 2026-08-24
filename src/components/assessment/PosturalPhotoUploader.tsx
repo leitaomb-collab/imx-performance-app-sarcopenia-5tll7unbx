@@ -30,17 +30,6 @@ export function PosturalPhotoUploader({
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
 
-  const confirmDelete = useCallback(async () => {
-    if (!deleteTarget) return
-    try {
-      await removePhoto(deleteTarget)
-      toast.success('Fotografia excluída.')
-    } catch {
-      toast.error('Erro ao excluir fotografia.')
-    }
-    setDeleteTarget(null)
-  }, [deleteTarget, removePhoto])
-
   const {
     photos,
     isDragging,
@@ -56,6 +45,17 @@ export function PosturalPhotoUploader({
     removePhoto,
     clearErrors,
   } = usePhotoUpload({ assessmentId, initialPhotos, onPhotosChange })
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget) return
+    try {
+      await removePhoto(deleteTarget)
+      toast.success('Fotografia excluída.')
+    } catch {
+      toast.error('Erro ao excluir fotografia.')
+    }
+    setDeleteTarget(null)
+  }, [deleteTarget, removePhoto])
 
   return (
     <div className="space-y-4">

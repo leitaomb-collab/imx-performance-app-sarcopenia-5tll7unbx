@@ -82,10 +82,10 @@ export default function PatientProfile() {
   useRealtime('assessments', (e) => {
     if (e.record['patientId'] !== id) return
     if (e.action === 'create') {
-      setAssessments((prev) => [...prev, e.record as Assessment])
+      setAssessments((prev) => [...prev, e.record as unknown as Assessment])
     } else if (e.action === 'update') {
       setAssessments((prev) =>
-        prev.map((a) => (a.id === e.record.id ? (e.record as Assessment) : a)),
+        prev.map((a) => (a.id === e.record.id ? (e.record as unknown as Assessment) : a)),
       )
     } else if (e.action === 'delete') {
       setAssessments((prev) => prev.filter((a) => a.id !== e.record.id))
@@ -95,7 +95,7 @@ export default function PatientProfile() {
   useRealtime('patients', (e) => {
     if (e.record.id === id) {
       if (e.action === 'delete') return
-      setPatient(e.record as Patient)
+      setPatient(e.record as unknown as Patient)
     }
   })
 

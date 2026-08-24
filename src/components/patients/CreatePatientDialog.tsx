@@ -56,7 +56,7 @@ export function CreatePatientDialog({ open, onOpenChange }: CreatePatientDialogP
   const [shake, setShake] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
   const [form, setForm] = useState(emptyForm)
-  const successTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  const successTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     if (!open) {

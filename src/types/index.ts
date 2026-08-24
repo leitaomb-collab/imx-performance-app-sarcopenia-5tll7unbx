@@ -76,6 +76,12 @@ export interface RespiratoryStrength {
   peakExpiratoryFlow?: number
   maximalInspiratoryPressure?: number
   maximalExpiratoryPressure?: number
+  pimaxActual?: number
+  pimaxPredicted?: number
+  pimaxPercent?: number
+  pemaxActual?: number
+  pemaxPredicted?: number
+  pemaxPercent?: number
 }
 
 export interface Spirometry {

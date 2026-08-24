@@ -54,11 +54,13 @@ export default function Dashboard() {
 
   useRealtime('patients', (e) => {
     if (e.action === 'create') {
-      mutate((d) => ({ ...d, patients: [...d.patients, e.record as Patient] }))
+      mutate((d) => ({ ...d, patients: [...d.patients, e.record as unknown as Patient] }))
     } else if (e.action === 'update') {
       mutate((d) => ({
         ...d,
-        patients: d.patients.map((p) => (p.id === e.record.id ? (e.record as Patient) : p)),
+        patients: d.patients.map((p) =>
+          p.id === e.record.id ? (e.record as unknown as Patient) : p,
+        ),
       }))
     } else if (e.action === 'delete') {
       mutate((d) => ({ ...d, patients: d.patients.filter((p) => p.id !== e.record.id) }))
@@ -69,13 +71,13 @@ export default function Dashboard() {
     if (e.action === 'create') {
       mutate((d) => ({
         ...d,
-        assessments: [...d.assessments, e.record as DashboardAssessment],
+        assessments: [...d.assessments, e.record as unknown as DashboardAssessment],
       }))
     } else if (e.action === 'update') {
       mutate((d) => ({
         ...d,
         assessments: d.assessments.map((a) =>
-          a.id === e.record.id ? (e.record as DashboardAssessment) : a,
+          a.id === e.record.id ? (e.record as unknown as DashboardAssessment) : a,
         ),
       }))
     } else if (e.action === 'delete') {

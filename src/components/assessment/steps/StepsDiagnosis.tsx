@@ -200,7 +200,7 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
           </tbody>
         </table>
       </div>
-      {suggested !== 'sem_sarcopenia' && (
+      {suggested !== 'normal' && (
         <p className="text-sm text-muted-foreground">
           Diagnóstico sugerido:{' '}
           <span className="font-medium text-foreground">
@@ -213,7 +213,7 @@ export function Step11EWGSOP2({ form, patient, updateField }: StepProps) {
           {DIAG_OPTS.map((opt) => {
             const isSelected = (ea.diagnosis ?? form.finalDiagnosis) === opt.value
             const isGrave = opt.value === 'sarcopenia_grave'
-            const isSuggested = opt.value === suggested && suggested !== 'sem_sarcopenia'
+            const isSuggested = opt.value === suggested && suggested !== 'normal'
             return (
               <label
                 key={opt.value}

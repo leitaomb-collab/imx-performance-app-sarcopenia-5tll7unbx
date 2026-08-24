@@ -127,9 +127,9 @@ export default function PacienteDetail() {
                         <Line
                           type="monotone"
                           dataKey="score"
-                          stroke="var(--color-score)"
+                          stroke="hsl(var(--primary))"
                           strokeWidth={2}
-                          dot={createChartDot()}
+                          dot={{ r: 4, fill: 'hsl(var(--primary))' }}
                           activeDot={{ r: 6 }}
                         />
                       </LineChart>

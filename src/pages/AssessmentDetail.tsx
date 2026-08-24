@@ -44,7 +44,7 @@ export default function AssessmentDetail() {
 
   useRealtime('assessments', (e) => {
     if (e.record.id === id) {
-      setAssessment(e.record as Assessment)
+      setAssessment(e.record as unknown as Assessment)
     }
   })
 

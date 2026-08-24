@@ -121,9 +121,11 @@ export default function Patients() {
   useRealtime('patients', (e) => {
     if (skipRealtimeRef.current) return
     if (e.action === 'create') {
-      setPatients((prev) => [...prev, e.record as Patient])
+      setPatients((prev) => [...prev, e.record as unknown as Patient])
     } else if (e.action === 'update') {
-      setPatients((prev) => prev.map((p) => (p.id === e.record.id ? (e.record as Patient) : p)))
+      setPatients((prev) =>
+        prev.map((p) => (p.id === e.record.id ? (e.record as unknown as Patient) : p)),
+      )
     } else if (e.action === 'delete') {
       setPatients((prev) => prev.filter((p) => p.id !== e.record.id))
     }

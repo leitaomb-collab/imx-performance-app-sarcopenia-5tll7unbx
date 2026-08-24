@@ -43,7 +43,7 @@ export function useResumoData(id: string | undefined) {
         sort: 'assessmentDate',
       })
       const sorted = sortAssessmentsByDate(
-        allRecords as Array<{ assessmentDate: string }>,
+        allRecords as unknown as Array<{ assessmentDate: string }>,
       ) as ResumoAssessment[]
       setAssessment(current)
       setAllAssessments(sorted)

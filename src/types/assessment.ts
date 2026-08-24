@@ -99,7 +99,13 @@ export interface EWGSOP2AnalysisData {
   muscleMassLow?: boolean
   muscleStrengthLow?: boolean
   physicalPerformanceLow?: boolean
-  diagnosis?: 'normal' | 'risco_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave'
+  diagnosis?:
+    | 'normal'
+    | 'risco_sarcopenia'
+    | 'sarcopenia'
+    | 'sarcopenia_grave'
+    | 'sem_sarcopenia'
+    | 'nao_avaliado'
   notes?: string
 }
 
@@ -109,7 +115,13 @@ export interface AssessmentFormData {
   patientId: string
   assessmentDate: string
   status: 'rascunho' | 'concluida'
-  finalDiagnosis: 'normal' | 'risco_sarcopenia' | 'sarcopenia' | 'sarcopenia_grave'
+  finalDiagnosis:
+    | 'normal'
+    | 'risco_sarcopenia'
+    | 'sarcopenia'
+    | 'sarcopenia_grave'
+    | 'sem_sarcopenia'
+    | 'nao_avaliado'
   reassessmentMonths: number
   clinicalSummary: string
   vitals: VitalsData
