@@ -84,13 +84,6 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
     return r === 'baixo' ? 'Baixo risco' : 'Risco elevado'
   }
 
-  const riskPillCls = (r: string | null) => {
-    if (!r) return ''
-    return r === 'baixo'
-      ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400'
-      : 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'
-  }
-
   const execSummary = diagInfo
     ? `Status diagnóstico: ${diagInfo.label}. ` +
       (fRisk && fRisk !== 'baixo'
@@ -123,35 +116,87 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
 
         {hasScreening ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 break-inside-avoid">
-            <div className="border border-border/60 rounded-lg p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">SARC-F</p>
-              <p className="text-2xl font-bold tabular-nums">{fmt(sarcFTotal)}</p>
-              {fRisk && (
-                <span
-                  className={cn(
-                    'mt-2 inline-flex items-center px-3 py-1 text-xs font-bold rounded-full',
-                    riskPillCls(fRisk),
-                  )}
-                >
-                  {riskLabel(fRisk)}
-                </span>
+            <div
+              className={cn(
+                'border border-border/60 rounded-lg p-4 relative overflow-hidden',
+                fRisk === 'baixo'
+                  ? 'bg-gradient-to-br from-green-50 to-white dark:from-green-950/30 dark:to-background'
+                  : 'bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/30 dark:to-background',
               )}
+            >
+              <span
+                className="absolute left-0 top-0 bottom-0 w-[3px]"
+                style={{
+                  backgroundColor: fRisk === 'baixo' ? 'hsl(142 68% 40%)' : 'hsl(38 92% 50%)',
+                }}
+              />
+              <div className="relative z-10">
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">SARC-F</p>
+                <p className="text-2xl font-bold tabular-nums">{fmt(sarcFTotal)}</p>
+                {fRisk && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium">
+                    <span
+                      className={cn(
+                        'w-2 h-2 rounded-full',
+                        fRisk === 'baixo'
+                          ? 'bg-green-500 dark:bg-green-400'
+                          : 'bg-amber-500 dark:bg-amber-400',
+                      )}
+                    />
+                    <span
+                      className={
+                        fRisk === 'baixo'
+                          ? 'text-green-700 dark:text-green-400'
+                          : 'text-amber-700 dark:text-amber-400'
+                      }
+                    >
+                      {riskLabel(fRisk)}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="border border-border/60 rounded-lg p-4">
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
-                SARC-CalF
-              </p>
-              <p className="text-2xl font-bold tabular-nums">{fmt(sarcCalFTotal)}</p>
-              {cfRisk && (
-                <span
-                  className={cn(
-                    'mt-2 inline-flex items-center px-3 py-1 text-xs font-bold rounded-full',
-                    riskPillCls(cfRisk),
-                  )}
-                >
-                  {riskLabel(cfRisk)}
-                </span>
+            <div
+              className={cn(
+                'border border-border/60 rounded-lg p-4 relative overflow-hidden',
+                cfRisk === 'baixo'
+                  ? 'bg-gradient-to-br from-green-50 to-white dark:from-green-950/30 dark:to-background'
+                  : 'bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/30 dark:to-background',
               )}
+            >
+              <span
+                className="absolute left-0 top-0 bottom-0 w-[3px]"
+                style={{
+                  backgroundColor: cfRisk === 'baixo' ? 'hsl(142 68% 40%)' : 'hsl(38 92% 50%)',
+                }}
+              />
+              <div className="relative z-10">
+                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  SARC-CalF
+                </p>
+                <p className="text-2xl font-bold tabular-nums">{fmt(sarcCalFTotal)}</p>
+                {cfRisk && (
+                  <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium">
+                    <span
+                      className={cn(
+                        'w-2 h-2 rounded-full',
+                        cfRisk === 'baixo'
+                          ? 'bg-green-500 dark:bg-green-400'
+                          : 'bg-amber-500 dark:bg-amber-400',
+                      )}
+                    />
+                    <span
+                      className={
+                        cfRisk === 'baixo'
+                          ? 'text-green-700 dark:text-green-400'
+                          : 'text-amber-700 dark:text-amber-400'
+                      }
+                    >
+                      {riskLabel(cfRisk)}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ) : (
