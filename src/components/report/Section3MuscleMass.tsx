@@ -6,15 +6,32 @@ import {
   getCalfCircumferenceStatus,
 } from '@/lib/clinical-utils'
 import { calculateIMC, getIMCCategory } from '@/lib/patient-utils'
+import { ResumoSparkline } from '@/components/resumo/ResumoSparkline'
 import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 
 interface Props {
   assessment: Record<string, unknown>
   patient: Patient | null
+  allAssessments?: Record<string, unknown>[]
 }
 
-export function Section3MuscleMass({ assessment, patient }: Props) {
+function getMetricHistory(
+  assessments: Record<string, unknown>[] | undefined,
+  path: string,
+): number[] {
+  if (!assessments || assessments.length === 0) return []
+  return assessments
+    .map((a) => {
+      const parts = path.split('.')
+      let val: unknown = a
+      for (const p of parts) val = (val as Record<string, unknown>)?.[p]
+      return typeof val === 'number' ? val : NaN
+    })
+    .filter((v) => !isNaN(v))
+}
+
+export function Section3MuscleMass({ assessment, patient, allAssessments }: Props) {
   const bc = obj(assessment.bodyComposition)
   const an = obj(assessment.anthropometry)
   const gender = patient?.gender ?? 'M'
@@ -29,17 +46,57 @@ export function Section3MuscleMass({ assessment, patient }: Props) {
 
   const almiRef = gender === 'M' ? '≥ 7.0 kg/m²' : '≥ 5.4 kg/m²'
 
+  const fatHist = getMetricHistory(allAssessments, 'bodyComposition.fatPercentage')
+  const paHist = getMetricHistory(allAssessments, 'bodyComposition.phaseAngle')
+  const ammHist = getMetricHistory(allAssessments, 'bodyComposition.appendicularMuscleMass')
+  const leanHist = getMetricHistory(allAssessments, 'bodyComposition.leanMass')
+  const tbwHist = getMetricHistory(allAssessments, 'bodyComposition.totalBodyWater')
+
   const bcRows: ReportRow[] = [
-    { label: 'Percentual de Gordura', value: fmt(bc.fatPercentage, '%') },
+    {
+      label: 'Percentual de Gordura',
+      value: fmt(bc.fatPercentage, '%'),
+      sparkline:
+        allAssessments && bc.fatPercentage != null ? (
+          <ResumoSparkline values={fatHist} />
+        ) : undefined,
+    },
     {
       label: 'Ângulo de Fase',
       value: fmt(bc.phaseAngle, '°'),
       ref: gender === 'M' ? '≥ 5.0°' : '≥ 4.6°',
+      sparkline:
+        allAssessments && bc.phaseAngle != null ? <ResumoSparkline values={paHist} /> : undefined,
       interp: paStatus === 'normal' ? 'Normal' : paStatus === 'reduced' ? 'Reduzida' : undefined,
       interpClass:
         paStatus === 'normal' ? 'normal' : paStatus === 'reduced' ? 'reduced' : undefined,
     },
-    { label: 'Massa Muscular Apendicular', value: fmt(bc.appendicularMuscleMass, 'kg') },
+    {
+      label: 'Massa Muscular Apendicular',
+      value: fmt(bc.appendicularMuscleMass, 'kg'),
+      sparkline:
+        allAssessments && bc.appendicularMuscleMass != null ? (
+          <ResumoSparkline values={ammHist} />
+        ) : undefined,
+    },
+    ...(bc.leanMass != null
+      ? [
+          {
+            label: 'Massa Magra',
+            value: fmt(bc.leanMass, 'kg'),
+            sparkline: allAssessments ? <ResumoSparkline values={leanHist} /> : undefined,
+          },
+        ]
+      : []),
+    ...(bc.totalBodyWater != null
+      ? [
+          {
+            label: 'Água Corporal Total',
+            value: fmt(bc.totalBodyWater, 'L'),
+            sparkline: allAssessments ? <ResumoSparkline values={tbwHist} /> : undefined,
+          },
+        ]
+      : []),
   ]
 
   const heightM = (patient?.height ?? 0) > 3 ? (patient?.height ?? 0) / 100 : (patient?.height ?? 0)
@@ -72,11 +129,25 @@ export function Section3MuscleMass({ assessment, patient }: Props) {
           <>
             {bc.almi != null && (
               <div className="mb-4 border border-border/60 rounded-lg p-4 break-inside-avoid">
-                <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
-                  ALMI (Índice de Massa Muscular Apendicular)
-                </p>
-                <p className="text-2xl font-bold tabular-nums">{fmt(bc.almi, 'kg/m²')}</p>
-                <p className="text-xs text-muted-foreground mt-1">Referência: {almiRef}</p>
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
+                      ALMI (Índice de Massa Muscular Apendicular)
+                    </p>
+                    <p className="text-2xl font-bold tabular-nums">{fmt(bc.almi, 'kg/m²')}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Referência: {almiRef}</p>
+                  </div>
+                  {allAssessments && (
+                    <div className="flex flex-col items-end">
+                      <span className="text-[10px] text-muted-foreground uppercase font-medium mb-1">
+                        Evolução
+                      </span>
+                      <ResumoSparkline
+                        values={getMetricHistory(allAssessments, 'bodyComposition.almi')}
+                      />
+                    </div>
+                  )}
+                </div>
                 {almiStatus && (
                   <span
                     className={cn(

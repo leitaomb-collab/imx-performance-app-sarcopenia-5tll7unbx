@@ -5,6 +5,7 @@ export type ReportRow = {
   label: string
   value: string
   ref?: string
+  sparkline?: ReactNode
   interp?: string
   interpClass?: 'normal' | 'reduced' | 'moderate' | 'altered' | 'blue' | 'orange'
 }
@@ -29,6 +30,8 @@ export function SectionBlock({
 }
 
 export function ReportTable({ rows }: { rows: ReportRow[] }) {
+  const hasSparkline = rows.some((r) => r.sparkline !== undefined && r.sparkline !== null)
+
   return (
     <div className="table-scroll-wrapper">
       <table className="report-table w-full text-sm">
@@ -37,6 +40,7 @@ export function ReportTable({ rows }: { rows: ReportRow[] }) {
             <th className="text-left p-2">Parâmetro</th>
             <th className="text-left p-2">Valor</th>
             <th className="text-left p-2">Referência</th>
+            {hasSparkline && <th className="text-center p-2">Evolução</th>}
             <th className="text-left p-2">Interpretação</th>
           </tr>
         </thead>
@@ -52,6 +56,13 @@ export function ReportTable({ rows }: { rows: ReportRow[] }) {
               <td className="report-table-cell report-table-ref p-2" data-label="Referência">
                 {row.ref ?? '-'}
               </td>
+              {hasSparkline && (
+                <td className="report-table-cell p-2 text-center" data-label="Evolução">
+                  <div className="inline-flex items-center justify-center min-h-[20px]">
+                    {row.sparkline ?? <span className="text-[10px] text-muted-foreground">-</span>}
+                  </div>
+                </td>
+              )}
               <td className="report-table-cell p-2" data-label="Interpretação">
                 {row.interp && row.interpClass && (
                   <span

@@ -220,9 +220,20 @@ export default function Report() {
           <div className="screen-only">
             <ReportHeader patient={patient} assessment={data} evaluator={evaluator} />
             <Section1PatientSummary assessment={data} patient={patient} />
-            <Section2MuscleStrength assessment={data} patient={patient} />
-            <Section3MuscleMass assessment={data} patient={patient} />
-            <Section4PhysicalPerformance assessment={data} />
+            <Section2MuscleStrength
+              assessment={data}
+              patient={patient}
+              allAssessments={(historical as unknown as Record<string, unknown>[]) ?? undefined}
+            />
+            <Section3MuscleMass
+              assessment={data}
+              patient={patient}
+              allAssessments={(historical as unknown as Record<string, unknown>[]) ?? undefined}
+            />
+            <Section4PhysicalPerformance
+              assessment={data}
+              allAssessments={(historical as unknown as Record<string, unknown>[]) ?? undefined}
+            />
             <Section5Diagnosis assessment={data} patient={patient} />
             <Section6Recommendations assessment={data} />
             <Section7Trends historicalAssessments={historical} patient={patient} />

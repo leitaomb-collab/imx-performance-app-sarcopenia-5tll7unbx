@@ -137,7 +137,6 @@ export function ReportSectionsB({ assessment, patient }: Props) {
         {hasData(ew) ? (
           <>
             <ReportTable
-              headers={['Critério', 'Resultado']}
               rows={[
                 {
                   label: 'Triagem (SARC-F)',
