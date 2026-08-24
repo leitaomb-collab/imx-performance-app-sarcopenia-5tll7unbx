@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { ReportTable, SectionBlock, type ReportRow } from './ReportTable'
 import { obj, fmt, hasData } from '@/lib/report-utils'
 import { getHandgripStatus, getChairStandStatus, calcPercent } from '@/lib/clinical-utils'
@@ -24,6 +26,20 @@ function getMetricHistory(
       return typeof val === 'number' ? val : NaN
     })
     .filter((v) => !isNaN(v))
+}
+
+function getTrendIcon(values: number[], higherIsBetter: boolean): ReactNode | undefined {
+  if (values.length < 2) return undefined
+  const prev = values[values.length - 2]
+  const curr = values[values.length - 1]
+  if (curr === prev) {
+    return <Minus className="h-3 w-3 text-muted-foreground" />
+  }
+  const improved = higherIsBetter ? curr > prev : curr < prev
+  if (improved) {
+    return <TrendingUp className="h-3 w-3 text-green-600" />
+  }
+  return <TrendingDown className="h-3 w-3 text-red-600" />
 }
 
 export function Section2MuscleStrength({ assessment, patient, allAssessments }: Props) {
@@ -78,6 +94,7 @@ export function Section2MuscleStrength({ assessment, patient, allAssessments }: 
       interp: hgStatus === 'normal' ? 'Normal' : hgStatus === 'reduced' ? 'Reduzida' : undefined,
       interpClass:
         hgStatus === 'normal' ? 'normal' : hgStatus === 'reduced' ? 'reduced' : undefined,
+      trendIcon: getTrendIcon(hgMaxHist, true),
     },
     {
       label: 'Levantar da Cadeira (5x)',
@@ -90,6 +107,7 @@ export function Section2MuscleStrength({ assessment, patient, allAssessments }: 
       interp: csStatus === 'normal' ? 'Normal' : csStatus === 'reduced' ? 'Reduzida' : undefined,
       interpClass:
         csStatus === 'normal' ? 'normal' : csStatus === 'reduced' ? 'reduced' : undefined,
+      trendIcon: getTrendIcon(csHist, false),
     },
   ]
 
@@ -109,6 +127,7 @@ export function Section2MuscleStrength({ assessment, patient, allAssessments }: 
       ref: '≥ 80%',
       interp: pimaxPct != null ? (pimaxPct >= 80 ? 'Normal' : 'Alterada') : undefined,
       interpClass: pimaxPct != null ? (pimaxPct >= 80 ? 'normal' : 'altered') : undefined,
+      trendIcon: getTrendIcon(pimaxHist, true),
     },
     {
       label: 'PEmax Atual',
@@ -125,6 +144,7 @@ export function Section2MuscleStrength({ assessment, patient, allAssessments }: 
       ref: '≥ 80%',
       interp: pemaxPct != null ? (pemaxPct >= 80 ? 'Normal' : 'Alterada') : undefined,
       interpClass: pemaxPct != null ? (pemaxPct >= 80 ? 'normal' : 'altered') : undefined,
+      trendIcon: getTrendIcon(pemaxHist, true),
     },
   ]
 

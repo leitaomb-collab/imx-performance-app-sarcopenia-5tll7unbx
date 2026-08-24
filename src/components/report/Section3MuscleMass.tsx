@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { ReportTable, SectionBlock, type ReportRow } from './ReportTable'
 import { obj, fmt, hasData } from '@/lib/report-utils'
 import {
@@ -31,6 +33,20 @@ function getMetricHistory(
     .filter((v) => !isNaN(v))
 }
 
+function getTrendIcon(values: number[], higherIsBetter: boolean): ReactNode | undefined {
+  if (values.length < 2) return undefined
+  const prev = values[values.length - 2]
+  const curr = values[values.length - 1]
+  if (curr === prev) {
+    return <Minus className="h-3 w-3 text-muted-foreground" />
+  }
+  const improved = higherIsBetter ? curr > prev : curr < prev
+  if (improved) {
+    return <TrendingUp className="h-3 w-3 text-green-600" />
+  }
+  return <TrendingDown className="h-3 w-3 text-red-600" />
+}
+
 export function Section3MuscleMass({ assessment, patient, allAssessments }: Props) {
   const bc = obj(assessment.bodyComposition)
   const an = obj(assessment.anthropometry)
@@ -46,6 +62,7 @@ export function Section3MuscleMass({ assessment, patient, allAssessments }: Prop
 
   const almiRef = gender === 'M' ? '≥ 7.0 kg/m²' : '≥ 5.4 kg/m²'
 
+  const almiHist = getMetricHistory(allAssessments, 'bodyComposition.almi')
   const fatHist = getMetricHistory(allAssessments, 'bodyComposition.fatPercentage')
   const paHist = getMetricHistory(allAssessments, 'bodyComposition.phaseAngle')
   const ammHist = getMetricHistory(allAssessments, 'bodyComposition.appendicularMuscleMass')
@@ -70,6 +87,7 @@ export function Section3MuscleMass({ assessment, patient, allAssessments }: Prop
       interp: paStatus === 'normal' ? 'Normal' : paStatus === 'reduced' ? 'Reduzida' : undefined,
       interpClass:
         paStatus === 'normal' ? 'normal' : paStatus === 'reduced' ? 'reduced' : undefined,
+      trendIcon: getTrendIcon(paHist, true),
     },
     {
       label: 'Massa Muscular Apendicular',
@@ -142,19 +160,18 @@ export function Section3MuscleMass({ assessment, patient, allAssessments }: Prop
                       <span className="text-[10px] text-muted-foreground uppercase font-medium mb-1">
                         Evolução
                       </span>
-                      <ResumoSparkline
-                        values={getMetricHistory(allAssessments, 'bodyComposition.almi')}
-                      />
+                      <ResumoSparkline values={almiHist} />
                     </div>
                   )}
                 </div>
                 {almiStatus && (
                   <span
                     className={cn(
-                      'mt-2 inline-flex items-center px-2.5 py-0.5 text-xs font-bold',
+                      'mt-2 inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-full',
                       almiStatus === 'normal' ? 'clinical-badge-normal' : 'clinical-badge-reduced',
                     )}
                   >
+                    {getTrendIcon(almiHist, true)}
                     {almiStatus === 'normal' ? 'Normal' : 'Reduzida'}
                   </span>
                 )}

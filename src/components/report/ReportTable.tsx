@@ -8,6 +8,7 @@ export type ReportRow = {
   sparkline?: ReactNode
   interp?: string
   interpClass?: 'normal' | 'reduced' | 'moderate' | 'altered' | 'blue' | 'orange'
+  trendIcon?: ReactNode
 }
 
 export function SectionBlock({
@@ -67,10 +68,11 @@ export function ReportTable({ rows }: { rows: ReportRow[] }) {
                 {row.interp && row.interpClass && (
                   <span
                     className={cn(
-                      'inline-flex items-center px-2.5 py-0.5 text-xs font-bold rounded-full',
+                      'inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-full',
                       `clinical-badge-${row.interpClass}`,
                     )}
                   >
+                    {row.trendIcon}
                     {row.interp}
                   </span>
                 )}

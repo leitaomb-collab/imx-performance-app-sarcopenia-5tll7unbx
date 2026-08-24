@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { ReportTable, SectionBlock, type ReportRow } from './ReportTable'
 import { obj, fmt, hasData } from '@/lib/report-utils'
 import { getSPPBStatus, getSPPBTotal, getTUGStatus } from '@/lib/clinical-utils'
@@ -22,6 +24,20 @@ function getMetricHistory(
       return typeof val === 'number' ? val : NaN
     })
     .filter((v) => !isNaN(v))
+}
+
+function getTrendIcon(values: number[], higherIsBetter: boolean): ReactNode | undefined {
+  if (values.length < 2) return undefined
+  const prev = values[values.length - 2]
+  const curr = values[values.length - 1]
+  if (curr === prev) {
+    return <Minus className="h-3 w-3 text-muted-foreground" />
+  }
+  const improved = higherIsBetter ? curr > prev : curr < prev
+  if (improved) {
+    return <TrendingUp className="h-3 w-3 text-green-600" />
+  }
+  return <TrendingDown className="h-3 w-3 text-red-600" />
 }
 
 function getSPPBTotalHistory(assessments: Record<string, unknown>[] | undefined): number[] {
@@ -76,6 +92,7 @@ export function Section4PhysicalPerformance({ assessment, allAssessments }: Prop
         sppbStatus === 'normal' ? 'Normal' : sppbStatus === 'reduced' ? 'Reduzido' : undefined,
       interpClass:
         sppbStatus === 'normal' ? 'normal' : sppbStatus === 'reduced' ? 'reduced' : undefined,
+      trendIcon: getTrendIcon(sppbTotalHist, true),
     },
     {
       label: 'TUG Simples',
@@ -88,6 +105,7 @@ export function Section4PhysicalPerformance({ assessment, allAssessments }: Prop
       interp: tugStatus === 'normal' ? 'Normal' : tugStatus === 'reduced' ? 'Alterada' : undefined,
       interpClass:
         tugStatus === 'normal' ? 'normal' : tugStatus === 'reduced' ? 'altered' : undefined,
+      trendIcon: getTrendIcon(tugSimpleHist, false),
     },
     { label: 'TUG Dupla Tarefa', value: fmt(ba.tugDualTask, 's') },
   ]
