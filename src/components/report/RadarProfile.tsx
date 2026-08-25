@@ -9,6 +9,7 @@ import {
 } from 'recharts'
 import { obj } from '@/lib/report-utils'
 import type { Patient } from '@/types'
+import { Eyebrow } from './ReportTable'
 
 interface RadarProfileProps {
   assessment: Record<string, unknown>
@@ -185,18 +186,16 @@ export function RadarProfile({ assessment, patient }: RadarProfileProps) {
 
   return (
     <div className="my-4 break-inside-avoid">
-      <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wide">
-        Perfil Funcional
-      </h3>
+      <Eyebrow>Perfil Funcional</Eyebrow>
 
       {allMissing ? (
-        <div className="bg-muted/30 rounded-lg p-6 text-center">
-          <p className="text-muted-foreground text-sm italic">
+        <div className="bg-report-paper-soft rounded-[10px] p-6 text-center mt-2">
+          <p className="text-report-ink-soft text-sm italic">
             Dados insuficientes para o perfil clínico
           </p>
         </div>
       ) : (
-        <div className="border border-border/60 rounded-lg p-4 bg-card">
+        <div className="border border-report-line rounded-[10px] p-4 bg-report-paper mt-2">
           <div className="w-full h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={chartData} margin={{ top: 10, right: 25, bottom: 10, left: 25 }}>
@@ -223,19 +222,19 @@ export function RadarProfile({ assessment, patient }: RadarProfileProps) {
                 <Radar
                   name="Paciente"
                   dataKey="value"
-                  stroke="hsl(var(--primary))"
-                  fill="hsl(var(--primary))"
-                  fillOpacity={0.3}
+                  stroke="#0F8B7E"
+                  fill="#0F8B7E"
+                  fillOpacity={0.25}
                   strokeWidth={2}
                   dot={{
                     r: 4,
-                    fill: 'hsl(var(--primary))',
+                    fill: '#0F8B7E',
                     strokeWidth: 1,
-                    stroke: 'hsl(var(--background))',
+                    stroke: '#FFFFFF',
                   }}
                   activeDot={{
                     r: 6,
-                    fill: 'hsl(var(--primary))',
+                    fill: '#0F8B7E',
                   }}
                 />
               </RadarChart>
@@ -243,10 +242,10 @@ export function RadarProfile({ assessment, patient }: RadarProfileProps) {
           </div>
 
           {/* Legend */}
-          <div className="mt-4 pt-3 border-t border-border/50 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
+          <div className="mt-4 pt-3 border-t border-report-line flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
             {chartData.map((item) => (
               <div key={item.axis} className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+                <span className="w-2.5 h-2.5 rounded-full bg-report-teal shrink-0" />
                 <span className="font-medium text-foreground">{item.label}</span>
                 {item.isMissing ? (
                   <span className="text-muted-foreground italic">(sem dados)</span>
