@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge'
 import {
   calculateAge,
   calculateIMC,
@@ -10,6 +9,7 @@ import {
 import { stripHtml } from '@/lib/report-utils'
 import type { Patient, User } from '@/types'
 import { Logo } from '@/components/Logo'
+import { Eyebrow, StatusPill } from './ReportTable'
 
 interface ReportHeaderProps {
   patient: Patient
@@ -28,59 +28,58 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
       : `${patient.height} m`
     : '-'
   const diagInfo = getDiagnosisInfo(assessment.finalDiagnosis)
+  const diagTone =
+    assessment.finalDiagnosis === 'sem_sarcopenia'
+      ? 'normal'
+      : assessment.finalDiagnosis === 'sarcopenia'
+        ? 'watch'
+        : assessment.finalDiagnosis === 'sarcopenia_grave'
+          ? 'low'
+          : 'na'
 
   return (
-    <header className="report-header break-inside-avoid mb-6">
-      <div className="report-institution-header p-6 rounded-t-lg flex flex-col md:flex-row items-center md:items-start gap-4">
+    <header className="break-inside-avoid mb-6 rounded-[14px] border border-report-line overflow-hidden">
+      <div className="p-6 flex flex-col md:flex-row items-center md:items-start gap-4 border-b border-report-line bg-report-paper-soft">
         <div className="shrink-0">
           <Logo size="md" />
         </div>
         <div className="text-center md:text-left">
-          <h1 className="report-institution-name">IEMEX Performance</h1>
-          <p className="report-institution-subtitle">
-            Relatório de Avaliação Funcional - Protocolo de Monitoramento de Sarcopenia
-          </p>
-          <p className="report-institution-protocol">
-            Avaliação funcional e monitoramento de sarcopenia
+          <Eyebrow>IEMEX Performance · Avaliação funcional</Eyebrow>
+          <h1 className="font-report-display text-xl font-semibold text-report-ink mt-1">
+            Relatório de Avaliação Funcional
+          </h1>
+          <p className="text-[0.8rem] text-report-ink-soft mt-0.5">
+            Protocolo de monitoramento de sarcopenia
           </p>
         </div>
       </div>
-      <div className="border border-t-0 border-border rounded-b-lg p-6 space-y-4">
-        <div className="report-patient-id grid grid-cols-1 md:grid-cols-2 gap-4 p-4 text-sm">
+      <div className="p-6 space-y-4 bg-report-paper">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <Field label="Nome" value={patient.name} />
           <Field label="Data de Nascimento" value={formatDateBR(patient.birthDate)} />
           <Field label="Idade" value={`${age} anos`} />
           <Field label="Gênero" value={formatGender(patient.gender)} />
-          <Field label="Peso" value={patient.weight ? `${patient.weight} kg` : '-'} />
+          <Field label="Peso" value={patient.weight ? `${patient.weight} kg` : '—'} />
           <Field label="Estatura" value={heightDisplay} />
-          <Field label="IMC" value={imc ? `${imc} (${imcCategory})` : '-'} />
+          <Field label="IMC" value={imc ? `${imc} (${imcCategory})` : '—'} />
           <Field
             label="Medicamentos de Uso Contínuo"
-            value={stripHtml(patient.chronicMedications) || '-'}
+            value={stripHtml(patient.chronicMedications) || '—'}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-border/60 text-sm">
+        <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-report-line text-sm">
           <Field label="Data da Avaliação" value={formatDateBR(assessment.assessmentDate)} />
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-              Status:
-            </span>
-            <Badge
-              className={`report-print-badge ${
-                assessment.status === 'concluida'
-                  ? 'clinical-badge-normal'
-                  : 'clinical-badge-moderate'
-              }`}
-            >
-              {assessment.status === 'concluida' ? 'Concluída' : 'Rascunho'}
-            </Badge>
+            <Eyebrow>Status</Eyebrow>
+            <StatusPill
+              tone={assessment.status === 'concluida' ? 'normal' : 'watch'}
+              text={assessment.status === 'concluida' ? 'Concluída' : 'Rascunho'}
+            />
           </div>
           {diagInfo && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                Diagnóstico:
-              </span>
-              <Badge className={`report-print-badge ${diagInfo.className}`}>{diagInfo.label}</Badge>
+              <Eyebrow>Diagnóstico</Eyebrow>
+              <StatusPill tone={diagTone} text={diagInfo.label} />
             </div>
           )}
           {evaluator && <Field label="Avaliador" value={evaluator.name} />}
@@ -93,8 +92,10 @@ export function ReportHeader({ patient, assessment, evaluator }: ReportHeaderPro
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="report-field-label">{label}</dt>
-      <dd className="report-field-value">{value}</dd>
+      <dt className="font-report-mono text-[0.62rem] tracking-[0.04em] uppercase text-report-ink-soft">
+        {label}
+      </dt>
+      <dd className="text-report-ink mt-0.5">{value}</dd>
     </div>
   )
 }
