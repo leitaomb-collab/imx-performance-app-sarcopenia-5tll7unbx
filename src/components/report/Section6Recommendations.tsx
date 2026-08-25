@@ -2,6 +2,7 @@ import { SectionBlock } from './ReportTable'
 import { RichText } from '@/components/patients/RichText'
 import { formatDateBR } from '@/lib/patient-utils'
 import { Calendar } from 'lucide-react'
+import { RecommendationCard } from './ReportTable'
 
 interface Props {
   assessment: Record<string, unknown>
@@ -15,42 +16,35 @@ export function Section6Recommendations({ assessment }: Props) {
   return (
     <div aria-label="6. Recomendações" className="animate-fade-in">
       <SectionBlock number={6} title="Recomendações">
-        <div className="space-y-6">
-          <div className="reco-block bg-muted/40 rounded-lg p-4 break-inside-avoid">
-            <h4 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">
-              Recomendações de Exercício
-            </h4>
+        <div className="flex flex-wrap gap-3">
+          <RecommendationCard title="Recomendações de Exercício">
             {exercise && exercise.trim() ? (
               <RichText content={exercise} emptyMsg="" />
             ) : (
-              <p className="text-muted-foreground italic">Não definido</p>
+              <p className="text-report-ink-soft italic">Não definido</p>
             )}
-          </div>
+          </RecommendationCard>
 
-          <div className="reco-block bg-muted/40 rounded-lg p-4 break-inside-avoid">
-            <h4 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">
-              Recomendações Nutricionais
-            </h4>
+          <RecommendationCard title="Recomendações Nutricionais">
             {nutrition && nutrition.trim() ? (
               <RichText content={nutrition} emptyMsg="" />
             ) : (
-              <p className="text-muted-foreground italic">Não definido</p>
+              <p className="text-report-ink-soft italic">Não definido</p>
             )}
-          </div>
+          </RecommendationCard>
 
-          <div className="reco-block break-inside-avoid">
-            <h4 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2">
-              Próxima reavaliação sugerida
-            </h4>
+          <RecommendationCard title="Próxima Reavaliação Sugerida">
             {reassessmentDate ? (
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{formatDateBR(reassessmentDate)}</span>
+                <Calendar className="h-4 w-4 text-report-ink-soft" />
+                <span className="font-report-mono font-semibold text-report-ink">
+                  {formatDateBR(reassessmentDate)}
+                </span>
               </div>
             ) : (
-              <p className="text-muted-foreground italic">Não definido</p>
+              <p className="text-report-ink-soft italic">Não definido</p>
             )}
-          </div>
+          </RecommendationCard>
         </div>
       </SectionBlock>
     </div>
