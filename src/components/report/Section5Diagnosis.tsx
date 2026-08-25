@@ -8,19 +8,20 @@ import {
   getSPPBStatus,
   getTUGStatus,
 } from '@/lib/clinical-utils'
-import { cn } from '@/lib/utils'
-import { CheckCircle2, XCircle, ChevronRight, ChevronDown } from 'lucide-react'
 import type { Patient } from '@/types'
+import {
+  Eyebrow,
+  StatusPill,
+  DiagnosticPathway,
+  VerdictBanner,
+  PlaceholderText,
+  type Tone,
+  type PathwayStep,
+} from './ReportTable'
 
 interface Props {
   assessment: Record<string, unknown>
   patient: Patient | null
-}
-
-interface StepInfo {
-  label: string
-  value: string
-  pass: boolean
 }
 
 export function Section5Diagnosis({ assessment, patient }: Props) {
@@ -50,37 +51,41 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
     ss.climbStairs != null ||
     ss.falls != null
 
-  const steps: StepInfo[] = [
+  const steps: PathwayStep[] = [
     {
-      label: 'Triagem (SARC-F)',
-      value: screeningRisk
+      label: 'Triagem',
+      sub: screeningRisk
         ? assessment.sarcopeniaScreening
           ? 'Risco detectado'
           : 'Sem risco'
         : 'Não avaliado',
-      pass: !screeningRisk,
+      status: !screeningRisk ? 'pending' : 'pass',
     },
     {
-      label: 'Força Muscular (Handgrip)',
-      value:
-        hgStatus === 'normal' ? 'Normal' : hgStatus === 'reduced' ? 'Reduzida' : 'Não avaliado',
-      pass: hgStatus === 'normal',
+      label: 'Força',
+      sub: hgStatus === 'normal' ? 'Normal' : hgStatus === 'reduced' ? 'Reduzida' : 'Não avaliado',
+      status: hgStatus == null ? 'pending' : hgStatus === 'normal' ? 'pass' : 'fail',
     },
     {
-      label: 'Massa Muscular (ALMI)',
-      value:
+      label: 'Massa',
+      sub:
         almiStatus === 'normal' ? 'Normal' : almiStatus === 'reduced' ? 'Reduzida' : 'Não avaliado',
-      pass: almiStatus === 'normal',
+      status: almiStatus == null ? 'pending' : almiStatus === 'normal' ? 'pass' : 'fail',
     },
     {
-      label: 'Desempenho Físico (SPPB/TUG)',
-      value:
+      label: 'Desempenho',
+      sub:
         sppbStatus === 'normal' && tugStatus === 'normal'
           ? 'Normal'
           : sppbStatus === 'reduced' || tugStatus === 'reduced'
             ? 'Reduzido'
             : 'Não avaliado',
-      pass: sppbStatus === 'normal' && tugStatus === 'normal',
+      status:
+        sppbStatus == null && tugStatus == null
+          ? 'pending'
+          : sppbStatus === 'normal' && tugStatus === 'normal'
+            ? 'pass'
+            : 'fail',
     },
   ]
 
@@ -90,44 +95,50 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
   const sarcCalFPositive = sarcCalFTotal != null && sarcCalFTotal >= 11
 
   let diagnosisText = 'Normal'
-  let diagBoxCls =
-    'diag-box-none bg-green-50 border-2 border-green-300 text-green-800 dark:bg-green-950/20 dark:border-green-800 dark:text-green-400'
+  let diagTone: Tone = 'normal'
+  let diagDetail = 'Força, massa muscular e desempenho físico dentro da normalidade.'
   if (strengthReduced && massReduced && perfReduced) {
     diagnosisText = 'Sarcopenia grave'
-    diagBoxCls =
-      'diag-box-severe bg-red-50 border-2 border-red-300 text-red-800 dark:bg-red-950/20 dark:border-red-800 dark:text-red-400'
+    diagTone = 'low'
+    diagDetail = 'Força, massa muscular e desempenho físico reduzidos — quadro de maior gravidade.'
   } else if (strengthReduced && massReduced) {
     diagnosisText = 'Sarcopenia'
-    diagBoxCls =
-      'diag-box-confirmed bg-amber-50 border-2 border-amber-300 text-amber-800 dark:bg-amber-950/20 dark:border-amber-800 dark:text-amber-400'
+    diagTone = 'watch'
+    diagDetail = 'Força e massa muscular reduzidas, confirmando o diagnóstico.'
   } else if (strengthReduced && !massReduced) {
     diagnosisText = 'Risco de sarcopenia'
-    diagBoxCls =
-      'diag-box-probable bg-yellow-50 border-2 border-yellow-300 text-yellow-800 dark:bg-yellow-950/20 dark:border-yellow-800 dark:text-yellow-400'
+    diagTone = 'watch'
+    diagDetail = 'Força reduzida com massa muscular preservada. Recomenda-se monitoramento.'
   } else if (sarcFPositive || sarcCalFPositive) {
     diagnosisText = 'Risco de sarcopenia'
-    diagBoxCls =
-      'diag-box-probable bg-yellow-50 border-2 border-yellow-300 text-yellow-800 dark:bg-yellow-950/20 dark:border-yellow-800 dark:text-yellow-400'
+    diagTone = 'watch'
+    diagDetail = 'Triagem positiva (SARC-F/SARC-CalF). Recomenda-se investigação complementar.'
   }
+
+  steps.push({
+    label: 'Veredito',
+    sub: diagnosisText,
+    status: diagTone === 'normal' ? 'pass' : 'fail',
+  })
 
   const tugVal = ba.tugSimple as number | undefined
   let fallRisk = 'Não avaliado'
-  let fallRiskCls = 'bg-muted text-muted-foreground'
+  let fallRiskTone: Tone = 'na'
   if (tugVal != null) {
     if (tugVal > 12) {
       fallRisk = 'Alto risco de quedas'
-      fallRiskCls = 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+      fallRiskTone = 'low'
     } else if (tugVal >= 8) {
       fallRisk = 'Risco moderado de quedas'
-      fallRiskCls = 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400'
+      fallRiskTone = 'watch'
     } else {
       fallRisk = 'Baixo risco de quedas'
-      fallRiskCls = 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400'
+      fallRiskTone = 'normal'
     }
   }
   if (sppbTotal != null && sppbTotal < 7) {
     fallRisk = 'Alto risco de quedas'
-    fallRiskCls = 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+    fallRiskTone = 'low'
   }
 
   const hasSpirometry = hasData(sp)
@@ -138,53 +149,24 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
         {hasDiagData ? (
           <>
             <div className="mb-6 break-inside-avoid">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                Algoritmo Diagnóstico EWGSOP2
-              </h4>
-              <div className="ewgsop2-flow flex flex-col lg:flex-row lg:items-stretch gap-2">
-                {steps.map((step, i) => (
-                  <div key={i} className="flex flex-col lg:flex-row lg:items-center gap-2 flex-1">
-                    <div className="rounded-lg border p-4 flex flex-col items-center gap-2 min-w-0 flex-1">
-                      <div
-                        className={cn(
-                          'w-6 h-6 rounded-full flex items-center justify-center shrink-0',
-                          step.pass ? 'bg-green-500 text-white' : 'bg-amber-500 text-white',
-                        )}
-                      >
-                        {step.pass ? (
-                          <CheckCircle2 className="h-4 w-4" />
-                        ) : (
-                          <XCircle className="h-4 w-4" />
-                        )}
-                      </div>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide text-center">
-                        {step.label}
-                      </p>
-                      <p className="text-lg font-bold text-center">{step.value}</p>
-                    </div>
-                    {i < steps.length - 1 && (
-                      <>
-                        <ChevronRight className="hidden lg:block print:block h-5 w-5 text-muted-foreground shrink-0" />
-                        <ChevronDown className="lg:hidden print:hidden h-5 w-5 text-muted-foreground shrink-0 self-center" />
-                      </>
-                    )}
-                  </div>
-                ))}
+              <Eyebrow>Percurso Diagnóstico EWGSOP2</Eyebrow>
+              <div className="mt-3">
+                <DiagnosticPathway steps={steps} />
               </div>
             </div>
 
-            <div className={cn('mb-6 rounded-lg p-4 text-center break-inside-avoid', diagBoxCls)}>
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
-                Diagnóstico Final
-              </p>
-              <p className="font-bold text-lg">{diagnosisText}</p>
+            <div className="mb-6 break-inside-avoid">
+              <VerdictBanner
+                eyebrow="Diagnóstico Final"
+                title={diagnosisText}
+                detail={diagDetail}
+                tone={diagTone}
+              />
             </div>
 
-            <div className="border-t pt-4 mt-4 break-inside-avoid">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                Conclusão Clínica
-              </h4>
-              <div className="p-4 border border-border/60 rounded-lg bg-secondary/20">
+            <div className="border-t border-report-line pt-4 mt-4 break-inside-avoid">
+              <Eyebrow>Conclusão Clínica</Eyebrow>
+              <div className="p-4 border-l-[3px] border-report-ink-soft bg-report-paper-soft rounded-r-[8px] mt-2">
                 <RichText
                   content={assessment.clinicalSummary as string}
                   emptyMsg="Sem conclusão clínica registrada."
@@ -193,40 +175,39 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
             </div>
 
             <div className="mt-4 break-inside-avoid">
-              <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                Risco de Quedas
-              </h4>
-              <span
-                className={cn(
-                  'inline-flex items-center px-3 py-1 text-sm font-medium rounded-full',
-                  fallRiskCls,
-                )}
-              >
-                {fallRisk}
-              </span>
+              <Eyebrow>Risco de Quedas</Eyebrow>
+              <div className="mt-2">
+                <StatusPill tone={fallRiskTone} text={fallRisk} />
+              </div>
             </div>
 
             {hasSpirometry && (
               <div className="mt-4 break-inside-avoid">
-                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                  Função Respiratória (Espirometria)
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="border border-border/60 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">VEF1</p>
-                    <p className="text-sm font-semibold">{fmt(sp.fev1, 'L')}</p>
+                <Eyebrow>Função Respiratória (Espirometria)</Eyebrow>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                  <div className="border border-report-line rounded-[10px] p-3">
+                    <p className="text-[0.7rem] text-report-ink-soft">VEF1</p>
+                    <p className="text-sm font-report-mono font-semibold text-report-ink">
+                      {fmt(sp.fev1, 'L')}
+                    </p>
                   </div>
-                  <div className="border border-border/60 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">CVF</p>
-                    <p className="text-sm font-semibold">{fmt(sp.fvc, 'L')}</p>
+                  <div className="border border-report-line rounded-[10px] p-3">
+                    <p className="text-[0.7rem] text-report-ink-soft">CVF</p>
+                    <p className="text-sm font-report-mono font-semibold text-report-ink">
+                      {fmt(sp.fvc, 'L')}
+                    </p>
                   </div>
-                  <div className="border border-border/60 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">Relação VEF1/CVF</p>
-                    <p className="text-sm font-semibold">{fmt(sp.fev1FvcRatio)}</p>
+                  <div className="border border-report-line rounded-[10px] p-3">
+                    <p className="text-[0.7rem] text-report-ink-soft">Relação VEF1/CVF</p>
+                    <p className="text-sm font-report-mono font-semibold text-report-ink">
+                      {fmt(sp.fev1FvcRatio)}
+                    </p>
                   </div>
-                  <div className="border border-border/60 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground">Padrão</p>
-                    <p className="text-sm font-semibold">{sp.pattern || '-'}</p>
+                  <div className="border border-report-line rounded-[10px] p-3">
+                    <p className="text-[0.7rem] text-report-ink-soft">Padrão</p>
+                    <p className="text-sm font-report-mono font-semibold text-report-ink">
+                      {sp.pattern || '—'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -236,16 +217,6 @@ export function Section5Diagnosis({ assessment, patient }: Props) {
           <PlaceholderText />
         )}
       </SectionBlock>
-    </div>
-  )
-}
-
-function PlaceholderText() {
-  return (
-    <div className="bg-muted/30 rounded">
-      <p className="text-muted-foreground text-sm italic py-4 text-center">
-        Dados não coletados nesta avaliação
-      </p>
     </div>
   )
 }
