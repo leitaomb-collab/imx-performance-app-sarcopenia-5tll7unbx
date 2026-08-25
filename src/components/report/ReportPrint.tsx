@@ -1,4 +1,4 @@
-import { obj, fmt, hasData } from '@/lib/report-utils'
+import { obj, fmt, hasData, interpRange, interpBP } from '@/lib/report-utils'
 import {
   getSarcFTotal,
   getSarcCalFTotal,
@@ -21,7 +21,10 @@ import {
 } from '@/lib/patient-utils'
 import { Logo } from '@/components/Logo'
 import { RichText } from '@/components/patients/RichText'
-import type { Patient, User } from '@/types'
+import { RadarProfile } from '@/components/report/RadarProfile'
+import { ResumoSparkline } from '@/components/resumo/ResumoSparkline'
+import { EvolutionCharts } from '@/components/patients/EvolutionCharts'
+import type { Patient, User, Assessment } from '@/types'
 import {
   Eyebrow,
   SectionHeading,
@@ -41,6 +44,7 @@ interface Props {
   assessment: Record<string, unknown>
   patient: Patient | null
   evaluator: User | null
+  allAssessments?: Record<string, unknown>[]
 }
 
 /** Maps the clinical 'normal' | 'reduced' | null status vocabulary onto the report's tone palette. */
@@ -50,7 +54,29 @@ function toTone(status: 'normal' | 'reduced' | null | undefined): Tone {
   return 'na'
 }
 
-export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Props) {
+/** Maps the interpRange/interpBP 'normal' | 'altered' vocabulary onto the report's tone palette. */
+function interpTone(cls: 'normal' | 'altered' | undefined): Tone {
+  if (cls === 'normal') return 'normal'
+  if (cls === 'altered') return 'watch'
+  return 'na'
+}
+
+function getMetricHistory(
+  assessments: Record<string, unknown>[] | undefined,
+  path: string,
+): number[] {
+  if (!assessments || assessments.length === 0) return []
+  return assessments
+    .map((a) => {
+      const parts = path.split('.')
+      let val: unknown = a
+      for (const p of parts) val = (val as Record<string, unknown>)?.[p]
+      return typeof val === 'number' ? val : NaN
+    })
+    .filter((v) => !isNaN(v))
+}
+
+export function ReportPrint({ assessment, patient, evaluator: _evaluator, allAssessments }: Props) {
   const gender = patient?.gender ?? 'M'
 
   // Derived data objects
@@ -210,6 +236,29 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
   const hasDiagData =
     hasStrength || hasBC || hasPerf || hasSarcScreening || assessment.finalDiagnosis != null
 
+  // Vitals (Section 1)
+  const v = obj(assessment.vitals)
+  const hasVitals = hasData(v)
+  const bpI = interpBP(
+    v.bloodPressureSystolic as number | undefined,
+    v.bloodPressureDiastolic as number | undefined,
+  )
+  const hrI = interpRange(v.heartRate as number | undefined, 60, 100)
+  const rrI = interpRange(v.respiratoryRate as number | undefined, 12, 20)
+  const spo2I = interpRange(v.oxygenSaturation as number | undefined, 95, 100)
+  const tempI = interpRange(v.temperature as number | undefined, 35, 37.5)
+
+  // Spirometry (Section 5)
+  const sp = obj(assessment.spirometry)
+  const hasSpirometry = hasData(sp)
+
+  // Evolution histories for sparklines
+  const hgMaxHist = getMetricHistory(allAssessments, 'muscleStrength.handgripMax')
+  const csHist = getMetricHistory(allAssessments, 'muscleStrength.chairStandTime')
+  const almiHist = getMetricHistory(allAssessments, 'bodyComposition.almi')
+  const sppbTotalHist = getMetricHistory(allAssessments, 'balanceAssessment.sppbTotal')
+  const tugHist = getMetricHistory(allAssessments, 'balanceAssessment.tugSimple')
+
   // SECTION 1 diagnosis card mapping
   const finalDiag = assessment.finalDiagnosis as string | undefined
   const diagInfo = getDiagnosisInfo(finalDiag ?? '')
@@ -327,6 +376,76 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
           ) : (
             <PlaceholderText />
           )}
+
+          <div className="mt-4">
+            <RadarProfile assessment={assessment} patient={patient} />
+          </div>
+
+          {hasVitals && (
+            <div className="mt-4">
+              <SubHeading>Sinais Vitais</SubHeading>
+              <DataTable
+                head={['Parâmetro', 'Valor', 'Referência', 'Interpretação']}
+                rows={[
+                  [
+                    'Pressão Arterial',
+                    v.bloodPressureSystolic != null && v.bloodPressureDiastolic != null
+                      ? `${v.bloodPressureSystolic}/${v.bloodPressureDiastolic} mmHg`
+                      : '—',
+                    '< 140/90 mmHg',
+                    bpI ? <StatusPill key="bp" tone={interpTone(bpI.cls)} text={bpI.text} /> : '—',
+                  ],
+                  [
+                    'Frequência Cardíaca',
+                    fmt(v.heartRate, 'bpm'),
+                    '60-100 bpm',
+                    hrI ? <StatusPill key="hr" tone={interpTone(hrI.cls)} text={hrI.text} /> : '—',
+                  ],
+                  [
+                    'Frequência Respiratória',
+                    fmt(v.respiratoryRate, 'irpm'),
+                    '12-20 irpm',
+                    rrI ? <StatusPill key="rr" tone={interpTone(rrI.cls)} text={rrI.text} /> : '—',
+                  ],
+                  [
+                    'Saturação de O₂',
+                    fmt(v.oxygenSaturation, '%'),
+                    '≥ 95%',
+                    spo2I ? (
+                      <StatusPill key="spo2" tone={interpTone(spo2I.cls)} text={spo2I.text} />
+                    ) : (
+                      '—'
+                    ),
+                  ],
+                  [
+                    'Temperatura',
+                    fmt(v.temperature, '°C'),
+                    '35-37.5 °C',
+                    tempI ? (
+                      <StatusPill key="temp" tone={interpTone(tempI.cls)} text={tempI.text} />
+                    ) : (
+                      '—'
+                    ),
+                  ],
+                ]}
+              />
+            </div>
+          )}
+
+          {hasDiagData && (
+            <div className="mt-4 bg-report-paper-soft border-l-[3px] border-report-ink rounded-r-[8px] p-4 text-sm leading-relaxed break-inside-avoid">
+              <Eyebrow>Resumo Executivo</Eyebrow>
+              <p className="text-report-ink mt-1.5">
+                Status diagnóstico: {diagInfo?.label ?? 'não definido'}.{' '}
+                {sarcFPositive || sarcCalFPositive
+                  ? 'Paciente apresenta risco elevado no rastreio SARC-F. '
+                  : 'Rastreio SARC-F sem risco elevado. '}
+                {assessment.status === 'concluida'
+                  ? 'Avaliação concluída.'
+                  : 'Avaliação em rascunho.'}
+              </p>
+            </div>
+          )}
         </section>
 
         {/* SECTION 2 — Força Muscular */}
@@ -336,14 +455,31 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
             <div className="break-inside-avoid mb-4">
               <SubHeading>Força de Preensão Manual (Handgrip)</SubHeading>
               <DataTable
-                head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                head={
+                  allAssessments
+                    ? ['Parâmetro', 'Valor', 'Referência', 'Evolução', 'Status']
+                    : ['Parâmetro', 'Valor', 'Referência', 'Status']
+                }
                 rows={[
-                  ['Handgrip Esquerdo', fmt(ms.handgripLeft, 'kg'), handgripRef, '—'],
-                  ['Handgrip Direito', fmt(ms.handgripRight, 'kg'), handgripRef, '—'],
+                  ...(allAssessments
+                    ? [['Handgrip Esquerdo', fmt(ms.handgripLeft, 'kg'), handgripRef, '—', '—']]
+                    : [['Handgrip Esquerdo', fmt(ms.handgripLeft, 'kg'), handgripRef, '—']]),
+                  ...(allAssessments
+                    ? [['Handgrip Direito', fmt(ms.handgripRight, 'kg'), handgripRef, '—', '—']]
+                    : [['Handgrip Direito', fmt(ms.handgripRight, 'kg'), handgripRef, '—']]),
                   [
                     'Handgrip Máximo',
                     fmt(ms.handgripMax, 'kg'),
                     handgripRef,
+                    ...(allAssessments
+                      ? [
+                          ms.handgripMax != null ? (
+                            <ResumoSparkline key="spark-hg" values={hgMaxHist} />
+                          ) : (
+                            '—'
+                          ),
+                        ]
+                      : []),
                     <StatusPill
                       key="hg"
                       tone={toTone(hgStatus)}
@@ -357,12 +493,25 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
                     />,
                   ],
                   ...(ms.handgripPercentile != null
-                    ? [['Percentil', `${String(ms.handgripPercentile)}º`, '—', '—']]
+                    ? [
+                        allAssessments
+                          ? ['Percentil', `${String(ms.handgripPercentile)}º`, '—', '—', '—']
+                          : ['Percentil', `${String(ms.handgripPercentile)}º`, '—', '—'],
+                      ]
                     : []),
                   [
                     'Levantar da Cadeira (5x)',
                     fmt(ms.chairStandTime, 's'),
                     '≤ 15 s',
+                    ...(allAssessments
+                      ? [
+                          ms.chairStandTime != null ? (
+                            <ResumoSparkline key="spark-cs" values={csHist} />
+                          ) : (
+                            '—'
+                          ),
+                        ]
+                      : []),
                     <StatusPill
                       key="cs"
                       tone={toTone(csStatus)}
@@ -452,7 +601,7 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
           <SectionHeading n={3}>Massa Muscular</SectionHeading>
           {hasBC || hasAnth ? (
             <>
-              <div className="break-inside-avoid mb-4 flex flex-wrap gap-3">
+              <div className="break-inside-avoid mb-4 flex flex-wrap gap-3 items-stretch">
                 <ReadingCard
                   label="Índice de Massa Muscular Apendicular"
                   value={bc.almi != null ? fmt(bc.almi) : '—'}
@@ -460,6 +609,14 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
                   refText={`Referência: ${almiRef}`}
                   tone={toTone(almiStatus)}
                 />
+                {allAssessments && bc.almi != null && (
+                  <div className="flex flex-col justify-center border border-report-line rounded-[10px] px-4 py-3.5">
+                    <Eyebrow>Evolução</Eyebrow>
+                    <div className="mt-2">
+                      <ResumoSparkline values={almiHist} />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="break-inside-avoid mb-4">
@@ -518,15 +675,64 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
               <div className="break-inside-avoid mb-4">
                 <SubHeading>Short Physical Performance Battery (SPPB)</SubHeading>
                 <DataTable
-                  head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                  head={
+                    allAssessments
+                      ? ['Parâmetro', 'Valor', 'Referência', 'Evolução', 'Status']
+                      : ['Parâmetro', 'Valor', 'Referência', 'Status']
+                  }
                   rows={[
-                    ['Equilíbrio (SPPB)', fmt(ba.sppbBalance, 'pts'), '0 a 4 pts', '—'],
-                    ['Velocidade de Marcha (SPPB)', fmt(ba.sppbGait, 'pts'), '0 a 4 pts', '—'],
-                    ['Levantar da Cadeira (SPPB)', fmt(ba.sppbChair, 'pts'), '0 a 4 pts', '—'],
+                    ...(allAssessments
+                      ? [['Equilíbrio (SPPB)', fmt(ba.sppbBalance, 'pts'), '0 a 4 pts', '—', '—']]
+                      : [['Equilíbrio (SPPB)', fmt(ba.sppbBalance, 'pts'), '0 a 4 pts', '—']]),
+                    ...(allAssessments
+                      ? [
+                          [
+                            'Velocidade de Marcha (SPPB)',
+                            fmt(ba.sppbGait, 'pts'),
+                            '0 a 4 pts',
+                            '—',
+                            '—',
+                          ],
+                        ]
+                      : [
+                          [
+                            'Velocidade de Marcha (SPPB)',
+                            fmt(ba.sppbGait, 'pts'),
+                            '0 a 4 pts',
+                            '—',
+                          ],
+                        ]),
+                    ...(allAssessments
+                      ? [
+                          [
+                            'Levantar da Cadeira (SPPB)',
+                            fmt(ba.sppbChair, 'pts'),
+                            '0 a 4 pts',
+                            '—',
+                            '—',
+                          ],
+                        ]
+                      : [
+                          [
+                            'Levantar da Cadeira (SPPB)',
+                            fmt(ba.sppbChair, 'pts'),
+                            '0 a 4 pts',
+                            '—',
+                          ],
+                        ]),
                     [
                       'Total SPPB',
                       fmt(sppbTotal, 'pts'),
                       '≥ 10 pts (0 a 12 pts)',
+                      ...(allAssessments
+                        ? [
+                            sppbTotal != null ? (
+                              <ResumoSparkline key="spark-sppb" values={sppbTotalHist} />
+                            ) : (
+                              '—'
+                            ),
+                          ]
+                        : []),
                       <StatusPill
                         key="sppb"
                         tone={toTone(sppbStatus)}
@@ -546,12 +752,25 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
               <div className="break-inside-avoid mb-4">
                 <SubHeading>Timed Up and Go (TUG)</SubHeading>
                 <DataTable
-                  head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                  head={
+                    allAssessments
+                      ? ['Parâmetro', 'Valor', 'Referência', 'Evolução', 'Status']
+                      : ['Parâmetro', 'Valor', 'Referência', 'Status']
+                  }
                   rows={[
                     [
                       'TUG Simples',
                       fmt(ba.tugSimple, 's'),
                       '≤ 12 s',
+                      ...(allAssessments
+                        ? [
+                            tugVal != null ? (
+                              <ResumoSparkline key="spark-tug" values={tugHist} />
+                            ) : (
+                              '—'
+                            ),
+                          ]
+                        : []),
                       tugVal != null ? (
                         <StatusPill
                           key="tug"
@@ -564,7 +783,9 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
                         <StatusPill key="tug" tone="na" />
                       ),
                     ],
-                    ['TUG Dupla Tarefa', fmt(ba.tugDualTask, 's'), '—', '—'],
+                    ...(allAssessments
+                      ? [['TUG Dupla Tarefa', fmt(ba.tugDualTask, 's'), '—', '—', '—']]
+                      : [['TUG Dupla Tarefa', fmt(ba.tugDualTask, 's'), '—', '—']]),
                   ]}
                 />
               </div>
@@ -632,6 +853,38 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
                   />
                 </div>
               </div>
+
+              {hasSpirometry && (
+                <div className="break-inside-avoid mb-4">
+                  <SubHeading>Função Respiratória (Espirometria)</SubHeading>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="border border-report-line rounded-[10px] p-3">
+                      <Eyebrow>VEF1</Eyebrow>
+                      <p className="text-sm font-report-mono font-semibold text-report-ink mt-1">
+                        {fmt(sp.fev1, 'L')}
+                      </p>
+                    </div>
+                    <div className="border border-report-line rounded-[10px] p-3">
+                      <Eyebrow>CVF</Eyebrow>
+                      <p className="text-sm font-report-mono font-semibold text-report-ink mt-1">
+                        {fmt(sp.fvc, 'L')}
+                      </p>
+                    </div>
+                    <div className="border border-report-line rounded-[10px] p-3">
+                      <Eyebrow>Relação VEF1/CVF</Eyebrow>
+                      <p className="text-sm font-report-mono font-semibold text-report-ink mt-1">
+                        {fmt(sp.fev1FvcRatio)}
+                      </p>
+                    </div>
+                    <div className="border border-report-line rounded-[10px] p-3">
+                      <Eyebrow>Padrão</Eyebrow>
+                      <p className="text-sm font-report-mono font-semibold text-report-ink mt-1">
+                        {(sp.pattern as string) || '—'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <PlaceholderText />
@@ -667,6 +920,19 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
             </RecommendationCard>
           </div>
         </section>
+
+        {/* SECTION 7 — Tendências Históricas */}
+        {allAssessments && allAssessments.length > 1 && (
+          <section className="break-inside-avoid mb-6">
+            <SectionHeading n={7}>Tendências Históricas</SectionHeading>
+            <div className="bg-report-paper-soft rounded-[10px] p-4">
+              <EvolutionCharts
+                assessments={allAssessments as unknown as Assessment[]}
+                patient={patient as Patient}
+              />
+            </div>
+          </section>
+        )}
 
         {/* FOOTER */}
         <div className="border-t border-report-line pt-2 mt-6 text-center text-[0.65rem] text-report-ink-soft flex justify-between font-report-mono">
