@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { obj, fmt, hasData } from '@/lib/report-utils'
 import {
   getSarcFTotal,
@@ -22,8 +21,21 @@ import {
 } from '@/lib/patient-utils'
 import { Logo } from '@/components/Logo'
 import { RichText } from '@/components/patients/RichText'
-import { CheckCircle2, XCircle, ChevronRight } from 'lucide-react'
 import type { Patient, User } from '@/types'
+import {
+  Eyebrow,
+  SectionHeading,
+  SubHeading,
+  PlaceholderText,
+  StatusPill,
+  ReadingCard,
+  DataTable,
+  DiagnosticPathway,
+  VerdictBanner,
+  RecommendationCard,
+  type Tone,
+  type PathwayStep,
+} from './ReportTable'
 
 interface Props {
   assessment: Record<string, unknown>
@@ -31,51 +43,12 @@ interface Props {
   evaluator: User | null
 }
 
-const TH = ({ children }: { children: ReactNode }) => (
-  <th className="bg-slate-50 font-medium text-slate-500 uppercase text-[0.65rem] p-1.5 text-left border-b border-slate-200">
-    {children}
-  </th>
-)
-
-const TD = ({ children }: { children: ReactNode }) => (
-  <td className="p-1.5 border-b border-slate-100 align-top">{children}</td>
-)
-
-interface BadgeProps {
-  text: string
-  tone: 'green' | 'red' | 'yellow' | 'amber' | 'gray'
+/** Maps the clinical 'normal' | 'reduced' | null status vocabulary onto the report's tone palette. */
+function toTone(status: 'normal' | 'reduced' | null | undefined): Tone {
+  if (status === 'normal') return 'normal'
+  if (status === 'reduced') return 'low'
+  return 'na'
 }
-
-const StatusBadge = ({ text, tone }: BadgeProps) => {
-  const tones: Record<BadgeProps['tone'], string> = {
-    green: 'bg-green-100 text-green-700',
-    red: 'bg-red-100 text-red-700',
-    yellow: 'bg-yellow-100 text-yellow-700',
-    amber: 'bg-amber-100 text-amber-700',
-    gray: 'bg-slate-100 text-slate-500',
-  }
-  return (
-    <span
-      className={`inline-flex items-center px-2 py-0.5 text-xs font-bold rounded-full ${tones[tone]}`}
-    >
-      {text}
-    </span>
-  )
-}
-
-const PlaceholderText = () => (
-  <p className="text-slate-400 italic text-sm">Dados não coletados nesta avaliação</p>
-)
-
-const SectionTitle = ({ children }: { children: ReactNode }) => (
-  <h2 className="text-base font-bold text-slate-800 border-b-2 border-slate-300 pb-2 mb-4">
-    {children}
-  </h2>
-)
-
-const SubTitle = ({ children }: { children: ReactNode }) => (
-  <h3 className="text-sm font-semibold text-slate-700 mb-2">{children}</h3>
-)
 
 export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Props) {
   const gender = patient?.gender ?? 'M'
@@ -105,6 +78,7 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
   const weight = patient?.weight ?? an.weight
   const imc = calculateIMC(weight ?? 0, heightM)
   const imcCategory = imc ? getIMCCategory(imc) : null
+  const imcNormal = imc ? imc >= 18.5 && imc <= 24.9 : null
 
   const hgStatus = getHandgripStatus(ms.handgripMax as number | undefined, gender)
   const csStatus = getChairStandStatus(ms.chairStandTime as number | undefined)
@@ -131,80 +105,99 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
   const sarcCalFPositive = sarcCalFTotal != null && sarcCalFTotal >= 11
 
   let diagText = 'Normal'
-  let diagCls = 'bg-green-50 border-2 border-green-300 text-green-800'
+  let diagTone: Tone = 'normal'
+  let diagDetail = 'Força, massa muscular e desempenho físico dentro da normalidade.'
   if (strengthReduced && massReduced && perfReduced) {
     diagText = 'Sarcopenia grave'
-    diagCls = 'bg-red-50 border-2 border-red-300 text-red-800'
+    diagTone = 'low'
+    diagDetail = 'Força, massa muscular e desempenho físico reduzidos — quadro de maior gravidade.'
   } else if (strengthReduced && massReduced) {
     diagText = 'Sarcopenia'
-    diagCls = 'bg-amber-50 border-2 border-amber-300 text-amber-800'
+    diagTone = 'watch'
+    diagDetail = 'Força e massa muscular reduzidas, confirmando o diagnóstico.'
   } else if (strengthReduced && !massReduced) {
     diagText = 'Risco de sarcopenia'
-    diagCls = 'bg-yellow-50 border-2 border-yellow-300 text-yellow-800'
+    diagTone = 'watch'
+    diagDetail = 'Força reduzida com massa muscular preservada. Recomenda-se monitoramento.'
   } else if (sarcFPositive || sarcCalFPositive) {
     diagText = 'Risco de sarcopenia'
-    diagCls = 'bg-yellow-50 border-2 border-yellow-300 text-yellow-800'
+    diagTone = 'watch'
+    diagDetail = 'Triagem positiva (SARC-F/SARC-CalF). Recomenda-se investigação complementar.'
   }
 
   // Fall risk
   const tugVal = ba.tugSimple as number | undefined
   let fallRisk = 'Não avaliado'
-  let fallRiskCls = 'bg-slate-100 text-slate-500'
+  let fallRiskTone: Tone = 'na'
   if (tugVal != null) {
     if (tugVal > 20) {
       fallRisk = 'Alto risco de quedas'
-      fallRiskCls = 'bg-red-100 text-red-700'
+      fallRiskTone = 'low'
     } else if (tugVal > 12) {
       fallRisk = 'Risco moderado de quedas'
-      fallRiskCls = 'bg-amber-100 text-amber-700'
+      fallRiskTone = 'watch'
     } else {
       fallRisk = 'Baixo risco de quedas'
-      fallRiskCls = 'bg-green-100 text-green-700'
+      fallRiskTone = 'normal'
     }
   }
   if (sppbTotal != null && sppbTotal < 7) {
     fallRisk = 'Alto risco de quedas'
-    fallRiskCls = 'bg-red-100 text-red-700'
+    fallRiskTone = 'low'
   }
 
-  // EWGSOP2 flow steps
+  // EWGSOP2 flow steps → diagnostic pathway
   const screeningCollected =
     ss.strength != null ||
     ss.assistanceWalking != null ||
     ss.riseChair != null ||
     ss.climbStairs != null ||
     ss.falls != null
-  const steps: { label: string; value: string; pass: boolean }[] = [
+
+  const pathwaySteps: PathwayStep[] = [
     {
-      label: 'Triagem (SARC-F)',
-      value: screeningCollected
+      label: 'Triagem',
+      sub: screeningCollected
         ? sarcFPositive || sarcCalFPositive
           ? 'Risco detectado'
           : 'Sem risco'
         : 'Não avaliado',
-      pass: !sarcFPositive && !sarcCalFPositive,
+      status: !screeningCollected
+        ? 'pending'
+        : !sarcFPositive && !sarcCalFPositive
+          ? 'pass'
+          : 'fail',
     },
     {
-      label: 'Força Muscular',
-      value:
-        hgStatus === 'normal' ? 'Normal' : hgStatus === 'reduced' ? 'Reduzida' : 'Não avaliado',
-      pass: hgStatus === 'normal',
+      label: 'Força',
+      sub: hgStatus === 'normal' ? 'Normal' : hgStatus === 'reduced' ? 'Reduzida' : 'Não avaliado',
+      status: hgStatus == null ? 'pending' : hgStatus === 'normal' ? 'pass' : 'fail',
     },
     {
-      label: 'Massa Muscular',
-      value:
+      label: 'Massa',
+      sub:
         almiStatus === 'normal' ? 'Normal' : almiStatus === 'reduced' ? 'Reduzida' : 'Não avaliado',
-      pass: almiStatus === 'normal',
+      status: almiStatus == null ? 'pending' : almiStatus === 'normal' ? 'pass' : 'fail',
     },
     {
-      label: 'Desempenho Físico',
-      value:
+      label: 'Desempenho',
+      sub:
         sppbStatus === 'normal' && tugStatus === 'normal'
           ? 'Normal'
           : sppbStatus === 'reduced' || tugStatus === 'reduced'
             ? 'Reduzido'
             : 'Não avaliado',
-      pass: sppbStatus === 'normal' && tugStatus === 'normal',
+      status:
+        sppbStatus == null && tugStatus == null
+          ? 'pending'
+          : sppbStatus === 'normal' && tugStatus === 'normal'
+            ? 'pass'
+            : 'fail',
+    },
+    {
+      label: 'Veredito',
+      sub: diagText,
+      status: diagTone === 'normal' ? 'pass' : 'fail',
     },
   ]
 
@@ -220,6 +213,14 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
   // SECTION 1 diagnosis card mapping
   const finalDiag = assessment.finalDiagnosis as string | undefined
   const diagInfo = getDiagnosisInfo(finalDiag ?? '')
+  const finalDiagTone: Tone =
+    finalDiag === 'sem_sarcopenia' || finalDiag === 'normal'
+      ? 'normal'
+      : finalDiag === 'risco_sarcopenia' || finalDiag === 'sarcopenia'
+        ? 'watch'
+        : finalDiag === 'sarcopenia_grave'
+          ? 'low'
+          : 'na'
 
   // SECTION 6 fields
   const exercise = assessment.exerciseRecommendations as string | undefined
@@ -240,364 +241,268 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
 
   return (
     <div className="hidden print:block">
-      <div className="bg-white text-slate-800 p-6 max-w-full text-[0.8rem]">
+      <div className="bg-report-paper text-report-ink p-6 max-w-full text-[0.8rem] font-sans">
         {/* HEADER */}
-        <div className="flex justify-between items-center mb-6">
-          <Logo size="md" />
-          <h1 className="text-base font-bold text-slate-800">Relatório de Avaliação Funcional</h1>
-          <span className="text-sm text-slate-500">
-            {assessment.assessmentDate ? formatDateBR(assessment.assessmentDate as string) : '—'}
-          </span>
+        <div className="flex justify-between items-start mb-5 pb-5 border-b border-report-line">
+          <div>
+            <Eyebrow>IEMEX Performance · Avaliação funcional</Eyebrow>
+            <h1 className="font-report-display text-[1.35rem] font-semibold text-report-ink mt-1">
+              {patientName}
+            </h1>
+            <p className="text-[0.75rem] text-report-ink-soft mt-0.5">
+              {patientAge != null ? `${patientAge} anos` : '—'} · {patientGender} · Peso{' '}
+              {patientWeight} · Estatura {patientHeight} · IMC {patientIMC}
+            </p>
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="text-right">
+              <Eyebrow>Avaliado em</Eyebrow>
+              <p className="font-report-mono text-[0.8rem] text-report-ink mt-0.5">
+                {assessment.assessmentDate
+                  ? formatDateBR(assessment.assessmentDate as string)
+                  : '—'}
+              </p>
+            </div>
+            <Logo size="md" />
+          </div>
         </div>
-        <div className="bg-slate-700 text-white px-4 py-2 rounded-md mb-6 flex flex-wrap gap-x-3 gap-y-1 text-sm">
-          <span>{patientName}</span>
-          <span>|</span>
-          <span>{patientAge != null ? `${patientAge} anos` : '—'}</span>
-          <span>|</span>
-          <span>{patientGender}</span>
-          <span>|</span>
-          <span>Peso: {patientWeight}</span>
-          <span>|</span>
-          <span>Estatura: {patientHeight}</span>
-          <span>|</span>
-          <span>IMC: {patientIMC}</span>
-        </div>
+
+        {/* VERDICT STRIP */}
+        {hasDiagData && (
+          <div className="mb-5">
+            <VerdictBanner
+              eyebrow="Diagnóstico EWGSOP2"
+              title={diagText}
+              detail={diagDetail}
+              tone={diagTone}
+            />
+          </div>
+        )}
 
         {/* SECTION 1 — Resumo do Paciente */}
         <section className="break-inside-avoid mb-6">
-          <SectionTitle>1. Resumo do Paciente</SectionTitle>
+          <SectionHeading n={1}>Resumo do Paciente</SectionHeading>
           {hasSarcScreening ? (
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              {/* SARC-F */}
-              <div className="p-4 border border-slate-200 rounded-lg bg-white">
-                <p className="text-xs font-medium text-slate-500 uppercase">SARC-F</p>
-                <p className="text-2xl font-bold text-slate-900">{fmt(sarcFTotal)}</p>
-                <div className="mt-2">
-                  {sarcFTotal != null ? (
-                    sarcFTotal >= 4 ? (
-                      <StatusBadge text="Risco" tone="yellow" />
-                    ) : (
-                      <StatusBadge text="Normal" tone="green" />
-                    )
-                  ) : (
-                    <StatusBadge text="Não avaliado" tone="gray" />
-                  )}
-                </div>
-              </div>
-              {/* SARC-CalF */}
-              <div className="p-4 border border-slate-200 rounded-lg bg-white">
-                <p className="text-xs font-medium text-slate-500 uppercase">SARC-CalF</p>
-                <p className="text-2xl font-bold text-slate-900">{fmt(sarcCalFTotal)}</p>
-                <div className="mt-2">
-                  {sarcCalFTotal != null ? (
-                    sarcCalFTotal >= 11 ? (
-                      <StatusBadge text="Risco" tone="yellow" />
-                    ) : (
-                      <StatusBadge text="Normal" tone="green" />
-                    )
-                  ) : (
-                    <StatusBadge text="Não avaliado" tone="gray" />
-                  )}
-                </div>
-              </div>
-              {/* IMC */}
-              <div className="p-4 border border-slate-200 rounded-lg bg-white">
-                <p className="text-xs font-medium text-slate-500 uppercase">IMC</p>
-                <p className="text-2xl font-bold text-slate-900">{imc ? `${imc} kg/m²` : '—'}</p>
-                <div className="mt-2">
-                  {imc ? (
-                    imc >= 18.5 && imc <= 24.9 ? (
-                      <StatusBadge text="Normal" tone="green" />
-                    ) : (
-                      <StatusBadge text="Alterado" tone="yellow" />
-                    )
-                  ) : (
-                    <StatusBadge text="Não avaliado" tone="gray" />
-                  )}
-                </div>
-              </div>
-              {/* Diagnóstico */}
-              <div className="p-4 border border-slate-200 rounded-lg bg-white">
-                <p className="text-xs font-medium text-slate-500 uppercase">Diagnóstico</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  {diagInfo?.label ?? 'Não definido'}
-                </p>
-                <div className="mt-2">
-                  {finalDiag === 'sem_sarcopenia' || finalDiag === 'normal' ? (
-                    <StatusBadge text="Normal" tone="green" />
-                  ) : finalDiag === 'risco_sarcopenia' ? (
-                    <StatusBadge text="Risco" tone="yellow" />
-                  ) : finalDiag === 'sarcopenia' ? (
-                    <StatusBadge text="Sarcopenia" tone="amber" />
-                  ) : finalDiag === 'sarcopenia_grave' ? (
-                    <StatusBadge text="Sarcopenia Grave" tone="red" />
-                  ) : (
-                    <StatusBadge text="Não definido" tone="gray" />
-                  )}
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-3 mb-2">
+              <ReadingCard
+                label="SARC-F"
+                value={fmt(sarcFTotal)}
+                refText={
+                  sarcFTotal != null
+                    ? sarcFPositive
+                      ? 'Risco (≥ 4 pts)'
+                      : 'Sem risco'
+                    : 'Não avaliado'
+                }
+                tone={sarcFTotal == null ? 'na' : sarcFPositive ? 'watch' : 'normal'}
+              />
+              <ReadingCard
+                label="SARC-CalF"
+                value={fmt(sarcCalFTotal)}
+                refText={
+                  sarcCalFTotal != null
+                    ? sarcCalFPositive
+                      ? 'Risco (≥ 11 pts)'
+                      : 'Sem risco'
+                    : 'Não avaliado'
+                }
+                tone={sarcCalFTotal == null ? 'na' : sarcCalFPositive ? 'watch' : 'normal'}
+              />
+              <ReadingCard
+                label="IMC"
+                value={imc ? String(imc) : '—'}
+                unit={imc ? 'kg/m²' : undefined}
+                refText={
+                  imc ? (imcNormal ? 'Faixa normal' : 'Fora da faixa normal') : 'Não avaliado'
+                }
+                tone={imc == null ? 'na' : imcNormal ? 'normal' : 'watch'}
+              />
+              <ReadingCard
+                label="Diagnóstico"
+                value={diagInfo?.label ?? 'Não definido'}
+                refText={finalDiagTone === 'na' ? 'Não definido' : 'Ver seção 5'}
+                tone={finalDiagTone}
+              />
             </div>
           ) : (
-            <p className="text-slate-400 italic text-sm mb-6">
-              Dados não coletados nesta avaliação
-            </p>
+            <PlaceholderText />
           )}
         </section>
 
         {/* SECTION 2 — Força Muscular */}
         <section className="break-inside-avoid mb-6">
-          <SectionTitle>2. Força Muscular</SectionTitle>
+          <SectionHeading n={2}>Força Muscular</SectionHeading>
           {hasStrength ? (
-            <>
-              <div className="break-inside-avoid mb-4">
-                <SubTitle>Força de Preensão Manual (Handgrip)</SubTitle>
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr>
-                      <TH>Parâmetro</TH>
-                      <TH>Valor</TH>
-                      <TH>Referência</TH>
-                      <TH>Status</TH>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <TD>Handgrip Esquerdo</TD>
-                      <TD>{fmt(ms.handgripLeft, 'kg')}</TD>
-                      <TD>{handgripRef}</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>Handgrip Direito</TD>
-                      <TD>{fmt(ms.handgripRight, 'kg')}</TD>
-                      <TD>{handgripRef}</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>Handgrip Máximo</TD>
-                      <TD>{fmt(ms.handgripMax, 'kg')}</TD>
-                      <TD>{handgripRef}</TD>
-                      <TD>
-                        {hgStatus === 'normal' ? (
-                          <StatusBadge text="Preservada" tone="green" />
-                        ) : hgStatus === 'reduced' ? (
-                          <StatusBadge text="Reduzida" tone="red" />
-                        ) : (
-                          <StatusBadge text="Não coletado" tone="gray" />
-                        )}
-                      </TD>
-                    </tr>
-                    {ms.handgripPercentile != null && (
-                      <tr>
-                        <TD>Percentil</TD>
-                        <TD>{String(ms.handgripPercentile)}º</TD>
-                        <TD>—</TD>
-                        <TD>—</TD>
-                      </tr>
-                    )}
-                    <tr>
-                      <TD>Levantar da Cadeira (5x)</TD>
-                      <TD>{fmt(ms.chairStandTime, 's')}</TD>
-                      <TD>≤ 15 s</TD>
-                      <TD>
-                        {csStatus === 'normal' ? (
-                          <StatusBadge text="Preservada" tone="green" />
-                        ) : csStatus === 'reduced' ? (
-                          <StatusBadge text="Reduzida" tone="red" />
-                        ) : (
-                          <StatusBadge text="Não coletado" tone="gray" />
-                        )}
-                      </TD>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </>
+            <div className="break-inside-avoid mb-4">
+              <SubHeading>Força de Preensão Manual (Handgrip)</SubHeading>
+              <DataTable
+                head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                rows={[
+                  ['Handgrip Esquerdo', fmt(ms.handgripLeft, 'kg'), handgripRef, '—'],
+                  ['Handgrip Direito', fmt(ms.handgripRight, 'kg'), handgripRef, '—'],
+                  [
+                    'Handgrip Máximo',
+                    fmt(ms.handgripMax, 'kg'),
+                    handgripRef,
+                    <StatusPill
+                      key="hg"
+                      tone={toTone(hgStatus)}
+                      text={
+                        hgStatus === 'normal'
+                          ? 'Preservada'
+                          : hgStatus === 'reduced'
+                            ? 'Reduzida'
+                            : undefined
+                      }
+                    />,
+                  ],
+                  ...(ms.handgripPercentile != null
+                    ? [['Percentil', `${String(ms.handgripPercentile)}º`, '—', '—']]
+                    : []),
+                  [
+                    'Levantar da Cadeira (5x)',
+                    fmt(ms.chairStandTime, 's'),
+                    '≤ 15 s',
+                    <StatusPill
+                      key="cs"
+                      tone={toTone(csStatus)}
+                      text={
+                        csStatus === 'normal'
+                          ? 'Preservada'
+                          : csStatus === 'reduced'
+                            ? 'Reduzida'
+                            : undefined
+                      }
+                    />,
+                  ],
+                ]}
+              />
+            </div>
           ) : (
             <PlaceholderText />
           )}
 
-          {hasResp && (
-            <div className="break-inside-avoid mb-4">
-              <SubTitle>Força da Musculatura Respiratória</SubTitle>
-              <table className="w-full text-xs border-collapse">
-                <thead>
-                  <tr>
-                    <TH>Parâmetro</TH>
-                    <TH>Valor</TH>
-                    <TH>Referência</TH>
-                    <TH>Status</TH>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(() => {
-                    const pimaxPct =
-                      (rs.pimaxPercent as number | undefined) ??
-                      calcPercent(
-                        rs.pimaxActual as number | undefined,
-                        rs.pimaxPredicted as number | undefined,
-                      )
-                    const pemaxPct =
-                      (rs.pemaxPercent as number | undefined) ??
-                      calcPercent(
-                        rs.pemaxActual as number | undefined,
-                        rs.pemaxPredicted as number | undefined,
-                      )
-                    return (
-                      <>
-                        <tr>
-                          <TD>PImax Atual</TD>
-                          <TD>{fmt(rs.pimaxActual, 'cmH₂O')}</TD>
-                          <TD>—</TD>
-                          <TD>—</TD>
-                        </tr>
-                        <tr>
-                          <TD>PImax Previsto</TD>
-                          <TD>{fmt(rs.pimaxPredicted, 'cmH₂O')}</TD>
-                          <TD>—</TD>
-                          <TD>—</TD>
-                        </tr>
-                        <tr>
-                          <TD>PImax % do Previsto</TD>
-                          <TD>{pimaxPct != null ? `${pimaxPct}%` : '—'}</TD>
-                          <TD>≥ 80%</TD>
-                          <TD>
-                            {pimaxPct != null ? (
-                              pimaxPct >= 80 ? (
-                                <StatusBadge text="Normal" tone="green" />
-                              ) : (
-                                <StatusBadge text="Reduzida" tone="red" />
-                              )
-                            ) : (
-                              <StatusBadge text="Não coletado" tone="gray" />
-                            )}
-                          </TD>
-                        </tr>
-                        <tr>
-                          <TD>PEmax Atual</TD>
-                          <TD>{fmt(rs.pemaxActual, 'cmH₂O')}</TD>
-                          <TD>—</TD>
-                          <TD>—</TD>
-                        </tr>
-                        <tr>
-                          <TD>PEmax Previsto</TD>
-                          <TD>{fmt(rs.pemaxPredicted, 'cmH₂O')}</TD>
-                          <TD>—</TD>
-                          <TD>—</TD>
-                        </tr>
-                        <tr>
-                          <TD>PEmax % do Previsto</TD>
-                          <TD>{pemaxPct != null ? `${pemaxPct}%` : '—'}</TD>
-                          <TD>≥ 80%</TD>
-                          <TD>
-                            {pemaxPct != null ? (
-                              pemaxPct >= 80 ? (
-                                <StatusBadge text="Normal" tone="green" />
-                              ) : (
-                                <StatusBadge text="Reduzida" tone="red" />
-                              )
-                            ) : (
-                              <StatusBadge text="Não coletado" tone="gray" />
-                            )}
-                          </TD>
-                        </tr>
-                      </>
-                    )
-                  })()}
-                </tbody>
-              </table>
-            </div>
-          )}
+          {hasResp &&
+            (() => {
+              const pimaxPct =
+                (rs.pimaxPercent as number | undefined) ??
+                calcPercent(
+                  rs.pimaxActual as number | undefined,
+                  rs.pimaxPredicted as number | undefined,
+                )
+              const pemaxPct =
+                (rs.pemaxPercent as number | undefined) ??
+                calcPercent(
+                  rs.pemaxActual as number | undefined,
+                  rs.pemaxPredicted as number | undefined,
+                )
+              const pimaxTone: Tone = pimaxPct == null ? 'na' : pimaxPct >= 80 ? 'normal' : 'low'
+              const pemaxTone: Tone = pemaxPct == null ? 'na' : pemaxPct >= 80 ? 'normal' : 'low'
+              return (
+                <div className="break-inside-avoid mb-4">
+                  <SubHeading>Força da Musculatura Respiratória</SubHeading>
+                  <DataTable
+                    head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                    rows={[
+                      ['PImax Atual', fmt(rs.pimaxActual, 'cmH₂O'), '—', '—'],
+                      ['PImax Previsto', fmt(rs.pimaxPredicted, 'cmH₂O'), '—', '—'],
+                      [
+                        'PImax % do Previsto',
+                        pimaxPct != null ? `${pimaxPct}%` : '—',
+                        '≥ 80%',
+                        <StatusPill
+                          key="pimax"
+                          tone={pimaxTone}
+                          text={
+                            pimaxPct == null
+                              ? undefined
+                              : pimaxTone === 'normal'
+                                ? 'Normal'
+                                : 'Reduzida'
+                          }
+                        />,
+                      ],
+                      ['PEmax Atual', fmt(rs.pemaxActual, 'cmH₂O'), '—', '—'],
+                      ['PEmax Previsto', fmt(rs.pemaxPredicted, 'cmH₂O'), '—', '—'],
+                      [
+                        'PEmax % do Previsto',
+                        pemaxPct != null ? `${pemaxPct}%` : '—',
+                        '≥ 80%',
+                        <StatusPill
+                          key="pemax"
+                          tone={pemaxTone}
+                          text={
+                            pemaxPct == null
+                              ? undefined
+                              : pemaxTone === 'normal'
+                                ? 'Normal'
+                                : 'Reduzida'
+                          }
+                        />,
+                      ],
+                    ]}
+                  />
+                </div>
+              )
+            })()}
         </section>
 
         {/* SECTION 3 — Massa Muscular */}
         <section className="break-inside-avoid mb-6">
-          <SectionTitle>3. Massa Muscular</SectionTitle>
+          <SectionHeading n={3}>Massa Muscular</SectionHeading>
           {hasBC || hasAnth ? (
             <>
-              <div className="break-inside-avoid mb-4">
-                <SubTitle>Índice de Massa Muscular Apendicular (ALMI)</SubTitle>
-                {bc.almi != null ? (
-                  <div className="p-4 border border-slate-200 rounded-lg bg-white">
-                    <p className="text-2xl font-bold text-slate-900">{fmt(bc.almi, 'kg/m²')}</p>
-                    <p className="text-xs text-slate-500 mt-1">Referência: {almiRef}</p>
-                    <div className="mt-2">
-                      {almiStatus === 'normal' ? (
-                        <StatusBadge text="Normal" tone="green" />
-                      ) : almiStatus === 'reduced' ? (
-                        <StatusBadge text="Reduzida" tone="red" />
-                      ) : (
-                        <StatusBadge text="Não avaliado" tone="gray" />
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <StatusBadge text="Não coletado" tone="gray" />
-                )}
+              <div className="break-inside-avoid mb-4 flex flex-wrap gap-3">
+                <ReadingCard
+                  label="Índice de Massa Muscular Apendicular"
+                  value={bc.almi != null ? fmt(bc.almi) : '—'}
+                  unit={bc.almi != null ? 'kg/m²' : undefined}
+                  refText={`Referência: ${almiRef}`}
+                  tone={toTone(almiStatus)}
+                />
               </div>
 
               <div className="break-inside-avoid mb-4">
-                <SubTitle>Composição Corporal</SubTitle>
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr>
-                      <TH>Parâmetro</TH>
-                      <TH>Valor</TH>
-                      <TH>Referência</TH>
-                      <TH>Status</TH>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <TD>Gordura Corporal</TD>
-                      <TD>{fmt(bc.fatPercentage, '%')}</TD>
-                      <TD>—</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>Ângulo de Fase</TD>
-                      <TD>{fmt(bc.phaseAngle, '°')}</TD>
-                      <TD>{phaseRef}</TD>
-                      <TD>
-                        {paStatus === 'normal' ? (
-                          <StatusBadge text="Normal" tone="green" />
-                        ) : paStatus === 'reduced' ? (
-                          <StatusBadge text="Reduzida" tone="red" />
-                        ) : (
-                          <StatusBadge text="Não coletado" tone="gray" />
-                        )}
-                      </TD>
-                    </tr>
-                    <tr>
-                      <TD>Massa Muscular Apendicular</TD>
-                      <TD>{fmt(bc.appendicularMuscleMass, 'kg')}</TD>
-                      <TD>—</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>Circunferência da Panturrilha</TD>
-                      <TD>{fmt(an.calfCircumference, 'cm')}</TD>
-                      <TD>{calfRef}</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>IMC</TD>
-                      <TD>{imc ? `${imc} kg/m²` : '—'}</TD>
-                      <TD>18.5–24.9 kg/m²</TD>
-                      <TD>
-                        {imc ? (
-                          imc >= 18.5 && imc <= 24.9 ? (
-                            <StatusBadge text="Normal" tone="green" />
-                          ) : (
-                            <StatusBadge text="Alterado" tone="yellow" />
-                          )
-                        ) : (
-                          <StatusBadge text="Não coletado" tone="gray" />
-                        )}
-                      </TD>
-                    </tr>
-                  </tbody>
-                </table>
+                <SubHeading>Composição Corporal</SubHeading>
+                <DataTable
+                  head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                  rows={[
+                    ['Gordura Corporal', fmt(bc.fatPercentage, '%'), '—', '—'],
+                    [
+                      'Ângulo de Fase',
+                      fmt(bc.phaseAngle, '°'),
+                      phaseRef,
+                      <StatusPill
+                        key="pa"
+                        tone={toTone(paStatus)}
+                        text={
+                          paStatus === 'normal'
+                            ? 'Normal'
+                            : paStatus === 'reduced'
+                              ? 'Reduzida'
+                              : undefined
+                        }
+                      />,
+                    ],
+                    ['Massa Muscular Apendicular', fmt(bc.appendicularMuscleMass, 'kg'), '—', '—'],
+                    [
+                      'Circunferência da Panturrilha',
+                      fmt(an.calfCircumference, 'cm'),
+                      calfRef,
+                      '—',
+                    ],
+                    [
+                      'IMC',
+                      imc ? `${imc} kg/m²` : '—',
+                      '18.5–24.9 kg/m²',
+                      <StatusPill
+                        key="imc"
+                        tone={imc == null ? 'na' : imcNormal ? 'normal' : 'watch'}
+                        text={imc == null ? undefined : imcNormal ? 'Normal' : 'Alterado'}
+                      />,
+                    ],
+                  ]}
+                />
               </div>
             </>
           ) : (
@@ -607,112 +512,82 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
 
         {/* SECTION 4 — Desempenho Físico */}
         <section className="break-inside-avoid mb-6">
-          <SectionTitle>4. Desempenho Físico</SectionTitle>
+          <SectionHeading n={4}>Desempenho Físico</SectionHeading>
           {hasPerf ? (
             <>
               <div className="break-inside-avoid mb-4">
-                <SubTitle>Short Physical Performance Battery (SPPB)</SubTitle>
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr>
-                      <TH>Parâmetro</TH>
-                      <TH>Valor</TH>
-                      <TH>Referência</TH>
-                      <TH>Status</TH>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <TD>Equilíbrio (SPPB)</TD>
-                      <TD>{fmt(ba.sppbBalance, 'pts')}</TD>
-                      <TD>0 a 4 pts</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>Velocidade de Marcha (SPPB)</TD>
-                      <TD>{fmt(ba.sppbGait, 'pts')}</TD>
-                      <TD>0 a 4 pts</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>Levantar da Cadeira (SPPB)</TD>
-                      <TD>{fmt(ba.sppbChair, 'pts')}</TD>
-                      <TD>0 a 4 pts</TD>
-                      <TD>—</TD>
-                    </tr>
-                    <tr>
-                      <TD>Total SPPB</TD>
-                      <TD>{fmt(sppbTotal, 'pts')}</TD>
-                      <TD>≥ 10 pts (0 a 12 pts)</TD>
-                      <TD>
-                        {sppbStatus === 'normal' ? (
-                          <StatusBadge text="Normal" tone="green" />
-                        ) : sppbStatus === 'reduced' ? (
-                          <StatusBadge text="Reduzido" tone="red" />
-                        ) : (
-                          <StatusBadge text="Não coletado" tone="gray" />
-                        )}
-                      </TD>
-                    </tr>
-                  </tbody>
-                </table>
+                <SubHeading>Short Physical Performance Battery (SPPB)</SubHeading>
+                <DataTable
+                  head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                  rows={[
+                    ['Equilíbrio (SPPB)', fmt(ba.sppbBalance, 'pts'), '0 a 4 pts', '—'],
+                    ['Velocidade de Marcha (SPPB)', fmt(ba.sppbGait, 'pts'), '0 a 4 pts', '—'],
+                    ['Levantar da Cadeira (SPPB)', fmt(ba.sppbChair, 'pts'), '0 a 4 pts', '—'],
+                    [
+                      'Total SPPB',
+                      fmt(sppbTotal, 'pts'),
+                      '≥ 10 pts (0 a 12 pts)',
+                      <StatusPill
+                        key="sppb"
+                        tone={toTone(sppbStatus)}
+                        text={
+                          sppbStatus === 'normal'
+                            ? 'Normal'
+                            : sppbStatus === 'reduced'
+                              ? 'Reduzido'
+                              : undefined
+                        }
+                      />,
+                    ],
+                  ]}
+                />
               </div>
 
               <div className="break-inside-avoid mb-4">
-                <SubTitle>Timed Up and Go (TUG)</SubTitle>
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr>
-                      <TH>Parâmetro</TH>
-                      <TH>Valor</TH>
-                      <TH>Referência</TH>
-                      <TH>Status</TH>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <TD>TUG Simples</TD>
-                      <TD>{fmt(ba.tugSimple, 's')}</TD>
-                      <TD>≤ 12 s</TD>
-                      <TD>
-                        {tugVal != null ? (
-                          tugVal <= 12 ? (
-                            <StatusBadge text="Normal" tone="green" />
-                          ) : tugVal <= 20 ? (
-                            <StatusBadge text="Risco Moderado" tone="yellow" />
-                          ) : (
-                            <StatusBadge text="Risco Alto" tone="red" />
-                          )
-                        ) : (
-                          <StatusBadge text="Não coletado" tone="gray" />
-                        )}
-                      </TD>
-                    </tr>
-                    <tr>
-                      <TD>TUG Dupla Tarefa</TD>
-                      <TD>{fmt(ba.tugDualTask, 's')}</TD>
-                      <TD>—</TD>
-                      <TD>—</TD>
-                    </tr>
-                  </tbody>
-                </table>
+                <SubHeading>Timed Up and Go (TUG)</SubHeading>
+                <DataTable
+                  head={['Parâmetro', 'Valor', 'Referência', 'Status']}
+                  rows={[
+                    [
+                      'TUG Simples',
+                      fmt(ba.tugSimple, 's'),
+                      '≤ 12 s',
+                      tugVal != null ? (
+                        <StatusPill
+                          key="tug"
+                          tone={tugVal <= 12 ? 'normal' : tugVal <= 20 ? 'watch' : 'low'}
+                          text={
+                            tugVal <= 12 ? 'Normal' : tugVal <= 20 ? 'Risco Moderado' : 'Risco Alto'
+                          }
+                        />
+                      ) : (
+                        <StatusPill key="tug" tone="na" />
+                      ),
+                    ],
+                    ['TUG Dupla Tarefa', fmt(ba.tugDualTask, 's'), '—', '—'],
+                  ]}
+                />
               </div>
 
               <div className="break-inside-avoid mb-4">
-                <SubTitle>Estabilometria</SubTitle>
+                <SubHeading>Estabilometria</SubHeading>
                 {ba.stabilometryEyesOpen || ba.stabilometryEyesClosed ? (
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 border border-slate-200 rounded-lg">
-                      <p className="text-xs font-medium text-slate-500 uppercase">Olhos Abertos</p>
-                      <p className="text-sm">{String(ba.stabilometryEyesOpen ?? '—')}</p>
+                    <div className="p-3 border border-report-line rounded-[10px]">
+                      <Eyebrow>Olhos Abertos</Eyebrow>
+                      <p className="text-sm text-report-ink mt-1">
+                        {String(ba.stabilometryEyesOpen ?? '—')}
+                      </p>
                     </div>
-                    <div className="p-3 border border-slate-200 rounded-lg">
-                      <p className="text-xs font-medium text-slate-500 uppercase">Olhos Fechados</p>
-                      <p className="text-sm">{String(ba.stabilometryEyesClosed ?? '—')}</p>
+                    <div className="p-3 border border-report-line rounded-[10px]">
+                      <Eyebrow>Olhos Fechados</Eyebrow>
+                      <p className="text-sm text-report-ink mt-1">
+                        {String(ba.stabilometryEyesClosed ?? '—')}
+                      </p>
                     </div>
                   </div>
                 ) : (
-                  <StatusBadge text="Não avaliado" tone="gray" />
+                  <StatusPill tone="na" />
                 )}
               </div>
             </>
@@ -723,60 +598,34 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
 
         {/* SECTION 5 — Diagnóstico */}
         <section className="break-inside-avoid mb-6">
-          <SectionTitle>5. Diagnóstico</SectionTitle>
+          <SectionHeading n={5}>Diagnóstico</SectionHeading>
           {hasDiagData ? (
             <>
-              {/* EWGSOP2 Flow */}
-              <div className="break-inside-avoid mb-4">
-                <SubTitle>Algoritmo Diagnóstico EWGSOP2</SubTitle>
-                <div className="flex flex-wrap items-stretch gap-2">
-                  {steps.map((step, i) => (
-                    <div key={i} className="flex items-center gap-2 flex-1 min-w-[140px]">
-                      <div className="rounded-lg border border-slate-200 p-3 flex flex-col items-center gap-1 min-w-0 flex-1 bg-white">
-                        <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                            step.pass ? 'bg-green-500 text-white' : 'bg-amber-500 text-white'
-                          }`}
-                        >
-                          {step.pass ? (
-                            <CheckCircle2 className="h-4 w-4" />
-                          ) : (
-                            <XCircle className="h-4 w-4" />
-                          )}
-                        </div>
-                        <p className="text-xs font-medium text-slate-500 uppercase text-center">
-                          {step.label}
-                        </p>
-                        <p className="text-sm font-bold text-center text-slate-900">{step.value}</p>
-                      </div>
-                      {i < steps.length - 1 && (
-                        <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
-                      )}
-                    </div>
-                  ))}
-                </div>
+              {/* Signature element: EWGSOP2 diagnostic pathway */}
+              <div className="break-inside-avoid mb-5">
+                <SubHeading>Percurso Diagnóstico EWGSOP2</SubHeading>
+                <DiagnosticPathway steps={pathwaySteps} />
               </div>
 
-              {/* Diagnosis box */}
-              <div className={`break-inside-avoid mb-4 rounded-lg p-4 text-center ${diagCls}`}>
-                <p className="text-xs font-semibold uppercase mb-1 opacity-80">Diagnóstico Final</p>
-                <p className="font-bold text-base">{diagText}</p>
+              <div className="break-inside-avoid mb-4">
+                <VerdictBanner
+                  eyebrow="Diagnóstico Final"
+                  title={diagText}
+                  detail={diagDetail}
+                  tone={diagTone}
+                />
               </div>
 
               {/* Fall risk */}
               <div className="break-inside-avoid mb-4">
-                <SubTitle>Risco de Quedas</SubTitle>
-                <span
-                  className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${fallRiskCls}`}
-                >
-                  {fallRisk}
-                </span>
+                <SubHeading>Risco de Quedas</SubHeading>
+                <StatusPill tone={fallRiskTone} text={fallRisk} />
               </div>
 
               {/* Clinical conclusion */}
               <div className="break-inside-avoid mb-4">
-                <SubTitle>Conclusão Clínica</SubTitle>
-                <div className="bg-slate-50 border-l-4 border-slate-400 p-4 text-sm text-slate-700">
+                <SubHeading>Conclusão Clínica</SubHeading>
+                <div className="bg-report-paper-soft border-l-[3px] border-report-ink-soft p-4 text-sm text-report-ink">
                   <RichText
                     content={assessment.clinicalSummary as string}
                     emptyMsg="Sem conclusão clínica registrada."
@@ -791,37 +640,36 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator }: Prop
 
         {/* SECTION 6 — Recomendações */}
         <section className="break-inside-avoid mb-6">
-          <SectionTitle>6. Recomendações</SectionTitle>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="border-l-4 border-slate-400 p-4 rounded bg-white break-inside-avoid">
-              <SubTitle>Exercício</SubTitle>
+          <SectionHeading n={6}>Recomendações</SectionHeading>
+          <div className="flex flex-wrap gap-3">
+            <RecommendationCard title="Exercício">
               {exercise && exercise.trim() ? (
                 <RichText content={exercise} emptyMsg="" />
               ) : (
-                <p className="text-slate-400 italic text-sm">Não definido</p>
+                <p className="text-report-ink-soft italic text-sm">Não definido</p>
               )}
-            </div>
-            <div className="border-l-4 border-green-400 p-4 rounded bg-white break-inside-avoid">
-              <SubTitle>Nutrição</SubTitle>
+            </RecommendationCard>
+            <RecommendationCard title="Nutrição">
               {nutrition && nutrition.trim() ? (
                 <RichText content={nutrition} emptyMsg="" />
               ) : (
-                <p className="text-slate-400 italic text-sm">Não definido</p>
+                <p className="text-report-ink-soft italic text-sm">Não definido</p>
               )}
-            </div>
-            <div className="border-l-4 border-blue-400 p-4 rounded bg-white break-inside-avoid">
-              <SubTitle>Reavaliação</SubTitle>
+            </RecommendationCard>
+            <RecommendationCard title="Reavaliação">
               {reassessmentDate ? (
-                <p className="text-sm font-medium">{formatDateBR(reassessmentDate)}</p>
+                <p className="text-sm font-report-mono font-semibold">
+                  {formatDateBR(reassessmentDate)}
+                </p>
               ) : (
-                <p className="text-slate-400 italic text-sm">Não definido</p>
+                <p className="text-report-ink-soft italic text-sm">Não definido</p>
               )}
-            </div>
+            </RecommendationCard>
           </div>
         </section>
 
         {/* FOOTER */}
-        <div className="border-t border-slate-200 pt-2 mt-6 text-center text-[0.65rem] text-slate-400 flex justify-between">
+        <div className="border-t border-report-line pt-2 mt-6 text-center text-[0.65rem] text-report-ink-soft flex justify-between font-report-mono">
           <span>IEMEX Performance</span>
           <span>
             {assessment.assessmentDate ? formatDateBR(assessment.assessmentDate as string) : '—'}
