@@ -28,6 +28,8 @@ export default {
       fontFamily: {
         sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        'report-display': ['Space Grotesk', 'system-ui', 'sans-serif'],
+        'report-mono': ['IBM Plex Mono', 'ui-monospace', 'monospace'],
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -79,6 +81,20 @@ export default {
           3: 'hsl(var(--chart-3))',
           4: 'hsl(var(--chart-4))',
           5: 'hsl(var(--chart-5))',
+        },
+        report: {
+          ink: '#0D211E',
+          'ink-soft': '#3E5652',
+          paper: '#FFFFFF',
+          'paper-soft': '#F4F6F5',
+          line: '#DEE4E2',
+          teal: '#0F8B7E',
+          'teal-bg': '#E4F3F0',
+          amber: '#AD6A0C',
+          'amber-bg': '#FBF0DE',
+          'amber-text': '#5B3A05',
+          crimson: '#A8322D',
+          'crimson-bg': '#FBEAE9',
         },
       },
       borderRadius: {
