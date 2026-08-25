@@ -289,7 +289,7 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator, allAss
   const patientIMC = imc ? `${imc} kg/m²${imcCategory ? ` (${imcCategory})` : ''}` : '—'
 
   return (
-    <div className="hidden print:block">
+    <div className="fixed -left-[9999px] top-0 w-[210mm] print:static print:left-0 print:top-0 print:w-full">
       <div className="bg-report-paper text-report-ink p-6 max-w-full text-[0.8rem] font-sans">
         {/* HEADER */}
         <div className="flex justify-between items-start mb-5 pb-5 border-b border-report-line">
@@ -923,7 +923,7 @@ export function ReportPrint({ assessment, patient, evaluator: _evaluator, allAss
 
         {/* SECTION 7 — Tendências Históricas */}
         {allAssessments && allAssessments.length > 1 && (
-          <section className="break-inside-avoid mb-6">
+          <section className="mb-6">
             <SectionHeading n={7}>Tendências Históricas</SectionHeading>
             <div className="bg-report-paper-soft rounded-[10px] p-4">
               <EvolutionCharts
