@@ -2,9 +2,9 @@ import { ReportTable, SectionBlock, type ReportRow } from './ReportTable'
 import { obj, fmt, hasData, interpRange, interpBP } from '@/lib/report-utils'
 import { getSarcFTotal, getSarcCalFTotal, getSarcopeniaRisk } from '@/lib/clinical-utils'
 import { calculateAge, formatGender, formatDateBR, getDiagnosisInfo } from '@/lib/patient-utils'
-import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
 import { RadarProfile } from '@/components/report/RadarProfile'
+import { Eyebrow, ReadingCard, PlaceholderText, type Tone } from './ReportTable'
 
 interface Props {
   assessment: Record<string, unknown>
@@ -85,6 +85,8 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
     if (!r) return null
     return r === 'baixo' ? 'Baixo risco' : 'Risco elevado'
   }
+  const riskTone = (r: string | null): Tone =>
+    r == null ? 'na' : r === 'baixo' ? 'normal' : 'watch'
 
   const execSummary = diagInfo
     ? `Status diagnóstico: ${diagInfo.label}. ` +
@@ -97,109 +99,39 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
   return (
     <div aria-label="1. Resumo do Paciente" className="animate-fade-in">
       <SectionBlock number={1} title="Resumo do Paciente">
-        <div className="flex flex-wrap gap-3 mb-4 break-inside-avoid">
-          <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
-            {patient?.name ?? '-'}
+        <div className="flex flex-wrap gap-2 mb-4 break-inside-avoid">
+          <span className="bg-report-paper-soft text-report-ink-soft rounded-full px-3 py-1 text-xs font-report-mono">
+            {patient?.name ?? '—'}
           </span>
           {age != null && (
-            <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
+            <span className="bg-report-paper-soft text-report-ink-soft rounded-full px-3 py-1 text-xs font-report-mono">
               {age} anos
             </span>
           )}
           {patient && (
-            <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
+            <span className="bg-report-paper-soft text-report-ink-soft rounded-full px-3 py-1 text-xs font-report-mono">
               {formatGender(patient.gender)}
             </span>
           )}
-          <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-sm">
+          <span className="bg-report-paper-soft text-report-ink-soft rounded-full px-3 py-1 text-xs font-report-mono">
             {formatDateBR(assessment.assessmentDate as string)}
           </span>
         </div>
 
         {hasScreening ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 break-inside-avoid">
-            <div
-              className={cn(
-                'border border-border/60 rounded-lg p-4 relative overflow-hidden',
-                fRisk === 'baixo'
-                  ? 'bg-gradient-to-br from-green-50 to-white dark:from-green-950/30 dark:to-background'
-                  : 'bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/30 dark:to-background',
-              )}
-            >
-              <span
-                className="absolute left-0 top-0 bottom-0 w-[3px]"
-                style={{
-                  backgroundColor: fRisk === 'baixo' ? 'hsl(142 68% 40%)' : 'hsl(38 92% 50%)',
-                }}
-              />
-              <div className="relative z-10">
-                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">SARC-F</p>
-                <p className="text-2xl font-bold tabular-nums">{fmt(sarcFTotal)}</p>
-                {fRisk && (
-                  <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium">
-                    <span
-                      className={cn(
-                        'w-2 h-2 rounded-full',
-                        fRisk === 'baixo'
-                          ? 'bg-green-500 dark:bg-green-400'
-                          : 'bg-amber-500 dark:bg-amber-400',
-                      )}
-                    />
-                    <span
-                      className={
-                        fRisk === 'baixo'
-                          ? 'text-green-700 dark:text-green-400'
-                          : 'text-amber-700 dark:text-amber-400'
-                      }
-                    >
-                      {riskLabel(fRisk)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div
-              className={cn(
-                'border border-border/60 rounded-lg p-4 relative overflow-hidden',
-                cfRisk === 'baixo'
-                  ? 'bg-gradient-to-br from-green-50 to-white dark:from-green-950/30 dark:to-background'
-                  : 'bg-gradient-to-br from-amber-50 to-white dark:from-amber-950/30 dark:to-background',
-              )}
-            >
-              <span
-                className="absolute left-0 top-0 bottom-0 w-[3px]"
-                style={{
-                  backgroundColor: cfRisk === 'baixo' ? 'hsl(142 68% 40%)' : 'hsl(38 92% 50%)',
-                }}
-              />
-              <div className="relative z-10">
-                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
-                  SARC-CalF
-                </p>
-                <p className="text-2xl font-bold tabular-nums">{fmt(sarcCalFTotal)}</p>
-                {cfRisk && (
-                  <div className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium">
-                    <span
-                      className={cn(
-                        'w-2 h-2 rounded-full',
-                        cfRisk === 'baixo'
-                          ? 'bg-green-500 dark:bg-green-400'
-                          : 'bg-amber-500 dark:bg-amber-400',
-                      )}
-                    />
-                    <span
-                      className={
-                        cfRisk === 'baixo'
-                          ? 'text-green-700 dark:text-green-400'
-                          : 'text-amber-700 dark:text-amber-400'
-                      }
-                    >
-                      {riskLabel(cfRisk)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
+          <div className="flex flex-wrap gap-3 mb-4 break-inside-avoid">
+            <ReadingCard
+              label="SARC-F"
+              value={fmt(sarcFTotal)}
+              refText={fRisk ? riskLabel(fRisk)! : 'Não avaliado'}
+              tone={riskTone(fRisk)}
+            />
+            <ReadingCard
+              label="SARC-CalF"
+              value={fmt(sarcCalFTotal)}
+              refText={cfRisk ? riskLabel(cfRisk)! : 'Não avaliado'}
+              tone={riskTone(cfRisk)}
+            />
           </div>
         ) : (
           <PlaceholderText />
@@ -209,23 +141,11 @@ export function Section1PatientSummary({ assessment, patient }: Props) {
 
         {hasVitals ? <ReportTable rows={vitalsRows} /> : <PlaceholderText />}
 
-        <div className="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4 text-sm leading-relaxed break-inside-avoid">
-          <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
-            Resumo Executivo
-          </p>
-          <p>{execSummary}</p>
+        <div className="mt-4 bg-report-paper-soft border-l-[3px] border-report-ink rounded-r-[8px] p-4 text-sm leading-relaxed break-inside-avoid">
+          <Eyebrow>Resumo Executivo</Eyebrow>
+          <p className="text-report-ink mt-1.5">{execSummary}</p>
         </div>
       </SectionBlock>
-    </div>
-  )
-}
-
-function PlaceholderText() {
-  return (
-    <div className="bg-muted/30 rounded">
-      <p className="text-muted-foreground text-sm italic py-4 text-center">
-        Dados não coletados nesta avaliação
-      </p>
     </div>
   )
 }
