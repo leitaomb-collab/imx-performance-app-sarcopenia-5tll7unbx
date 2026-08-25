@@ -242,7 +242,12 @@ export default function Report() {
             <Section6Recommendations assessment={data} />
             <Section7Trends historicalAssessments={historical} patient={patient} />
           </div>
-          <ReportPrint assessment={data} patient={patient} evaluator={evaluator} />
+          <ReportPrint
+            assessment={data}
+            patient={patient}
+            evaluator={evaluator}
+            allAssessments={(historical as unknown as Record<string, unknown>[]) ?? undefined}
+          />
           <footer className="mt-8 pt-6 border-t border-border/60 text-center text-xs text-muted-foreground break-inside-avoid">
             <p>{formatDateCuritibaBR(new Date().toISOString())}</p>
             <p className="mt-1">
