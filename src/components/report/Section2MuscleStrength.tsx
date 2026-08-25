@@ -4,8 +4,8 @@ import { ReportTable, SectionBlock, type ReportRow } from './ReportTable'
 import { obj, fmt, hasData } from '@/lib/report-utils'
 import { getHandgripStatus, getChairStandStatus, calcPercent } from '@/lib/clinical-utils'
 import { ResumoSparkline } from '@/components/resumo/ResumoSparkline'
-import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
+import { Eyebrow, InlineNote, PlaceholderText } from './ReportTable'
 
 interface Props {
   assessment: Record<string, unknown>
@@ -169,40 +169,21 @@ export function Section2MuscleStrength({ assessment, patient, allAssessments }: 
 
         {hasResp ? (
           <div className="mt-4">
-            <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
-              Força Respiratória
-            </h4>
-            <ReportTable rows={respRows} />
+            <Eyebrow>Força Respiratória</Eyebrow>
+            <div className="mt-2">
+              <ReportTable rows={respRows} />
+            </div>
           </div>
         ) : null}
 
         {hasStrength && (
-          <div
-            className={cn(
-              'mt-4 border-l-4 rounded-r-lg p-4 text-sm font-medium break-inside-avoid',
-              isReduced
-                ? 'bg-amber-50 border-amber-400 text-amber-800 dark:bg-amber-950/20 dark:border-amber-700 dark:text-amber-400'
-                : 'bg-green-50 border-green-400 text-green-800 dark:bg-green-950/20 dark:border-green-700 dark:text-green-400',
-            )}
-          >
-            <p className="font-medium">
-              {isReduced
-                ? 'Força muscular reduzida segundo critérios EWGSOP2'
-                : 'Força muscular preservada'}
-            </p>
-          </div>
+          <InlineNote tone={isReduced ? 'watch' : 'normal'}>
+            {isReduced
+              ? 'Força muscular reduzida segundo critérios EWGSOP2'
+              : 'Força muscular preservada'}
+          </InlineNote>
         )}
       </SectionBlock>
-    </div>
-  )
-}
-
-function PlaceholderText() {
-  return (
-    <div className="bg-muted/30 rounded">
-      <p className="text-muted-foreground text-sm italic py-4 text-center">
-        Dados não coletados nesta avaliação
-      </p>
     </div>
   )
 }
