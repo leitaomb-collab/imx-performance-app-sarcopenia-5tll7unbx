@@ -4,7 +4,7 @@ import { ReportTable, SectionBlock, type ReportRow } from './ReportTable'
 import { obj, fmt, hasData } from '@/lib/report-utils'
 import { getSPPBStatus, getSPPBTotal, getTUGStatus } from '@/lib/clinical-utils'
 import { ResumoSparkline } from '@/components/resumo/ResumoSparkline'
-import { cn } from '@/lib/utils'
+import { Eyebrow, InlineNote, PlaceholderText } from './ReportTable'
 
 interface Props {
   assessment: Record<string, unknown>
@@ -119,55 +119,32 @@ export function Section4PhysicalPerformance({ assessment, allAssessments }: Prop
 
             {(ba.stabilometryEyesOpen || ba.stabilometryEyesClosed) && (
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                  Estabilometria
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="border border-border/60 rounded-lg p-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
-                      Olhos Abertos
-                    </p>
-                    <p className="text-sm">{ba.stabilometryEyesOpen || '-'}</p>
+                <Eyebrow>Estabilometria</Eyebrow>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                  <div className="border border-report-line rounded-[10px] p-3">
+                    <Eyebrow>Olhos Abertos</Eyebrow>
+                    <p className="text-sm text-report-ink mt-1">{ba.stabilometryEyesOpen || '—'}</p>
                   </div>
-                  <div className="border border-border/60 rounded-lg p-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
-                      Olhos Fechados
+                  <div className="border border-report-line rounded-[10px] p-3">
+                    <Eyebrow>Olhos Fechados</Eyebrow>
+                    <p className="text-sm text-report-ink mt-1">
+                      {ba.stabilometryEyesClosed || '—'}
                     </p>
-                    <p className="text-sm">{ba.stabilometryEyesClosed || '-'}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            <div
-              className={cn(
-                'mt-4 border-l-4 rounded-r-lg p-4 text-sm font-medium break-inside-avoid',
-                isReduced
-                  ? 'bg-amber-50 border-amber-400 text-amber-800 dark:bg-amber-950/20 dark:border-amber-700 dark:text-amber-400'
-                  : 'bg-green-50 border-green-400 text-green-800 dark:bg-green-950/20 dark:border-green-700 dark:text-green-400',
-              )}
-            >
-              <p className="font-medium">
-                {isReduced
-                  ? 'Performance física reduzida segundo critérios EWGSOP2'
-                  : 'Performance física preservada'}
-              </p>
-            </div>
+            <InlineNote tone={isReduced ? 'watch' : 'normal'}>
+              {isReduced
+                ? 'Performance física reduzida segundo critérios EWGSOP2'
+                : 'Performance física preservada'}
+            </InlineNote>
           </>
         ) : (
           <PlaceholderText />
         )}
       </SectionBlock>
-    </div>
-  )
-}
-
-function PlaceholderText() {
-  return (
-    <div className="bg-muted/30 rounded">
-      <p className="text-muted-foreground text-sm italic py-4 text-center">
-        Dados não coletados nesta avaliação
-      </p>
     </div>
   )
 }
