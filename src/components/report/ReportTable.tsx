@@ -186,29 +186,27 @@ export function DiagnosticPathway({ steps }: { steps: PathwayStep[] }) {
       {steps.map((step, i) => (
         <div
           key={i}
-          className={`flex items-center ${i === steps.length - 1 ? 'flex-none' : 'flex-1'}`}
+          className={`flex flex-col min-w-[84px] ${i === steps.length - 1 ? 'flex-none' : 'flex-1'}`}
         >
-          <div className="flex flex-col items-center gap-2 min-w-[84px]">
+          <div className="flex items-center w-full">
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center font-report-display font-semibold text-[0.75rem] shrink-0 ${dot[step.status]}`}
             >
               {glyph[step.status]}
             </div>
-            <div className="text-center">
-              <p className="text-[0.72rem] font-semibold text-report-ink leading-tight">
-                {step.label}
-              </p>
-              <p className="text-[0.66rem] text-report-ink-soft leading-tight">{step.sub}</p>
-            </div>
+            {i < steps.length - 1 && (
+              <div
+                className="flex-1 h-[2px]"
+                style={{ background: `linear-gradient(90deg, ${lineColor[step.status]}, #DEE4E2)` }}
+              />
+            )}
           </div>
-          {i < steps.length - 1 && (
-            <div
-              className="flex-1 h-[2px] -mt-7"
-              style={{
-                background: `linear-gradient(90deg, ${lineColor[step.status]}, #DEE4E2)`,
-              }}
-            />
-          )}
+          <div className="text-center mt-2 pr-1">
+            <p className="text-[0.72rem] font-semibold text-report-ink leading-tight">
+              {step.label}
+            </p>
+            <p className="text-[0.66rem] text-report-ink-soft leading-tight">{step.sub}</p>
+          </div>
         </div>
       ))}
     </div>
