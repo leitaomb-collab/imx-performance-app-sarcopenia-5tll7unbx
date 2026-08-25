@@ -9,8 +9,8 @@ import {
 } from '@/lib/clinical-utils'
 import { calculateIMC, getIMCCategory } from '@/lib/patient-utils'
 import { ResumoSparkline } from '@/components/resumo/ResumoSparkline'
-import { cn } from '@/lib/utils'
 import type { Patient } from '@/types'
+import { Eyebrow, InlineNote, PlaceholderText, StatusPill } from './ReportTable'
 
 interface Props {
   assessment: Record<string, unknown>
@@ -146,18 +146,18 @@ export function Section3MuscleMass({ assessment, patient, allAssessments }: Prop
         {hasMass ? (
           <>
             {bc.almi != null && (
-              <div className="mb-4 border border-border/60 rounded-lg p-4 break-inside-avoid">
+              <div className="mb-4 border border-report-line rounded-[10px] p-4 break-inside-avoid">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">
-                      ALMI (Índice de Massa Muscular Apendicular)
+                    <Eyebrow>ALMI (Índice de Massa Muscular Apendicular)</Eyebrow>
+                    <p className="font-report-mono font-semibold text-[1.7rem] leading-none text-report-ink mt-2">
+                      {fmt(bc.almi, 'kg/m²')}
                     </p>
-                    <p className="text-2xl font-bold tabular-nums">{fmt(bc.almi, 'kg/m²')}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Referência: {almiRef}</p>
+                    <p className="text-[0.7rem] text-report-ink-soft mt-2">Referência: {almiRef}</p>
                   </div>
                   {allAssessments && (
                     <div className="flex flex-col items-end">
-                      <span className="text-[10px] text-muted-foreground uppercase font-medium mb-1">
+                      <span className="text-[10px] text-report-ink-soft uppercase font-medium mb-1">
                         Evolução
                       </span>
                       <ResumoSparkline values={almiHist} />
@@ -165,15 +165,13 @@ export function Section3MuscleMass({ assessment, patient, allAssessments }: Prop
                   )}
                 </div>
                 {almiStatus && (
-                  <span
-                    className={cn(
-                      'mt-2 inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-bold rounded-full',
-                      almiStatus === 'normal' ? 'clinical-badge-normal' : 'clinical-badge-reduced',
-                    )}
-                  >
+                  <div className="mt-2 inline-flex items-center gap-1.5">
                     {getTrendIcon(almiHist, true)}
-                    {almiStatus === 'normal' ? 'Normal' : 'Reduzida'}
-                  </span>
+                    <StatusPill
+                      tone={almiStatus === 'normal' ? 'normal' : 'low'}
+                      text={almiStatus === 'normal' ? 'Normal' : 'Reduzida'}
+                    />
+                  </div>
                 )}
               </div>
             )}
@@ -182,42 +180,23 @@ export function Section3MuscleMass({ assessment, patient, allAssessments }: Prop
 
             {hasAnth && (
               <div className="mt-4">
-                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                  Antropometria
-                </h4>
-                <ReportTable rows={anthRows} />
+                <Eyebrow>Antropometria</Eyebrow>
+                <div className="mt-2">
+                  <ReportTable rows={anthRows} />
+                </div>
               </div>
             )}
 
-            <div
-              className={cn(
-                'mt-4 border-l-4 rounded-r-lg p-4 text-sm font-medium break-inside-avoid',
-                isReduced
-                  ? 'bg-amber-50 border-amber-400 text-amber-800 dark:bg-amber-950/20 dark:border-amber-700 dark:text-amber-400'
-                  : 'bg-green-50 border-green-400 text-green-800 dark:bg-green-950/20 dark:border-green-700 dark:text-green-400',
-              )}
-            >
-              <p className="font-medium">
-                {isReduced
-                  ? 'Massa muscular reduzida segundo critérios EWGSOP2'
-                  : 'Massa muscular preservada'}
-              </p>
-            </div>
+            <InlineNote tone={isReduced ? 'watch' : 'normal'}>
+              {isReduced
+                ? 'Massa muscular reduzida segundo critérios EWGSOP2'
+                : 'Massa muscular preservada'}
+            </InlineNote>
           </>
         ) : (
           <PlaceholderText />
         )}
       </SectionBlock>
-    </div>
-  )
-}
-
-function PlaceholderText() {
-  return (
-    <div className="bg-muted/30 rounded">
-      <p className="text-muted-foreground text-sm italic py-4 text-center">
-        Dados não coletados nesta avaliação
-      </p>
     </div>
   )
 }
